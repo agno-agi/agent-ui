@@ -130,9 +130,9 @@ const TechStackTag = () => {
           height="28"
           rx="8"
           fill="#FAFAFA"
-          shape-rendering="crispEdges"
+          shapeRendering="crispEdges"
         />
-        <g clip-path="url(#clip0_2859_5306)">
+        <g clipPath="url(#clip0_2859_5306)">
           <rect
             width="20"
             height="20"
@@ -153,9 +153,9 @@ const TechStackTag = () => {
           height="28"
           rx="8"
           fill="#FAFAFA"
-          shape-rendering="crispEdges"
+          shapeRendering="crispEdges"
         />
-        <g clip-path="url(#clip1_2859_5306)">
+        <g clipPath="url(#clip1_2859_5306)">
           <path
             d="M47.6167 6H37.6167C34.8553 6 32.6167 8.23858 32.6167 11V21C32.6167 23.7614 34.8553 26 37.6167 26H47.6167C50.3781 26 52.6167 23.7614 52.6167 21V11C52.6167 8.23858 50.3781 6 47.6167 6Z"
             fill="url(#pattern0_2859_5306)"
@@ -170,7 +170,7 @@ const TechStackTag = () => {
           height="28"
           rx="8"
           fill="#FAFAFA"
-          shape-rendering="crispEdges"
+          shapeRendering="crispEdges"
         />
         <rect x="48.6167" y="6" width="20" height="20" rx="5" fill="#18181B" />
         <mask
@@ -188,8 +188,8 @@ const TechStackTag = () => {
         </mask>
         <g mask="url(#mask0_2859_5306)">
           <path
-            fill-rule="evenodd"
-            clip-rule="evenodd"
+            fillRule="evenodd"
+            clipRule="evenodd"
             d="M58.6167 12.3999C57.0167 12.3999 56.0167 13.1999 55.6167 14.7999C56.2167 13.9999 56.9167 13.6999 57.7167 13.8999C58.1731 14.0139 58.4994 14.3452 58.8605 14.7117C59.4487 15.3088 60.1296 15.9999 61.6167 15.9999C63.2167 15.9999 64.2167 15.1999 64.6167 13.5999C64.0167 14.3999 63.3167 14.6999 62.5167 14.4999C62.0603 14.3859 61.734 14.0546 61.3729 13.6881C60.7847 13.091 60.1038 12.3999 58.6167 12.3999ZM55.6167 15.9999C54.0167 15.9999 53.0167 16.7999 52.6167 18.3999C53.2167 17.5999 53.9167 17.2999 54.7167 17.4999C55.1731 17.6141 55.4994 17.9452 55.8605 18.3117C56.4487 18.9088 57.1296 19.5999 58.6167 19.5999C60.2167 19.5999 61.2167 18.7999 61.6167 17.1999C61.0167 17.9999 60.3167 18.2999 59.5167 18.0999C59.0603 17.9859 58.734 17.6546 58.3729 17.2881C57.7847 16.691 57.1038 15.9999 55.6167 15.9999Z"
             fill="#FAFAFA"
           />
@@ -203,9 +203,9 @@ const TechStackTag = () => {
           width="52"
           height="52"
           filterUnits="userSpaceOnUse"
-          color-interpolation-filters="sRGB"
+          colorInterpolationFilters="sRGB"
         >
-          <feFlood flood-opacity="0" result="BackgroundImageFix" />
+          <feFlood floodOpacity="0" result="BackgroundImageFix" />
           <feColorMatrix
             in="SourceAlpha"
             type="matrix"
@@ -268,9 +268,9 @@ const TechStackTag = () => {
           width="52"
           height="52"
           filterUnits="userSpaceOnUse"
-          color-interpolation-filters="sRGB"
+          colorInterpolationFilters="sRGB"
         >
-          <feFlood flood-opacity="0" result="BackgroundImageFix" />
+          <feFlood floodOpacity="0" result="BackgroundImageFix" />
           <feColorMatrix
             in="SourceAlpha"
             type="matrix"
@@ -341,9 +341,9 @@ const TechStackTag = () => {
           width="52"
           height="52"
           filterUnits="userSpaceOnUse"
-          color-interpolation-filters="sRGB"
+          colorInterpolationFilters="sRGB"
         >
-          <feFlood flood-opacity="0" result="BackgroundImageFix" />
+          <feFlood floodOpacity="0" result="BackgroundImageFix" />
           <feColorMatrix
             in="SourceAlpha"
             type="matrix"
