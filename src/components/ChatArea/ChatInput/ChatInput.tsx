@@ -7,14 +7,10 @@ import { usePlaygroundStore } from "@/stores/PlaygroundStore";
 import useAIChatStreamHandler from "@/hooks/playground/useAIStreamHandler";
 import { SendIcon } from "lucide-react";
 import { useQueryState } from "nuqs";
-// import { useAgentsQuery } from '@/hooks/playground/useAgentsQuery'
+
 const ChatInput = () => {
   const { chatInputRef } = usePlaygroundStore();
 
-  // const [selectedAgent] = useQueryState('agent')
-  // const [selectedEndpoint] = useQueryState('endpoint')
-
-  // const { data: agents = [] } = useAgentsQuery(selectedEndpoint)
   const { handleStreamResponse } = useAIChatStreamHandler();
   const [selectedAgent] = useQueryState("agent");
   const setStreamingError = usePlaygroundStore(
@@ -25,11 +21,6 @@ const ChatInput = () => {
 
   const handleSubmit = async () => {
     if (!inputMessage.trim()) return;
-
-    // if (!selectedEndpoint || !selectedAgent) {
-    // toast.error('No endpoint or agent selected')
-    // return
-    // }
 
     if (streamingError) {
       setStreamingError(false);

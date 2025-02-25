@@ -1,8 +1,3 @@
-// import Reasonings from '@/components/common/Chat/Reasoning/Reasonings/Reasonings'
-// import References from '@/components/common/Chat/References'
-// import Icon from '@/components/ui/icon'
-//   import DetailAction from '@/components/common/Chat/DetailAction'
-
 import type { PlaygroundChatMessage } from "@/types/playground";
 
 import { AgentMessage, UserMessage } from "./Messages";
@@ -16,9 +11,6 @@ import {
 } from "@/types/playground";
 import React, { type FC } from "react";
 import { ChatBlankState } from "./ChatBlankState";
-// import Tooltip from '@/components/common/Tooltip'
-// import Paragraph from '@/components/ui/typography/Paragraph'
-// import { ToolComponent } from '@/components/common/Chat/Tools/ToolsContent'
 
 interface MessageListProps {
   messages: PlaygroundChatMessage[];
@@ -73,9 +65,6 @@ const AgentMessageWrapper = ({ message }: MessageWrapperProps) => {
         </div>
       )}
       <AgentMessage message={message} />
-      {/* {!messageIsStreaming && message.content && (
-        <DetailAction copy content={message.content} />
-      )} */}
     </div>
   );
 };

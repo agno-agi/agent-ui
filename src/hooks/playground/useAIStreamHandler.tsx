@@ -1,8 +1,5 @@
 import { useCallback } from "react";
 
-// import { useQueryState } from 'nuqs'
-// import { toast } from 'sonner'
-
 import { APIRoutes } from "@/api/routes";
 
 import useChatActions from "@/hooks/playground/useChatActions";
@@ -19,10 +16,6 @@ import { toast } from "sonner";
  * For now, it only streams message content and updates the messages state.
  */
 const useAIChatStreamHandler = () => {
-  // The following are commented out until needed:
-  // const isMonitoring = usePlaygroundStore((s) => s.isMonitoring)
-  // const username = useUser()?.username
-  // const setHistoryData = usePlaygroundStore((s) => s.setHistoryData)
   const setMessages = usePlaygroundStore((state) => state.setMessages);
   const setStreamingError = usePlaygroundStore(
     (state) => state.setStreamingError,
@@ -32,13 +25,8 @@ const useAIChatStreamHandler = () => {
   const selectedEndpoint = usePlaygroundStore(
     (state) => state.selectedEndpoint,
   );
-  // const [sessionId, setSessionId] = useQueryState('session')
+
   const { streamResponse } = useAIResponseStream();
-  // const setStreamingError = usePlaygroundStore((s) => s.setStreamingError)
-  // const setIsStreaming = usePlaygroundStore((s) => s.setIsStreaming)
-  // const params = useParams<DefaultPageParams>()
-  // const teamURL = params.account !== username ? params.account : undefined
-  // const userId = teamURL ? `${username}__${teamURL}` : username
 
   const handleStreamResponse = useCallback(
     async (input: string | FormData) => {
