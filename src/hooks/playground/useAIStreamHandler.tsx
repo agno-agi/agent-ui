@@ -144,15 +144,25 @@ const useAIChatStreamHandler = () => {
                   //       references: chunk.extra_data.references
                   //     }
                   //   }
-                  //   if (chunk.images) {
-                  //     lastMessage.images = chunk.images
-                  //   }
-                  //   if (chunk.videos) {
-                  //     lastMessage.videos = chunk.videos
-                  //   }
-                  //   if (chunk.audio) {
-                  //     lastMessage.audio = chunk.audio
-                  //   }
+                    if (chunk.images) {
+                      lastMessage.images = chunk.images
+                    }
+                    if (chunk.videos) {
+                      lastMessage.videos = chunk.videos
+                    }
+                    if (chunk.audio) {
+                      lastMessage.audio = chunk.audio
+                    }
+                }else if (
+                  chunk.response_audio?.transcript &&
+                  typeof chunk.response_audio?.transcript === 'string'
+                ) {
+                  const transcript = chunk.response_audio.transcript
+                  lastMessage.response_audio = {
+                    ...lastMessage.response_audio,
+                    transcript:
+                      lastMessage.response_audio?.transcript + transcript
+                  }
                 }
                 return newMessages;
               });
@@ -181,8 +191,10 @@ const useAIChatStreamHandler = () => {
                         chunk.tools && chunk.tools.length > 0
                           ? [...chunk.tools]
                           : message.tool_calls,
-                      //   images: chunk.images ?? message.images,
-                      //   videos: chunk.videos ?? message.videos,
+                      images: chunk.images ?? message.images,
+                      videos: chunk.videos ?? message.videos,
+                      // audio: chunk.audio ?? message.audio,
+                      response_audio: chunk.response_audio,
                       created_at: chunk.created_at ?? message.created_at,
                       extra_data: {
                         //     ...message.extra_data,

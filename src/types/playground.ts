@@ -72,7 +72,13 @@ export enum RunEvent {
   ReasoningStep = "ReasoningStep",
   ReasoningCompleted = "ReasoningCompleted",
 }
-
+export interface ResponseAudio {
+  id?: string
+  content?: string
+  transcript?: string
+  channels?: number
+  sample_rate?: number
+}
 export interface RunResponse {
   content?: string | object;
   content_type: string;
@@ -88,6 +94,10 @@ export interface RunResponse {
   created_at: number;
   tools?: ToolCall[];
   extra_data?: PlaygroundAgentExtraData;
+  images?: ImageData[]
+  videos?: VideoData[]
+  audio?: AudioData[]
+  response_audio?: ResponseAudio
 }
 
 export interface AgentExtraData {
@@ -122,6 +132,11 @@ export interface PlaygroundChatMessage {
     reasoning_steps?: ReasoningSteps[];
     reasoning_messages?: ReasoningMessage[];
   };
+  images?: ImageData[]
+  videos?: VideoData[]
+  audio?: AudioData[]
+  response_audio?: ResponseAudio
+
 }
 
 export interface HistoryEntry {
@@ -149,4 +164,25 @@ export interface Agent {
   // knowledge: Knowledge
   memory: string | null;
   instructions: string[] | null;
+}
+
+export interface ImageData {
+  revised_prompt: string
+  url: string
+}
+
+export interface VideoData {
+  id: number
+  eta: number
+  url: string
+}
+
+export interface AudioData {
+  base64_audio?: string
+  mime_type?: string
+  url?: string
+  id?: string
+  content?: string
+  channels?: number
+  sample_rate?: number
 }
