@@ -73,11 +73,11 @@ export enum RunEvent {
   ReasoningCompleted = "ReasoningCompleted",
 }
 export interface ResponseAudio {
-  id?: string
-  content?: string
-  transcript?: string
-  channels?: number
-  sample_rate?: number
+  id?: string;
+  content?: string;
+  transcript?: string;
+  channels?: number;
+  sample_rate?: number;
 }
 export interface RunResponse {
   content?: string | object;
@@ -94,10 +94,10 @@ export interface RunResponse {
   created_at: number;
   tools?: ToolCall[];
   extra_data?: PlaygroundAgentExtraData;
-  images?: ImageData[]
-  videos?: VideoData[]
-  audio?: AudioData[]
-  response_audio?: ResponseAudio
+  images?: ImageData[];
+  videos?: VideoData[];
+  audio?: AudioData[];
+  response_audio?: ResponseAudio;
 }
 
 export interface AgentExtraData {
@@ -132,11 +132,10 @@ export interface PlaygroundChatMessage {
     reasoning_steps?: ReasoningSteps[];
     reasoning_messages?: ReasoningMessage[];
   };
-  images?: ImageData[]
-  videos?: VideoData[]
-  audio?: AudioData[]
-  response_audio?: ResponseAudio
-
+  images?: ImageData[];
+  videos?: VideoData[];
+  audio?: AudioData[];
+  response_audio?: ResponseAudio;
 }
 
 export interface HistoryEntry {
@@ -167,22 +166,22 @@ export interface Agent {
 }
 
 export interface ImageData {
-  revised_prompt: string
-  url: string
+  revised_prompt: string;
+  url: string;
 }
 
 export interface VideoData {
-  id: number
-  eta: number
-  url: string
+  id: number;
+  eta: number;
+  url: string;
 }
 
 export interface AudioData {
-  base64_audio?: string
-  mime_type?: string
-  url?: string
-  id?: string
-  content?: string
-  channels?: number
-  sample_rate?: number
+  base64_audio?: string;
+  mime_type?: string;
+  url?: string;
+  id?: string;
+  content?: string;
+  channels?: number;
+  sample_rate?: number;
 }

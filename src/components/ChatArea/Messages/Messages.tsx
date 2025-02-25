@@ -31,14 +31,14 @@ export const AgentMessage = ({ message }: MessageProps) => {
         )}
       </div>
     );
-  }else if (message.response_audio) {
+  } else if (message.response_audio) {
     if (!message.response_audio.transcript) {
       messageContent = (
         <div className="mt-2 flex items-start">
           {/* <AgentThinkingLoader /> */}
           thinking...
         </div>
-      )
+      );
     } else {
       messageContent = (
         <div className="flex w-full flex-col gap-4">
@@ -49,7 +49,7 @@ export const AgentMessage = ({ message }: MessageProps) => {
             <Audios audio={[message.response_audio]} />
           )}
         </div>
-      )
+      );
     }
   } else if (streamingError) {
     messageContent = (

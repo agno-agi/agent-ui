@@ -6,8 +6,8 @@ import { cn } from "@/utils/cn";
 const Images = ({ images }: { images: ImageData[] }) => (
   <div
     className={cn(
-      'grid max-w-xl gap-4',
-      images.length > 1 ? 'grid-cols-2' : 'grid-cols-1'
+      "grid max-w-xl gap-4",
+      images.length > 1 ? "grid-cols-2" : "grid-cols-1",
     )}
   >
     {images.map((image) => (
@@ -15,10 +15,10 @@ const Images = ({ images }: { images: ImageData[] }) => (
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={image.url}
-          alt={image.revised_prompt || 'AI generated image'}
+          alt={image.revised_prompt || "AI generated image"}
           className="w-full rounded-lg"
           onError={(e) => {
-            const parent = e.currentTarget.parentElement
+            const parent = e.currentTarget.parentElement;
             if (parent) {
               parent.innerHTML = `
                     <div class="flex h-40 flex-col items-center justify-center gap-2 rounded-md bg-secondary/50 text-muted" >
@@ -27,7 +27,7 @@ const Images = ({ images }: { images: ImageData[] }) => (
                         ${image.url}
                       </a>
                     </div>
-                  `
+                  `;
             }
           }}
         />
@@ -39,8 +39,8 @@ const Images = ({ images }: { images: ImageData[] }) => (
       </div>
     ))}
   </div>
-)
+);
 
-export default memo(Images)
+export default memo(Images);
 
-Images.displayName = 'Images'
+Images.displayName = "Images";

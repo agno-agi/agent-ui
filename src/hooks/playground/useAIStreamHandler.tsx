@@ -144,25 +144,25 @@ const useAIChatStreamHandler = () => {
                   //       references: chunk.extra_data.references
                   //     }
                   //   }
-                    if (chunk.images) {
-                      lastMessage.images = chunk.images
-                    }
-                    if (chunk.videos) {
-                      lastMessage.videos = chunk.videos
-                    }
-                    if (chunk.audio) {
-                      lastMessage.audio = chunk.audio
-                    }
-                }else if (
+                  if (chunk.images) {
+                    lastMessage.images = chunk.images;
+                  }
+                  if (chunk.videos) {
+                    lastMessage.videos = chunk.videos;
+                  }
+                  if (chunk.audio) {
+                    lastMessage.audio = chunk.audio;
+                  }
+                } else if (
                   chunk.response_audio?.transcript &&
-                  typeof chunk.response_audio?.transcript === 'string'
+                  typeof chunk.response_audio?.transcript === "string"
                 ) {
-                  const transcript = chunk.response_audio.transcript
+                  const transcript = chunk.response_audio.transcript;
                   lastMessage.response_audio = {
                     ...lastMessage.response_audio,
                     transcript:
-                      lastMessage.response_audio?.transcript + transcript
-                  }
+                      lastMessage.response_audio?.transcript + transcript,
+                  };
                 }
                 return newMessages;
               });
