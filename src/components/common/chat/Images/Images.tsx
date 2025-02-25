@@ -32,7 +32,7 @@ const Images = ({ images }: { images: ImageData[] }) => (
           }}
         />
         {image.revised_prompt && (
-          <div className="text-dmmono absolute inset-x-0 bottom-0 rounded-b-lg bg-secondary/80 p-2 font-dmmono text-xs text-primary opacity-0 transition-opacity group-hover:opacity-100">
+          <div className="text-dmmono absolute inset-x-0 bottom-0 rounded-b-lg bg-secondary/80 p-2 font-dmmono text-xs text-gray-600 opacity-0 transition-opacity group-hover:opacity-100">
             {image.revised_prompt}
           </div>
         )}
