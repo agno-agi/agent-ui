@@ -8,7 +8,6 @@ import Audios from "./Multimedia/Audios";
 import { memo } from "react";
 import AgentThinkingLoader from "./AgentThinkingLoader";
 
-
 interface MessageProps {
   message: PlaygroundChatMessage;
 }
