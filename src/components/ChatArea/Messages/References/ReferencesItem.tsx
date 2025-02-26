@@ -1,10 +1,10 @@
 import React, { type FC } from 'react'
 
 import Paragraph from '@/components/ui/typography/Paragraph'
-import { type ReferencesData } from '@/types/Agent'
+import { type ReferencesData } from './types'
 
-import DetailsDialog from '../InfoDetails/DetailsDialog'
-import InfoDetailTool from '../InfoDetails/InfoDetailTool'
+import DetailsDialog from '@/components/common/InfoDetails/InfoDetails'
+import InfoDetailTool from '@/components/common/InfoDetails/InfoDetailTool'
 
 interface ReferencesItemProps {
   references: ReferencesData

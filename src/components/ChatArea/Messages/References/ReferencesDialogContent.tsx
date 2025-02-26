@@ -1,7 +1,8 @@
 import React from 'react'
 import { type ReferencesDocsData } from './types'
-import { isEmpty } from '@/utils/object'
-import InfoDetails from '../InfoDetails/InfoDetails'
+import InfoDetails from '@/components/common/InfoDetails/InfoDetails'
+
+const isEmpty = (obj: object) => Object.keys(obj).length === 0
 
 const ContextDialogContent = ({ doc }: { doc: ReferencesDocsData }) => (
   <div className="flex flex-col gap-y-4">
