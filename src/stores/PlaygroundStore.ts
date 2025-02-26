@@ -103,7 +103,7 @@ export const usePlaygroundStore = create<PlaygroundStore>((set) => ({
   //   setIsMonitoring: (isMonitoring) => set(() => ({ isMonitoring })),
 
   chatInputRef: { current: null },
-  selectedEndpoint: "http://localhost:7777",
+  selectedEndpoint: process.env.NEXT_PUBLIC_BASE_URL || "",
   setSelectedEndpoint: (selectedEndpoint) => set(() => ({ selectedEndpoint })),
 
   agents: [],
