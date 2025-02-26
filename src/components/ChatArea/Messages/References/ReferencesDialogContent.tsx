@@ -1,5 +1,5 @@
 import React from 'react'
-import { type ReferencesDocsData } from '@/types/Agent'
+import { type ReferencesDocsData } from './types'
 import { isEmpty } from '@/utils/object'
 import InfoDetails from '../InfoDetails/InfoDetails'
 
