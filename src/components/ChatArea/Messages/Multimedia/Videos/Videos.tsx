@@ -41,7 +41,6 @@ const VideoItem = memo(({ video }: { video: VideoData }) => {
   return (
     <div>
       <div className="group relative w-full max-w-xl">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
         <video
           src={videoUrl}
           autoPlay

@@ -1,4 +1,6 @@
 import type { Config } from "tailwindcss";
+import tailwindcssAnimate from "tailwindcss-animate";
+
 export default {
   darkMode: ["class"],
   content: [
@@ -27,7 +29,10 @@ export default {
         geist: "var(--font-geist-sans)",
         dmmono: "var(--font-dm-mono)",
       },
+      borderRadius: {
+        xl: "10px",
+      },
     },
   },
-  plugins: [require("tailwindcss-animate")],
+  plugins: [tailwindcssAnimate],
 } satisfies Config;

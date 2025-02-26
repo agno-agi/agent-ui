@@ -181,7 +181,6 @@ const Img = ({ src, alt }: ImgProps) => {
   );
 };
 
-// eslint-disable-next-line import/prefer-default-export
 export const inlineComponents = {
   h1: Heading1,
   h2: Heading2,

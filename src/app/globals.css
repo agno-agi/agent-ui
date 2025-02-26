@@ -2,12 +2,8 @@
 @tailwind components;
 @tailwind utilities;
 
-body {
-  font-family: "Geist Mono", monospace;
-}
-
 @layer base {
   body {
-    @apply bg-primaryAccent text-secondary;
+    @apply bg-background/80 text-secondary;
   }
 }
