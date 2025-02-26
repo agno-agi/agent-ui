@@ -5,7 +5,7 @@ import Paragraph from '@/components/ui/typography/Paragraph'
 import { cn } from '@/utils/cn'
 
 import Code from '../../Code'
-import { type ToolProps } from '../Tools/type'
+import  type ToolProps  from '@/components/ChatArea/Messages/Tools'
 
 const InfoDetails: FC<ToolProps> = ({ content, icon, title, hover }) => (
   <div className="flex w-full flex-col gap-y-2">
