@@ -1,6 +1,6 @@
 import { type ReactNode } from 'react'
 
-import ToolsContent from '@/components/common/Chat/Tools'
+import ToolsContent from '@/components/ChatArea/Messages/Tools'
 import Paragraph from '@/components/ui/typography/Paragraph'
 import {
   Dialog,
@@ -12,13 +12,14 @@ import {
 import {
   type ReferencesData,
   type ReferencesDocsData,
-  type Message
-} from '@/types/Agent'
+} from '@/components/ChatArea/Messages/References/types'
 
-import ReferencesDialogContent from '../References/ReferencesDialogContent'
+import { type ModelMessage } from '@/types/playground'
+
+import ReferencesDialogContent from '@/components/ChatArea/Messages/References/ReferencesDialogContent'
 
 interface DetailsDialogProps {
-  tools?: Message
+  tools?: ModelMessage
   references?: ReferencesData
   referencesDoc?: ReferencesDocsData
   children: ReactNode

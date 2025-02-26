@@ -30,7 +30,7 @@ export interface ReasoningProps {
 export type ToolCallProps = {
   tools: ToolCall;
 };
-interface ModelMessage {
+export interface ModelMessage {
   content: string | null;
   context?: MessageContext[];
   created_at: number;
