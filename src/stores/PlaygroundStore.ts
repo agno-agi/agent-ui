@@ -4,7 +4,6 @@ import {
   //   type HistoryEntry,
   type PlaygroundChatMessage,
 } from "@/types/playground";
-import { env } from "@/utils/env";
 interface Agent {
   value: string;
   label: string;
@@ -103,7 +102,7 @@ export const usePlaygroundStore = create<PlaygroundStore>((set) => ({
   //   setIsMonitoring: (isMonitoring) => set(() => ({ isMonitoring })),
 
   chatInputRef: { current: null },
-  selectedEndpoint: env.NEXT_PUBLIC_BASE_URL,
+  selectedEndpoint: process.env.NEXT_PUBLIC_BASE_URL || "",
   setSelectedEndpoint: (selectedEndpoint) => set(() => ({ selectedEndpoint })),
 
   agents: [],
