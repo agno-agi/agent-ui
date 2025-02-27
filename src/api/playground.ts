@@ -2,16 +2,9 @@ import { toast } from "sonner";
 
 import { APIRoutes } from "./routes";
 
-import { Agent } from "@/types/playground";
+import { Agent, ComboboxAgent } from "@/types/playground";
 
 // Define a local type to shape the agent data for the combobox.
-interface ComboboxAgent {
-  value: string;
-  label: string;
-  model: {
-    provider: string;
-  };
-}
 
 export const getPlaygroundAgentsAPI = async (
   endpoint: string,

@@ -165,6 +165,13 @@ export interface Agent {
   instructions: string[] | null;
 }
 
+export interface ComboboxAgent {
+  value: string;
+  label: string;
+  model: {
+    provider: string;
+  };
+}
 export interface ImageData {
   revised_prompt: string;
   url: string;

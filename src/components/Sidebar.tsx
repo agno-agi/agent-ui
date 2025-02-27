@@ -52,6 +52,7 @@ const Endpoint = () => {
   const [endpointValue, setEndpointValue] = useState("");
   const [isMounted, setIsMounted] = useState(false);
   const [isHovering, setIsHovering] = useState(false);
+  const [isRotating, setIsRotating] = useState(false);
 
   useEffect(() => {
     setEndpointValue(selectedEndpoint);
@@ -67,6 +68,26 @@ const Endpoint = () => {
     setIsHovering(false);
   };
 
+  const handleCancel = () => {
+    setEndpointValue(selectedEndpoint);
+    setIsEditing(false);
+    setIsHovering(false);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      handleSave();
+    } else if (e.key === "Escape") {
+      handleCancel();
+    }
+  };
+
+  const handleRefresh = async () => {
+    setIsRotating(true);
+    await loadData();
+    setTimeout(() => setIsRotating(false), 500);
+  };
+
   return (
     <div className="flex flex-col items-start gap-2">
       <div className="uppercase text-xs font-medium text-primary">Endpoint</div>
@@ -76,6 +97,7 @@ const Endpoint = () => {
             type="text"
             value={endpointValue}
             onChange={(e) => setEndpointValue(e.target.value)}
+            onKeyDown={handleKeyDown}
             className="flex w-full items-center border-primary/15 border bg-accent rounded-xl p-3 h-9 text-xs font-medium text-muted"
             autoFocus
           />
@@ -89,7 +111,7 @@ const Endpoint = () => {
           </Button>
         </div>
       ) : (
-        <div className="flex w-full items-center">
+        <div className="flex w-full items-center gap-1">
           <motion.div
             className="flex w-full items-center justify-between border-primary/15 border bg-accent rounded-xl uppercase p-3 h-9 relative cursor-pointer"
             onMouseEnter={() => setIsHovering(true)}
@@ -133,10 +155,17 @@ const Endpoint = () => {
           <Button
             variant="ghost"
             size="icon"
-            onClick={loadData}
+            onClick={handleRefresh}
             className="hover:bg-transparent hover:cursor-pointer"
           >
-            <Icon type="refresh" size="xs" />
+            <Icon  />
+            <motion.div
+              key={isRotating ? "rotating" : "idle"}
+              animate={{ rotate: isRotating ? 360 : 0 }}
+              transition={{ duration: 0.5, ease: "easeInOut" }}
+            >
+              <Icon type="refresh" size="xs"/>
+            </motion.div>
           </Button>
         </div>
       )}
