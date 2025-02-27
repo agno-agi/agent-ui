@@ -1,6 +1,6 @@
 "use client";
 import { Button } from "../ui/button";
-import { PlusIcon } from "@radix-ui/react-icons";
+import Icon from "../ui/icon";
 import useChatActions from "@/hooks/playground/useChatActions";
 import { usePlaygroundStore } from "@/stores/PlaygroundStore";
 
@@ -14,7 +14,8 @@ function NewChatButton() {
       disabled={messages.length === 0}
     >
       <div className="flex items-center gap-2">
-        <p>New Chat</p> <PlusIcon />
+        <p>New Chat</p>{" "}
+        <Icon type="plus-icon" size="xs" className="text-background" />
       </div>
     </Button>
   );

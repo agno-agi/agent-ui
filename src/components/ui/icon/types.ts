@@ -32,7 +32,8 @@ export type IconType =
   | "brain-circuit"
   | "check"
   | "chevron-down"
-  | "chevron-up";
+  | "chevron-up"
+  | "plus-icon";
 
 export interface IconProps {
   type: IconType;

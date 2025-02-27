@@ -1,6 +1,5 @@
 "use client";
 import { Button } from "@/components/ui/button";
-import { PlusIcon } from "@radix-ui/react-icons";
 import { AgentSelector } from "@/components/AgentSelector";
 import useChatActions from "@/hooks/playground/useChatActions";
 import { usePlaygroundStore } from "@/stores/PlaygroundStore";
@@ -29,7 +28,7 @@ const NewChatButton = ({
     size="lg"
     className="bg-primary h-9 text-background hover:bg-primary/80 rounded-xl text-xs font-medium w-full"
   >
-    <PlusIcon />
+    <Icon type="plus-icon" size="xs" className="text-background" />
     <span className="uppercase">New Chat</span>
   </Button>
 );
