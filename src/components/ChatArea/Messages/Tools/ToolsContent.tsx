@@ -2,13 +2,14 @@ import React, { memo, type FC } from 'react'
 
 import { type ToolsProps } from './type'
 
-import InfoDetails from '../InfoDetails/InfoDetails'
+import InfoDetails from '@/components/common/InfoDetails/InfoDetails'
 
-import { isEmpty } from '@/utils/object'
-import DetailAction from '@/components/common/Chat/DetailAction'
+// import DetailAction from '@/components/ChatArea/Messages/DetailAction'
 import { ToolCallProps } from '@/types/playground'
-import DetailsDialog from '../InfoDetails/DetailsDialog'
-import InfoDetailTool from '../InfoDetails/InfoDetailTool'
+import DetailsDialog from '@/components/common/InfoDetails/DetailsDialog'
+import InfoDetailTool from '@/components/common/InfoDetails/InfoDetailTool'
+
+const isEmpty = (obj: object) => Object.keys(obj).length === 0
 
 export const ToolComponent = memo(({ tools }: ToolCallProps) => (
   <div className="cursor-pointer rounded-sm bg-secondary px-2 py-0.5 text-xs hover:bg-primary/10">
@@ -77,7 +78,7 @@ const ToolsContent: FC<ToolsProps> = ({ tools, hover = true }) => (
       />
     )}
 
-    {tools.role === 'assistant' && <DetailAction copy={false} />}
+    {/* {tools.role === 'assistant' && <DetailAction copy={false} />} */}
   </div>
 )
 
