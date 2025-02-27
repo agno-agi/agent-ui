@@ -69,7 +69,7 @@ const AgentMessageWrapper = ({ message }: MessageWrapperProps) => {
               content={<p className="text-accent">Reasoning</p>}
               side="top"
             >
-              <Icon type="reasoning" size="xs" />
+              <Icon type="reasoning" size="sm" />
             </Tooltip>
             <div className="flex flex-col gap-3">
               <p className="text-xs uppercase">Reasoning</p>
@@ -85,7 +85,7 @@ const AgentMessageWrapper = ({ message }: MessageWrapperProps) => {
               content={<p className="text-accent">References</p>}
               side="top"
             >
-              <Icon type="references" size="xs" />
+              <Icon type="references" size="sm" />
             </Tooltip>
             <div className="flex flex-col gap-3">
               <References references={message.extra_data.references} />
@@ -100,7 +100,7 @@ const AgentMessageWrapper = ({ message }: MessageWrapperProps) => {
             side="top"
             className="bg-background p-1 rounded-lg"
           >
-            <Icon type="hammer" size="xs" color="primary/80" />
+            <Icon type="hammer" size="sm" color="primary/80" />
           </Tooltip>
 
           <div className="flex flex-wrap gap-2">
