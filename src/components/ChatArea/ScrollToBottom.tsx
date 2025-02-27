@@ -6,7 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useStickToBottomContext } from "use-stick-to-bottom";
 
 import { Button } from "@/components/ui/button";
-import { ArrowDown } from "lucide-react";
+import Icon from "../ui/icon";
 
 const ScrollToBottomButton: React.FC = () => {
   const { isAtBottom, scrollToBottom } = useStickToBottomContext();
@@ -28,7 +28,7 @@ const ScrollToBottomButton: React.FC = () => {
             variant="secondary"
             className="shadow-md transition-shadow duration-300 bg-background text-primary border border-border hover:bg-background-secondary"
           >
-            <ArrowDown size={16} />
+            <Icon type="arrow-down" size='xs' />
           </Button>
         </motion.div>
       )}

@@ -5,7 +5,7 @@ import { memo } from "react";
 import { toast } from "sonner";
 
 import { type VideoData } from "@/types/playground";
-import { Download } from "lucide-react";
+import Icon from "@/components/ui/icon";
 
 const VideoItem = memo(({ video }: { video: VideoData }) => {
   const videoUrl = video.url;
@@ -57,7 +57,7 @@ const VideoItem = memo(({ video }: { video: VideoData }) => {
           className="absolute right-2 top-2 flex items-center justify-center rounded-sm bg-secondary/80 p-1.5 opacity-0 transition-opacity duration-200 hover:bg-secondary group-hover:opacity-100"
           aria-label="Download GIF"
         >
-          <Download size={16} />
+          <Icon type="download" size='xs' />
         </button>
       </div>
     </div>

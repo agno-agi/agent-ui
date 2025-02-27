@@ -6,7 +6,6 @@ import useChatActions from "@/hooks/playground/useChatActions";
 import { usePlaygroundStore } from "@/stores/PlaygroundStore";
 import { motion, AnimatePresence } from "framer-motion";
 import { useState, useEffect } from "react";
-import { RefreshCw, Edit, Save } from "lucide-react";
 import Icon from "@/components/ui/icon";
 import { getProviderIcon } from "@/utils/modelProvider";
 
@@ -86,7 +85,7 @@ const Endpoint = () => {
             onClick={handleSave}
             className="hover:bg-transparent hover:cursor-pointer"
           >
-            <Save size={16} />
+            <Icon type="save" size='xs' />
           </Button>
         </div>
       ) : (
@@ -109,7 +108,7 @@ const Endpoint = () => {
                   transition={{ duration: 0.2 }}
                 >
                   <p className="text-xs font-medium text-primary flex items-center gap-2">
-                    <Edit size={14} /> EDIT ENDPOINT
+                    <Icon type="edit" size='xxs' /> EDIT ENDPOINT
                   </p>
                 </motion.div>
               ) : (
@@ -137,7 +136,7 @@ const Endpoint = () => {
             onClick={loadData}
             className="hover:bg-transparent hover:cursor-pointer"
           >
-            <RefreshCw size={16} />
+            <Icon type="refresh" size='xs' />
           </Button>
         </div>
       )}

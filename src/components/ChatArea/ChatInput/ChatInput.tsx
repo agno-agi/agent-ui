@@ -5,8 +5,8 @@ import { ChatTextArea } from "./ChatTextArea";
 import { Button } from "@/components/ui/button";
 import { usePlaygroundStore } from "@/stores/PlaygroundStore";
 import useAIChatStreamHandler from "@/hooks/playground/useAIStreamHandler";
-import { SendIcon } from "lucide-react";
 import { useQueryState } from "nuqs";
+import Icon from "@/components/ui/icon";
 
 const ChatInput = () => {
   const { chatInputRef } = usePlaygroundStore();
@@ -62,7 +62,7 @@ const ChatInput = () => {
         size="icon"
         className="bg-primary text-primaryAccent p-5 rounded-xl"
       >
-        <SendIcon className="w-5 h-5" />
+        <Icon type='send' color="primaryAccent"/>
       </Button>
     </div>
   );

@@ -129,7 +129,7 @@ export const ChatBlankState = () => {
                 rel="noopener"
                 className="cursor-pointer"
               >
-                <Icon type="agnoTag" size="default" />
+                <Icon type="agno-tag" size="default" />
               </Link>
             </span>
             <span className="flex items-center font-[600]">
