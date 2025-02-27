@@ -14,12 +14,12 @@ import {
   type ReferencesDocsData,
 } from '@/components/ChatArea/Messages/References/types'
 
-import { type ModelMessage } from '@/types/playground'
+import { type Message } from '@/types/playground'
 
 import ReferencesDialogContent from '@/components/ChatArea/Messages/References/ReferencesDialogContent'
 
 interface DetailsDialogProps {
-  tools?: ModelMessage
+  tools?: Message
   references?: ReferencesData
   referencesDoc?: ReferencesDocsData
   children: ReactNode

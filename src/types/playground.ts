@@ -185,3 +185,33 @@ export interface AudioData {
   channels?: number;
   sample_rate?: number;
 }
+
+export interface Message {
+  role: 'system' | 'user' | 'assistant' | 'tool' | 'reasoning' | undefined
+  content: string | null
+  metrics?: Metrics | null
+  tool_call_id?: string
+  tool_name?: string
+  tool_calls?: ToolCall[]
+  tool_call_error?: boolean
+  tool_args?: object
+  created_at?: string | null | number
+  images?: ImageData[]
+  videos?: VideoData[]
+  audio?: AudioData[]
+  response_audio?: ResponseAudio
+}
+
+export interface Metrics {
+  input_tokens?: number
+  output_tokens?: number
+  time?: number
+  completion_tokens?: number
+  prompt_tokens?: number
+  response_times?: number[]
+  tokens_per_second?: number[] | string
+  time_to_first_token?: number[] | string
+  total_tokens?: number
+  time_per_output_token?: number[] | string
+  tool_call_times?: Record<string, number[]>
+}
