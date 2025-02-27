@@ -158,13 +158,12 @@ const Endpoint = () => {
             onClick={handleRefresh}
             className="hover:bg-transparent hover:cursor-pointer"
           >
-            <Icon  />
             <motion.div
               key={isRotating ? "rotating" : "idle"}
               animate={{ rotate: isRotating ? 360 : 0 }}
               transition={{ duration: 0.5, ease: "easeInOut" }}
             >
-              <Icon type="refresh" size="xs"/>
+              <Icon type="refresh" size="xs" />
             </motion.div>
           </Button>
         </div>

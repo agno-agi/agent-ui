@@ -74,7 +74,7 @@ const useChatActions = () => {
     resetData({ agent: agents?.[0] });
     setAgents(agents);
     return agents;
-  }, [getStatus, getAgents, setIsEndpointActive, setAgents]);
+  }, [getStatus, getAgents, setIsEndpointActive, setAgents, resetData]);
 
   return {
     clearChat,
