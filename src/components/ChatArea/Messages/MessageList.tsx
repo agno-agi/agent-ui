@@ -48,7 +48,7 @@ const AgentMessageWrapper = ({ message }: MessageWrapperProps) => {
             side="top"
             className="bg-background p-1 border border-border rounded-lg"
           >
-            <Icon type="hammer" size='xs' color="primary/80" />
+            <Icon type="hammer" size="xs" color="primary/80" />
           </Tooltip>
 
           <div className="flex flex-wrap gap-2">

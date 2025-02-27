@@ -62,7 +62,7 @@ const ChatInput = () => {
         size="icon"
         className="bg-primary text-primaryAccent p-5 rounded-xl"
       >
-        <Icon type='send' color="primaryAccent"/>
+        <Icon type="send" color="primaryAccent" />
       </Button>
     </div>
   );

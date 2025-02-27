@@ -34,7 +34,6 @@ export type IconType =
   | "chevron-down"
   | "chevron-up";
 
-
 export interface IconProps {
   type: IconType;
   size?: "xs" | "sm" | "md" | "lg" | "dot" | "xxs" | "default";

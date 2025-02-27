@@ -85,7 +85,7 @@ const Endpoint = () => {
             onClick={handleSave}
             className="hover:bg-transparent hover:cursor-pointer"
           >
-            <Icon type="save" size='xs' />
+            <Icon type="save" size="xs" />
           </Button>
         </div>
       ) : (
@@ -108,7 +108,7 @@ const Endpoint = () => {
                   transition={{ duration: 0.2 }}
                 >
                   <p className="text-xs font-medium text-primary flex items-center gap-2">
-                    <Icon type="edit" size='xxs' /> EDIT ENDPOINT
+                    <Icon type="edit" size="xxs" /> EDIT ENDPOINT
                   </p>
                 </motion.div>
               ) : (
@@ -136,7 +136,7 @@ const Endpoint = () => {
             onClick={loadData}
             className="hover:bg-transparent hover:cursor-pointer"
           >
-            <Icon type="refresh" size='xs' />
+            <Icon type="refresh" size="xs" />
           </Button>
         </div>
       )}
