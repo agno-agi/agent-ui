@@ -68,6 +68,21 @@ const Endpoint = () => {
     setIsEditing(false);
     setIsHovering(false);
   };
+
+  const handleCancel = () => {
+    setEndpointValue(selectedEndpoint);
+    setIsEditing(false);
+    setIsHovering(false);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      handleSave();
+    } else if (e.key === "Escape") {
+      handleCancel();
+    }
+  };
+
   const handleRefresh = async () => {
     setIsRotating(true);
     await loadData();
@@ -83,6 +98,7 @@ const Endpoint = () => {
             type="text"
             value={endpointValue}
             onChange={(e) => setEndpointValue(e.target.value)}
+            onKeyDown={handleKeyDown}
             className="flex w-full items-center border-primary/15 border bg-accent rounded-xl p-3 h-9 text-xs font-medium text-muted"
             autoFocus
           />
