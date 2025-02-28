@@ -98,9 +98,13 @@ const AgentMessageWrapper = ({ message }: MessageWrapperProps) => {
             delayDuration={0}
             content={<p className="text-accent">Tool Calls</p>}
             side="top"
-            className="bg-background p-1 rounded-lg"
           >
-            <Icon type="hammer" size="sm" color="primary/80" />
+            <Icon
+              type="hammer"
+              className="bg-background-secondary p-1 rounded-lg"
+              size="sm"
+              color="secondary"
+            />
           </Tooltip>
 
           <div className="flex flex-wrap gap-2">
