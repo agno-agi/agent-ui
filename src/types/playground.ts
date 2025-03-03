@@ -141,12 +141,6 @@ export interface PlaygroundChatMessage {
   response_audio?: ResponseAudio;
 }
 
-export interface HistoryEntry {
-  session_id: string;
-  title: string;
-  created_at: number;
-}
-
 export interface Model {
   name: string;
   model: string;
@@ -161,9 +155,6 @@ export interface Agent {
   updated_at: string;
   model: Model;
   enable_rag: boolean;
-  // tools: Tool[]
-  storage: Storage;
-  // knowledge: Knowledge
   memory: string | null;
   instructions: string[] | null;
 }

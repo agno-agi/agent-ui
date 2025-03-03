@@ -16,8 +16,6 @@ interface PlaygroundStore {
   setStreamingError: (streamingError: boolean) => void;
   streamingErrorMessage: string;
   setStreamingErrorMessage: (streamingErrorMessage: string) => void;
-  storage: boolean;
-  setStorage: (storage: boolean) => void;
   endpoints: {
     endpoint: string;
     id_playground_endpoint: string;
@@ -30,14 +28,8 @@ interface PlaygroundStore {
   ) => void;
   isStreaming: boolean;
   setIsStreaming: (isStreaming: boolean) => void;
-  isSidebarCollapsed: boolean;
-  setIsSidebarCollapsed: (isSidebarCollapsed: boolean) => void;
-  historyLoading: boolean;
-  setHistoryLoading: (loading: boolean) => void;
   isEndpointActive: boolean;
   setIsEndpointActive: (isActive: boolean) => void;
-  endpointLoading: boolean;
-  setEndpointLoading: (loading: boolean) => void;
 
   messages: PlaygroundChatMessage[];
   setMessages: (
@@ -65,23 +57,13 @@ export const usePlaygroundStore = create<PlaygroundStore>()(
       streamingErrorMessage: "",
       setStreamingErrorMessage: (streamingErrorMessage) =>
         set(() => ({ streamingErrorMessage })),
-      storage: false,
-      setStorage: (storage) => set(() => ({ storage })),
       endpoints: [],
       setEndpoints: (endpoints) => set(() => ({ endpoints })),
       isStreaming: false,
       setIsStreaming: (isStreaming) => set(() => ({ isStreaming })),
-      isSidebarCollapsed: true,
-      setIsSidebarCollapsed: (isSidebarCollapsed) =>
-        set(() => ({ isSidebarCollapsed })),
-      historyLoading: false,
-      setHistoryLoading: (loading) => set(() => ({ historyLoading: loading })),
       isEndpointActive: false,
       setIsEndpointActive: (isActive) =>
         set(() => ({ isEndpointActive: isActive })),
-      endpointLoading: true,
-      setEndpointLoading: (loading) =>
-        set(() => ({ endpointLoading: loading })),
 
       messages: [],
       setMessages: (messages) =>
