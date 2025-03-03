@@ -36,13 +36,11 @@ const useAIChatStreamHandler = () => {
       // Uncomment if you want to use streaming loading state later:
       // setIsStreaming(true)
 
-      // Create FormData if input is a string
       const formData = input instanceof FormData ? input : new FormData();
       if (typeof input === "string") {
         formData.append("message", input);
       }
 
-      // Remove the last two messages only if they were an errored pair
       setMessages((prevMessages) => {
         if (prevMessages.length >= 2) {
           const lastMessage = prevMessages[prevMessages.length - 1];
@@ -58,14 +56,12 @@ const useAIChatStreamHandler = () => {
         return prevMessages;
       });
 
-      // Add user message
       addMessage({
         role: "user",
         content: formData.get("message") as string,
         created_at: Math.floor(Date.now() / 1000),
       });
 
-      // Add an empty agent message placeholder with tool_calls array
       addMessage({
         role: "agent",
         content: "",
@@ -74,20 +70,17 @@ const useAIChatStreamHandler = () => {
         created_at: Math.floor(Date.now() / 1000) + 1,
       });
 
-      // Define variable to hold previous content for tool call diffing
       let lastContent = "";
 
       try {
         const endpointUrl = constructEndpointUrl(selectedEndpoint);
 
         if (!agentId) return;
-        // Build URL with the agent id from the URL query parameter
         const playgroundRunUrl = APIRoutes.AgentRun(endpointUrl).replace(
           "{agent_id}",
           agentId,
         );
 
-        // Append required field
         formData.append("stream", "true");
 
         await streamResponse({
@@ -95,7 +88,6 @@ const useAIChatStreamHandler = () => {
           requestBody: formData,
           onChunk: (chunk: RunResponse) => {
             if (chunk.event === RunEvent.RunResponse) {
-              // Update the last (agent) message with new content and tool calls from the stream chunk
               setMessages((prevMessages) => {
                 const newMessages = [...prevMessages];
                 const lastMessage = newMessages[newMessages.length - 1];
@@ -104,12 +96,10 @@ const useAIChatStreamHandler = () => {
                   lastMessage.role === "agent" &&
                   typeof chunk.content === "string"
                 ) {
-                  // Append only the new part of the content
                   const uniqueContent = chunk.content.replace(lastContent, "");
                   lastMessage.content += uniqueContent;
                   lastContent = chunk.content;
 
-                  // Process tool calls from chunk (removing reasoning messages)
                   const toolCalls: ToolCall[] = [...(chunk.tools ?? [])];
                   if (toolCalls.length > 0) {
                     lastMessage.tool_calls = toolCalls;
@@ -190,11 +180,9 @@ const useAIChatStreamHandler = () => {
                           : message.tool_calls,
                       images: chunk.images ?? message.images,
                       videos: chunk.videos ?? message.videos,
-                      // audio: chunk.audio ?? message.audio,
                       response_audio: chunk.response_audio,
                       created_at: chunk.created_at ?? message.created_at,
                       extra_data: {
-                        //     ...message.extra_data,
                         reasoning_steps:
                           chunk.extra_data?.reasoning_steps ??
                           message.extra_data?.reasoning_steps,
@@ -238,7 +226,6 @@ const useAIChatStreamHandler = () => {
       }
     },
     [
-      // setIsStreaming, // not used for now
       setMessages,
       addMessage,
       selectedEndpoint,
