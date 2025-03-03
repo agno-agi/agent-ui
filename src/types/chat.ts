@@ -124,7 +124,7 @@ export interface ReasoningMessage {
   };
   created_at?: number;
 }
-export interface PlaygroundChatMessage {
+export interface ChatMessage {
   role: "user" | "agent" | "system" | "tool";
   content: string;
   streamingError?: boolean;

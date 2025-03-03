@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 
-import { type PlaygroundChatMessage } from "@/types/playground";
+import { type ChatMessage } from "@/types/chat";
 
 interface Agent {
   value: string;
@@ -31,11 +31,11 @@ interface PlaygroundStore {
   isEndpointActive: boolean;
   setIsEndpointActive: (isActive: boolean) => void;
 
-  messages: PlaygroundChatMessage[];
+  messages: ChatMessage[];
   setMessages: (
     messages:
-      | PlaygroundChatMessage[]
-      | ((prevMessages: PlaygroundChatMessage[]) => PlaygroundChatMessage[]),
+      | ChatMessage[]
+      | ((prevMessages: ChatMessage[]) => ChatMessage[]),
   ) => void;
 
   chatInputRef: React.RefObject<HTMLTextAreaElement | null>;

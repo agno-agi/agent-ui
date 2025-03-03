@@ -2,7 +2,7 @@
 
 import { memo, useMemo } from "react";
 
-import { type AudioData } from "@/types/playground";
+import { type AudioData } from "@/types/chat";
 import { decodeBase64Audio } from "@/utils/audio";
 
 /**

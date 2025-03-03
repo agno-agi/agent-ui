@@ -1,7 +1,7 @@
 import Icon from "@/components/ui/icon";
 import MarkdownRenderer from "@/components/ui/typography/MarkdownRenderer";
 import { usePlaygroundStore } from "@/stores/PlaygroundStore";
-import type { PlaygroundChatMessage } from "@/types/playground";
+import type { ChatMessage } from "@/types/chat";
 import Videos from "./Multimedia/Videos";
 import Images from "./Multimedia/Images";
 import Audios from "./Multimedia/Audios";
@@ -9,7 +9,7 @@ import { memo } from "react";
 import AgentThinkingLoader from "./AgentThinkingLoader";
 
 interface MessageProps {
-  message: PlaygroundChatMessage;
+  message: ChatMessage;
 }
 
 export const AgentMessage = ({ message }: MessageProps) => {

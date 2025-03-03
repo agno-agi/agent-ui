@@ -1,5 +1,5 @@
 import { useCallback } from "react";
-import { type RunResponse } from "@/types/playground";
+import { type RunResponse } from "@/types/chat";
 
 /**
  * Processes a single JSON chunk by passing it to the provided callback.

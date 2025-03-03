@@ -3,7 +3,7 @@ import { toast } from "sonner";
 
 import { usePlaygroundStore } from "@/stores/PlaygroundStore";
 
-import { ComboboxAgent, type PlaygroundChatMessage } from "@/types/playground";
+import { ComboboxAgent, type ChatMessage } from "@/types/chat";
 import {
   getPlaygroundAgentsAPI,
   getPlaygroundStatusAPI,
@@ -56,7 +56,7 @@ const useChatActions = () => {
   }, []);
 
   const addMessage = useCallback(
-    (message: PlaygroundChatMessage) => {
+    (message: ChatMessage) => {
       setMessages((prevMessages) => [...prevMessages, message]);
     },
     [setMessages],

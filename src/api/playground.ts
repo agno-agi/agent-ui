@@ -2,7 +2,7 @@ import { toast } from "sonner";
 
 import { APIRoutes } from "./routes";
 
-import { Agent, ComboboxAgent } from "@/types/playground";
+import { Agent, ComboboxAgent } from "@/types/chat";
 
 // Define a local type to shape the agent data for the combobox.
 

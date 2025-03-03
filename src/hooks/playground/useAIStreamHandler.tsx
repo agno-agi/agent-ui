@@ -4,10 +4,10 @@ import { APIRoutes } from "@/api/routes";
 
 import useChatActions from "@/hooks/playground/useChatActions";
 import { usePlaygroundStore } from "@/stores/PlaygroundStore";
-import { RunEvent, type RunResponse } from "@/types/playground";
+import { RunEvent, type RunResponse } from "@/types/chat";
 import { constructEndpointUrl } from "@/utils/playgroundUtils";
 import useAIResponseStream from "../streaming/useAIResponseStream";
-import { ToolCall } from "@/types/playground";
+import { ToolCall } from "@/types/chat";
 import { useQueryState } from "nuqs";
 
 /**
