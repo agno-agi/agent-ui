@@ -4,11 +4,7 @@ import { APIRoutes } from "@/api/routes";
 
 import useChatActions from "@/hooks/playground/useChatActions";
 import { usePlaygroundStore } from "@/stores/PlaygroundStore";
-import {
-  PlaygroundChatMessage,
-  RunEvent,
-  type RunResponse,
-} from "@/types/playground";
+import { RunEvent, type RunResponse } from "@/types/playground";
 import { constructEndpointUrl } from "@/utils/playgroundUtils";
 import useAIResponseStream from "../streaming/useAIResponseStream";
 import { ToolCall } from "@/types/playground";
@@ -30,6 +26,17 @@ const useAIChatStreamHandler = () => {
   );
 
   const { streamResponse } = useAIResponseStream();
+
+  const updateMessagesWithErrorState = useCallback(() => {
+    setMessages((prevMessages) => {
+      const newMessages = [...prevMessages];
+      const lastMessage = newMessages[newMessages.length - 1];
+      if (lastMessage && lastMessage.role === "agent") {
+        lastMessage.streamingError = true;
+      }
+      return newMessages;
+    });
+  }, [setMessages]);
 
   const handleStreamResponse = useCallback(
     async (input: string | FormData) => {
@@ -143,14 +150,7 @@ const useAIChatStreamHandler = () => {
                 return newMessages;
               });
             } else if (chunk.event === RunEvent.RunError) {
-              setMessages((prevMessages) => {
-                const newMessages = [...prevMessages];
-                const lastMessage = newMessages[newMessages.length - 1];
-                if (lastMessage && lastMessage.role === "agent") {
-                  lastMessage.streamingError = true;
-                }
-                return newMessages;
-              });
+              updateMessagesWithErrorState();
               const errorContent = chunk.content as string;
               setStreamingErrorMessage(errorContent);
             } else if (chunk.event === RunEvent.RunCompleted) {
@@ -199,27 +199,13 @@ const useAIChatStreamHandler = () => {
             }
           },
           onError: (error) => {
-            setMessages((prevMessages) => {
-              const newMessages = [...prevMessages];
-              const lastMessage = newMessages[newMessages.length - 1];
-              if (lastMessage && lastMessage.role === "agent") {
-                lastMessage.streamingError = true;
-              }
-              return newMessages;
-            });
+            updateMessagesWithErrorState();
             setStreamingErrorMessage(error.message);
           },
           onComplete: () => {},
         });
       } catch (error) {
-        setMessages((prevMessages: PlaygroundChatMessage[]) => {
-          const newMessages = [...prevMessages];
-          const lastMessage = newMessages[newMessages.length - 1];
-          if (lastMessage && lastMessage.role === "agent") {
-            lastMessage.streamingError = true;
-          }
-          return newMessages;
-        });
+        updateMessagesWithErrorState();
         setStreamingErrorMessage(
           error instanceof Error ? error.message : String(error),
         );
@@ -228,6 +214,7 @@ const useAIChatStreamHandler = () => {
     [
       setMessages,
       addMessage,
+      updateMessagesWithErrorState,
       selectedEndpoint,
       streamResponse,
       agentId,
