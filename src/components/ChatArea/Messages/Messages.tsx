@@ -13,9 +13,21 @@ interface MessageProps {
 }
 
 export const AgentMessage = ({ message }: MessageProps) => {
-  const { streamingError } = usePlaygroundStore();
+  const { streamingError, streamingErrorMessage } = usePlaygroundStore();
   let messageContent;
-  if (message.content) {
+
+  if (streamingError || message.streamingError) {
+    messageContent = (
+      <p className="text-destructive">
+        Oops! Something went wrong while streaming.{" "}
+        {streamingErrorMessage ? (
+          <>{streamingErrorMessage}</>
+        ) : (
+          "Please try refreshing the page or try again later."
+        )}
+      </p>
+    );
+  } else if (message.content) {
     messageContent = (
       <div className="flex w-full flex-col gap-4">
         <MarkdownRenderer>{message.content}</MarkdownRenderer>
@@ -49,13 +61,6 @@ export const AgentMessage = ({ message }: MessageProps) => {
         </div>
       );
     }
-  } else if (streamingError) {
-    messageContent = (
-      <p className="text-destructive">
-        Oops! Something went wrong with the stream. Please try again, or refresh
-        the page.
-      </p>
-    );
   } else {
     messageContent = (
       <div className="mt-2">

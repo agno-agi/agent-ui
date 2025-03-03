@@ -71,6 +71,7 @@ export enum RunEvent {
   ReasoningStarted = "ReasoningStarted",
   ReasoningStep = "ReasoningStep",
   ReasoningCompleted = "ReasoningCompleted",
+  RunError = "RunError",
 }
 export interface ResponseAudio {
   id?: string;

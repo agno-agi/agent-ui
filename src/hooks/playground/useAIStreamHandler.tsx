@@ -16,6 +16,9 @@ import { toast } from "sonner";
  * For now, it only streams message content and updates the messages state.
  */
 const useAIChatStreamHandler = () => {
+  const setStreamingErrorMessage = usePlaygroundStore(
+    (state) => state.setStreamingErrorMessage,
+  );
   const setMessages = usePlaygroundStore((state) => state.setMessages);
   const setStreamingError = usePlaygroundStore(
     (state) => state.setStreamingError,
@@ -149,6 +152,19 @@ const useAIChatStreamHandler = () => {
                 }
                 return newMessages;
               });
+            } else if (chunk.event === RunEvent.RunError) {
+              // Handle model error event
+              setMessages((prevMessages) => {
+                const newMessages = [...prevMessages];
+                const lastMessage = newMessages[newMessages.length - 1];
+                if (lastMessage && lastMessage.role === "agent") {
+                  lastMessage.streamingError = true;
+                }
+                return newMessages;
+              });
+              const errorContent = chunk.content as string;
+              setStreamingError(true);
+              setStreamingErrorMessage(errorContent);
             } else if (chunk.event === RunEvent.RunCompleted) {
               // Final update on completion of the stream:
               setMessages((prevMessages) => {
@@ -176,11 +192,9 @@ const useAIChatStreamHandler = () => {
                           : message.tool_calls,
                       images: chunk.images ?? message.images,
                       videos: chunk.videos ?? message.videos,
-                      // audio: chunk.audio ?? message.audio,
                       response_audio: chunk.response_audio,
                       created_at: chunk.created_at ?? message.created_at,
                       extra_data: {
-                        //     ...message.extra_data,
                         reasoning_steps:
                           chunk.extra_data?.reasoning_steps ??
                           message.extra_data?.reasoning_steps,
@@ -219,19 +233,17 @@ const useAIChatStreamHandler = () => {
           },
         });
       } catch {
-      } finally {
-        // Uncomment when adding streaming state updates
-        // setIsStreaming(false)
+        setStreamingError(true);
       }
     },
     [
-      // setIsStreaming, // not used for now
       setMessages,
       addMessage,
       selectedEndpoint,
       streamResponse,
       agentId,
       setStreamingError,
+      setStreamingErrorMessage,
     ],
   );
 
