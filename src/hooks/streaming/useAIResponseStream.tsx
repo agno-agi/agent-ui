@@ -133,10 +133,8 @@ export default function useAIResponseStream() {
         });
 
         if (!response.ok) {
-          const errorData = await response.json();
-          throw errorData;
+          throw new Error(`HTTP error! status: ${response.status}`);
         }
-
         if (!response.body) {
           throw new Error("No response body");
         }
@@ -162,11 +160,11 @@ export default function useAIResponseStream() {
         };
         await processStream();
       } catch (error) {
-        if (typeof error === "object" && error !== null && "detail" in error) {
-          onError(new Error(String(error.detail)));
-        } else {
-          onError(new Error(String(error)));
-        }
+        onError(
+          error instanceof Error
+            ? error
+            : new Error("An unknown error occurred"),
+        );
       }
     },
     [],
