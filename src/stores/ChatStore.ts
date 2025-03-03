@@ -33,9 +33,7 @@ interface PlaygroundStore {
 
   messages: ChatMessage[];
   setMessages: (
-    messages:
-      | ChatMessage[]
-      | ((prevMessages: ChatMessage[]) => ChatMessage[]),
+    messages: ChatMessage[] | ((prevMessages: ChatMessage[]) => ChatMessage[]),
   ) => void;
 
   chatInputRef: React.RefObject<HTMLTextAreaElement | null>;

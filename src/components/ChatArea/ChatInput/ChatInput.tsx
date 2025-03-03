@@ -13,9 +13,7 @@ const ChatInput = () => {
 
   const { handleStreamResponse } = useAIChatStreamHandler();
   const [selectedAgent] = useQueryState("agent");
-  const setStreamingError = useChatStore(
-    (state) => state.setStreamingError,
-  );
+  const setStreamingError = useChatStore((state) => state.setStreamingError);
   const streamingError = useChatStore((state) => state.streamingError);
   const [inputMessage, setInputMessage] = useState("");
 

@@ -12,12 +12,8 @@ import { useQueryState } from "nuqs";
 
 const useChatActions = () => {
   const { chatInputRef } = useChatStore();
-  const selectedEndpoint = useChatStore(
-    (state) => state.selectedEndpoint,
-  );
-  const setSelectedModel = useChatStore(
-    (state) => state.setSelectedModel,
-  );
+  const selectedEndpoint = useChatStore((state) => state.selectedEndpoint);
+  const setSelectedModel = useChatStore((state) => state.setSelectedModel);
   const [, setAgentId] = useQueryState("agent");
   const setMessages = useChatStore((state) => state.setMessages);
   const setIsEndpointActive = useChatStore(
