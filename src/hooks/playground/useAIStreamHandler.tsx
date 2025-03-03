@@ -9,7 +9,6 @@ import { constructEndpointUrl } from "@/utils/playgroundUtils";
 import useAIResponseStream from "../streaming/useAIResponseStream";
 import { ToolCall } from "@/types/playground";
 import { useQueryState } from "nuqs";
-import { toast } from "sonner";
 
 /**
  * useAIChatStreamHandler is responsible for making API calls and handling the stream response.
@@ -210,7 +209,7 @@ const useAIChatStreamHandler = () => {
               });
             }
           },
-          onError: (error) => {
+          onError: (error: Error) => {
             setMessages((prevMessages) => {
               const newMessages = [...prevMessages];
               const lastMessage = newMessages[newMessages.length - 1];
@@ -219,13 +218,8 @@ const useAIChatStreamHandler = () => {
               }
               return newMessages;
             });
-            // Update global state to indicate a streaming error occurred
             setStreamingError(true);
-            toast.error(
-              `Error in streamResponse: ${
-                error instanceof Error ? error.message : String(error)
-              }`,
-            );
+            setStreamingErrorMessage(error.message);
           },
           onComplete: () => {
             // Reset the global streaming error flag on successful completion
