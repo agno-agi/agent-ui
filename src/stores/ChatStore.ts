@@ -49,7 +49,7 @@ interface PlaygroundStore {
   setSelectedModel: (model: string) => void;
 }
 
-export const usePlaygroundStore = create<PlaygroundStore>()(
+export const useChatStore = create<PlaygroundStore>()(
   persist(
     (set) => ({
       streamingError: false,

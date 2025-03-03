@@ -3,20 +3,20 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { ChatTextArea } from "./ChatTextArea";
 import { Button } from "@/components/ui/button";
-import { usePlaygroundStore } from "@/stores/PlaygroundStore";
+import { useChatStore } from "@/stores/ChatStore";
 import useAIChatStreamHandler from "@/hooks/playground/useAIStreamHandler";
 import { useQueryState } from "nuqs";
 import Icon from "@/components/ui/icon";
 
 const ChatInput = () => {
-  const { chatInputRef } = usePlaygroundStore();
+  const { chatInputRef } = useChatStore();
 
   const { handleStreamResponse } = useAIChatStreamHandler();
   const [selectedAgent] = useQueryState("agent");
-  const setStreamingError = usePlaygroundStore(
+  const setStreamingError = useChatStore(
     (state) => state.setStreamingError,
   );
-  const streamingError = usePlaygroundStore((state) => state.streamingError);
+  const streamingError = useChatStore((state) => state.streamingError);
   const [inputMessage, setInputMessage] = useState("");
 
   const handleSubmit = async () => {

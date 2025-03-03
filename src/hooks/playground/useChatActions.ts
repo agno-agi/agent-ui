@@ -1,7 +1,7 @@
 import { useCallback } from "react";
 import { toast } from "sonner";
 
-import { usePlaygroundStore } from "@/stores/PlaygroundStore";
+import { useChatStore } from "@/stores/ChatStore";
 
 import { ComboboxAgent, type ChatMessage } from "@/types/chat";
 import {
@@ -11,19 +11,19 @@ import {
 import { useQueryState } from "nuqs";
 
 const useChatActions = () => {
-  const { chatInputRef } = usePlaygroundStore();
-  const selectedEndpoint = usePlaygroundStore(
+  const { chatInputRef } = useChatStore();
+  const selectedEndpoint = useChatStore(
     (state) => state.selectedEndpoint,
   );
-  const setSelectedModel = usePlaygroundStore(
+  const setSelectedModel = useChatStore(
     (state) => state.setSelectedModel,
   );
   const [, setAgentId] = useQueryState("agent");
-  const setMessages = usePlaygroundStore((state) => state.setMessages);
-  const setIsEndpointActive = usePlaygroundStore(
+  const setMessages = useChatStore((state) => state.setMessages);
+  const setIsEndpointActive = useChatStore(
     (state) => state.setIsEndpointActive,
   );
-  const setAgents = usePlaygroundStore((state) => state.setAgents);
+  const setAgents = useChatStore((state) => state.setAgents);
 
   const getStatus = useCallback(async () => {
     try {

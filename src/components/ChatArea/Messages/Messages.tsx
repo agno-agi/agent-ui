@@ -1,6 +1,6 @@
 import Icon from "@/components/ui/icon";
 import MarkdownRenderer from "@/components/ui/typography/MarkdownRenderer";
-import { usePlaygroundStore } from "@/stores/PlaygroundStore";
+import { useChatStore } from "@/stores/ChatStore";
 import type { ChatMessage } from "@/types/chat";
 import Videos from "./Multimedia/Videos";
 import Images from "./Multimedia/Images";
@@ -13,7 +13,7 @@ interface MessageProps {
 }
 
 export const AgentMessage = ({ message }: MessageProps) => {
-  const { streamingError, streamingErrorMessage } = usePlaygroundStore();
+  const { streamingError, streamingErrorMessage } = useChatStore();
   let messageContent;
 
   if (streamingError || message.streamingError) {

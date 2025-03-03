@@ -2,7 +2,7 @@
 import { Button } from "@/components/ui/button";
 import { AgentSelector } from "@/components/AgentSelector";
 import useChatActions from "@/hooks/playground/useChatActions";
-import { usePlaygroundStore } from "@/stores/PlaygroundStore";
+import { useChatStore } from "@/stores/ChatStore";
 import { motion, AnimatePresence } from "framer-motion";
 import { useState, useEffect } from "react";
 import Icon from "@/components/ui/icon";
@@ -45,7 +45,7 @@ const ModelDisplay = ({ model }: { model: string }) => (
 
 const Endpoint = () => {
   const { selectedEndpoint, isEndpointActive, setSelectedEndpoint } =
-    usePlaygroundStore();
+    useChatStore();
   const { loadData } = useChatActions();
   const [isEditing, setIsEditing] = useState(false);
   const [endpointValue, setEndpointValue] = useState("");
@@ -175,7 +175,7 @@ export default function Sidebar() {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const { clearChat, focusChatInput, loadData } = useChatActions();
   const { messages, selectedEndpoint, isEndpointActive, selectedModel } =
-    usePlaygroundStore();
+    useChatStore();
   const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {

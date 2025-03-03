@@ -8,14 +8,14 @@ import {
   SelectContent,
   SelectItem,
 } from "@/components/ui/select";
-import { usePlaygroundStore } from "@/stores/PlaygroundStore";
+import { useChatStore } from "@/stores/ChatStore";
 import { useQueryState } from "nuqs";
 import Icon from "@/components/ui/icon";
 import { useEffect } from "react";
 import useChatActions from "@/hooks/playground/useChatActions";
 
 export function AgentSelector() {
-  const { agents, setMessages, setSelectedModel } = usePlaygroundStore();
+  const { agents, setMessages, setSelectedModel } = useChatStore();
   const { focusChatInput } = useChatActions();
   const [agentId, setAgentId] = useQueryState("agent", {
     parse: (value) => value || undefined,

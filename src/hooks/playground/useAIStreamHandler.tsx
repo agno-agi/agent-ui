@@ -3,7 +3,7 @@ import { useCallback } from "react";
 import { APIRoutes } from "@/api/routes";
 
 import useChatActions from "@/hooks/playground/useChatActions";
-import { usePlaygroundStore } from "@/stores/PlaygroundStore";
+import { useChatStore } from "@/stores/ChatStore";
 import { RunEvent, type RunResponse } from "@/types/chat";
 import { constructEndpointUrl } from "@/utils/chatUtils";
 import useAIResponseStream from "../streaming/useAIResponseStream";
@@ -15,16 +15,16 @@ import { useQueryState } from "nuqs";
  * For now, it only streams message content and updates the messages state.
  */
 const useAIChatStreamHandler = () => {
-  const setStreamingErrorMessage = usePlaygroundStore(
+  const setStreamingErrorMessage = useChatStore(
     (state) => state.setStreamingErrorMessage,
   );
-  const setMessages = usePlaygroundStore((state) => state.setMessages);
-  const setStreamingError = usePlaygroundStore(
+  const setMessages = useChatStore((state) => state.setMessages);
+  const setStreamingError = useChatStore(
     (state) => state.setStreamingError,
   );
   const { addMessage } = useChatActions();
   const [agentId] = useQueryState("agent");
-  const selectedEndpoint = usePlaygroundStore(
+  const selectedEndpoint = useChatStore(
     (state) => state.selectedEndpoint,
   );
 

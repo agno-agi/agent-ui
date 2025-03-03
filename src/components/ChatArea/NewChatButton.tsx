@@ -2,11 +2,11 @@
 import { Button } from "../ui/button";
 import Icon from "../ui/icon";
 import useChatActions from "@/hooks/playground/useChatActions";
-import { usePlaygroundStore } from "@/stores/PlaygroundStore";
+import { useChatStore } from "@/stores/ChatStore";
 
 function NewChatButton() {
   const { clearChat } = useChatActions();
-  const { messages } = usePlaygroundStore();
+  const { messages } = useChatStore();
   return (
     <Button
       className="z-10 bg-brand hover:bg-brand/80 text-primary font-bold py-2 px-4 rounded cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
