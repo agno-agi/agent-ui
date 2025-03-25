@@ -38,15 +38,20 @@ export const getPlaygroundStatusAPI = async (base: string): Promise<number> => {
 export const getAllPlaygroundSessionsAPI = async (
   base: string,
   agentId: string
-): Promise<SessionEntry[]> => {
+): Promise<SessionEntry[] | null> => {
   try {
     const response = await fetch(
       APIRoutes.GetPlaygroundSessions(base, agentId),
-      {
-        method: 'GET'
-      }
+      { method: 'GET' }
     )
-    return response.json()
+
+    if (!response.ok) {
+      if (response.status === 404) {
+        return null
+      }
+    }
+
+    return await response.json()
   } catch {
     return []
   }

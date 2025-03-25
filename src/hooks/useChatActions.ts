@@ -74,11 +74,17 @@ const useChatActions = () => {
       if (!agentId || !selectedEndpoint) return
       try {
         setIsSessionsLoading(true)
+
         const history = await getAllPlaygroundSessionsAPI(
           selectedEndpoint,
           agentId
         )
-        setHistoryData(history)
+
+        if (history === null) {
+          setAgentId(null) // Handle 404 case
+        } else {
+          setHistoryData(history)
+        }
       } catch {
         toast.error('Error loading chat history')
       } finally {
