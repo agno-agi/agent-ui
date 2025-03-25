@@ -111,6 +111,7 @@ const Endpoint = () => {
           <Button
             variant="ghost"
             size="icon"
+            disabled={!endpointValue}
             onClick={handleSave}
             className="hover:bg-transparent hover:cursor-pointer"
           >

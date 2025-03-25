@@ -118,7 +118,7 @@ const Sessions = () => {
     <div>
       <div className="text-xs font-medium uppercase mb-2">Sessions</div>
       <div
-        className={`h-[calc(100vh-325px)] overflow-y-auto transition-all duration-300 font-geist [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar]:transition-opacity [&::-webkit-scrollbar]:duration-300
+        className={`h-[calc(100vh-345px)] overflow-y-auto transition-all duration-300 font-geist [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar]:transition-opacity [&::-webkit-scrollbar]:duration-300
         ${isScrolling ? "[&::-webkit-scrollbar]:opacity-0 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-background" : "[&::-webkit-scrollbar]:opacity-100"}`}
         onScroll={handleScroll}
         onMouseOver={() => setIsScrolling(true)}
@@ -128,8 +128,8 @@ const Sessions = () => {
         (!isSessionsLoading && (!historyData || historyData.length === 0)) ? (
           <SessionBlankState />
         ) : (
-          <div className="flex flex-col gap-y-1 pb-6 pr-1">
-            {formattedHistory.map((entry) => (
+          <div className="flex flex-col gap-y-1 pr-1">
+            {[...formattedHistory, ...formattedHistory, ...formattedHistory,...formattedHistory].map((entry) => (
               <SessionItem key={entry.session_id} {...entry} />
             ))}
           </div>
