@@ -32,9 +32,9 @@ interface ReferenceItemProps {
 }
 
 const ReferenceItem: FC<ReferenceItemProps> = ({ reference }) => (
-  <div className="flex flex-col w-[190px] h-[63px] rounded-md bg-background-secondary p-3 justify-between relative overflow-hidden hover:bg-background-secondary/80 transition-colors cursor-default">
+  <div className="relative flex h-[63px] w-[190px] cursor-default flex-col justify-between overflow-hidden rounded-md bg-background-secondary p-3 transition-colors hover:bg-background-secondary/80">
     <p className="text-sm font-medium text-primary">{reference.name}</p>
-    <p className="text-xs text-primary/40 truncate">{reference.content}</p>
+    <p className="truncate text-xs text-primary/40">{reference.content}</p>
   </div>
 );
 
@@ -101,7 +101,7 @@ const AgentMessageWrapper = ({ message }: MessageWrapperProps) => {
           >
             <Icon
               type="hammer"
-              className="bg-background-secondary p-1 rounded-lg"
+              className="rounded-lg bg-background-secondary p-1"
               size="sm"
               color="secondary"
             />
@@ -146,7 +146,7 @@ const Reasonings: FC<ReasoningProps> = ({ reasoning }) => (
 
 export const ToolComponent = memo(({ tools }: ToolCallProps) => (
   <div className="cursor-default rounded-full bg-accent px-2  py-1.5 text-xs">
-    <p className=" text-primary/80 uppercase font-dmmono">{tools.tool_name}</p>
+    <p className=" font-dmmono uppercase text-primary/80">{tools.tool_name}</p>
   </div>
 ));
 

@@ -1,42 +1,42 @@
-"use client";
+'use client'
 
-import { memo } from "react";
+import { memo } from 'react'
 
-import { toast } from "sonner";
+import { toast } from 'sonner'
 
-import { type VideoData } from "@/types/playground";
-import Icon from "@/components/ui/icon";
+import { type VideoData } from '@/types/playground'
+import Icon from '@/components/ui/icon'
 
 const VideoItem = memo(({ video }: { video: VideoData }) => {
-  const videoUrl = video.url;
+  const videoUrl = video.url
 
   const handleDownload = async () => {
     try {
-      toast.loading("Downloading video...");
-      const response = await fetch(videoUrl);
-      if (!response.ok) throw new Error("Network response was not ok");
+      toast.loading('Downloading video...')
+      const response = await fetch(videoUrl)
+      if (!response.ok) throw new Error('Network response was not ok')
 
-      const blob = await response.blob();
-      const fileExtension = videoUrl.split(".").pop() ?? "mp4";
-      const fileName = `video-${Date.now()}.${fileExtension}`;
+      const blob = await response.blob()
+      const fileExtension = videoUrl.split('.').pop() ?? 'mp4'
+      const fileName = `video-${Date.now()}.${fileExtension}`
 
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = fileName;
+      const url = window.URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = fileName
 
-      document.body.appendChild(a);
-      a.click();
+      document.body.appendChild(a)
+      a.click()
 
-      window.URL.revokeObjectURL(url);
-      document.body.removeChild(a);
-      toast.dismiss();
-      toast.success("Video downloaded successfully");
+      window.URL.revokeObjectURL(url)
+      document.body.removeChild(a)
+      toast.dismiss()
+      toast.success('Video downloaded successfully')
     } catch {
-      toast.dismiss();
-      toast.error("Failed to download video");
+      toast.dismiss()
+      toast.error('Failed to download video')
     }
-  };
+  }
 
   return (
     <div>
@@ -49,7 +49,7 @@ const VideoItem = memo(({ video }: { video: VideoData }) => {
           loop
           controls
           className="w-full rounded-lg"
-          style={{ aspectRatio: "16 / 9" }}
+          style={{ aspectRatio: '16 / 9' }}
         />
         <button
           type="button"
@@ -61,10 +61,10 @@ const VideoItem = memo(({ video }: { video: VideoData }) => {
         </button>
       </div>
     </div>
-  );
-});
+  )
+})
 
-VideoItem.displayName = "VideoItem";
+VideoItem.displayName = 'VideoItem'
 
 const Videos = memo(({ videos }: { videos: VideoData[] }) => (
   <div className="flex flex-col gap-4">
@@ -72,8 +72,8 @@ const Videos = memo(({ videos }: { videos: VideoData[] }) => (
       <VideoItem key={video.id} video={video} />
     ))}
   </div>
-));
+))
 
-Videos.displayName = "Videos";
+Videos.displayName = 'Videos'
 
-export default Videos;
+export default Videos

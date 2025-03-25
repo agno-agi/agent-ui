@@ -1,6 +1,6 @@
-import React from "react";
-import { usePlaygroundStore } from "@/store";
-import { useQueryState } from "nuqs";
+import React from 'react'
+import { usePlaygroundStore } from '@/store'
+import { useQueryState } from 'nuqs'
 
 const HistoryBlankStateIcon = () => (
   <svg
@@ -83,27 +83,27 @@ const HistoryBlankStateIcon = () => (
       </clipPath>
     </defs>
   </svg>
-);
+)
 
 const SessionBlankState = () => {
-  const { selectedEndpoint, isEndpointActive } = usePlaygroundStore();
-  const [agentId] = useQueryState("agent");
+  const { selectedEndpoint, isEndpointActive } = usePlaygroundStore()
+  const [agentId] = useQueryState('agent')
 
   const errorMessage = (() => {
     switch (true) {
       case !isEndpointActive:
-        return "Endpoint is not connected. Please connect the endpoint to see the history.";
+        return 'Endpoint is not connected. Please connect the endpoint to see the history.'
       case !selectedEndpoint:
-        return "Select an endpoint to see the history.";
+        return 'Select an endpoint to see the history.'
       case !agentId:
-        return "Select an agent to see the history.";
+        return 'Select an agent to see the history.'
       default:
-        return "No session records yet. Start a conversation to create one.";
+        return 'No session records yet. Start a conversation to create one.'
     }
-  })();
+  })()
 
   return (
-    <div className="mt-1 flex items-center justify-center rounded-lg bg-background-secondary/50 pt-4 pb-6">
+    <div className="mt-1 flex items-center justify-center rounded-lg bg-background-secondary/50 pb-6 pt-4">
       <div className="flex flex-col items-center gap-1">
         <HistoryBlankStateIcon />
         <div className="flex flex-col items-center gap-2">
@@ -114,7 +114,7 @@ const SessionBlankState = () => {
         </div>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default SessionBlankState;
+export default SessionBlankState

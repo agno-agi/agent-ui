@@ -1,27 +1,27 @@
-import { type FC } from "react";
+import { type FC } from 'react'
 
-import { Button } from "@/components/ui/button";
+import { Button } from '@/components/ui/button'
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogFooter,
   DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+  DialogTitle
+} from '@/components/ui/dialog'
 
 interface SessionHistoryItemDeleteModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onDelete: () => Promise<void>;
-  isDeleting: boolean;
+  isOpen: boolean
+  onClose: () => void
+  onDelete: () => Promise<void>
+  isDeleting: boolean
 }
 
 const SessionHistoryItemDeleteModal: FC<SessionHistoryItemDeleteModalProps> = ({
   isOpen,
   onClose,
   onDelete,
-  isDeleting,
+  isDeleting
 }) => (
   <Dialog open={isOpen} onOpenChange={onClose}>
     <DialogContent className="font-geist">
@@ -35,7 +35,7 @@ const SessionHistoryItemDeleteModal: FC<SessionHistoryItemDeleteModalProps> = ({
       <DialogFooter>
         <Button
           variant="outline"
-          className=" border-border rounded-xl font-geist"
+          className=" rounded-xl border-border font-geist"
           onClick={onClose}
           disabled={isDeleting}
         >
@@ -52,6 +52,6 @@ const SessionHistoryItemDeleteModal: FC<SessionHistoryItemDeleteModalProps> = ({
       </DialogFooter>
     </DialogContent>
   </Dialog>
-);
+)
 
-export default SessionHistoryItemDeleteModal;
+export default SessionHistoryItemDeleteModal

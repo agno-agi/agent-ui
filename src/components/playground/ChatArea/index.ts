@@ -1,4 +1,4 @@
-import ChatArea from "./ChatArea";
-import ChatInput from "./ChatInput";
+import ChatArea from './ChatArea'
+import ChatInput from './ChatInput'
 
-export { ChatArea, ChatInput };
+export { ChatArea, ChatInput }

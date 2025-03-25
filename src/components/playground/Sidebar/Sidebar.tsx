@@ -1,118 +1,116 @@
-"use client";
-import { Button } from "@/components/ui/button";
-import { AgentSelector } from "@/components/playground/Sidebar/AgentSelector";
-import useChatActions from "@/hooks/useChatActions";
-import { usePlaygroundStore } from "@/store";
-import { motion, AnimatePresence } from "framer-motion";
-import { useState, useEffect } from "react";
-import Icon from "@/components/ui/icon";
-import { getProviderIcon } from "@/lib/modelProvider";
-import Sessions from "./Sessions";
+'use client'
+import { Button } from '@/components/ui/button'
+import { AgentSelector } from '@/components/playground/Sidebar/AgentSelector'
+import useChatActions from '@/hooks/useChatActions'
+import { usePlaygroundStore } from '@/store'
+import { motion, AnimatePresence } from 'framer-motion'
+import { useState, useEffect } from 'react'
+import Icon from '@/components/ui/icon'
+import { getProviderIcon } from '@/lib/modelProvider'
+import Sessions from './Sessions'
 
 const SidebarHeader = () => (
   <div className="flex items-center gap-2">
     <Icon type="agno" size="xs" />
-    <span className="text-white text-xs font-medium uppercase">Agent UI</span>
+    <span className="text-xs font-medium uppercase text-white">Agent UI</span>
   </div>
-);
+)
 
 const NewChatButton = ({
   disabled,
-  onClick,
+  onClick
 }: {
-  disabled: boolean;
-  onClick: () => void;
+  disabled: boolean
+  onClick: () => void
 }) => (
   <Button
     onClick={onClick}
     disabled={disabled}
     size="lg"
-    className="bg-primary h-9 text-background hover:bg-primary/80 rounded-xl text-xs font-medium w-full"
+    className="h-9 w-full rounded-xl bg-primary text-xs font-medium text-background hover:bg-primary/80"
   >
     <Icon type="plus-icon" size="xs" className="text-background" />
     <span className="uppercase">New Chat</span>
   </Button>
-);
+)
 
 const ModelDisplay = ({ model }: { model: string }) => (
-  <div className="w-full border-primary/15 flex items-center gap-3 h-9 border text-muted text-xs font-medium bg-accent rounded-xl uppercase p-3">
+  <div className="flex h-9 w-full items-center gap-3 rounded-xl border border-primary/15 bg-accent p-3 text-xs font-medium uppercase text-muted">
     {(() => {
-      const icon = getProviderIcon(model);
-      return icon ? <Icon type={icon} className="shrink-0" size="xs" /> : null;
+      const icon = getProviderIcon(model)
+      return icon ? <Icon type={icon} className="shrink-0" size="xs" /> : null
     })()}
     {model}
   </div>
-);
+)
 
 const Endpoint = () => {
   const { selectedEndpoint, isEndpointActive, setSelectedEndpoint } =
-    usePlaygroundStore();
-  const { loadData, loadHistory } = useChatActions();
-  const [isEditing, setIsEditing] = useState(false);
-  const [endpointValue, setEndpointValue] = useState("");
-  const [isMounted, setIsMounted] = useState(false);
-  const [isHovering, setIsHovering] = useState(false);
-  const [isRotating, setIsRotating] = useState(false);
+    usePlaygroundStore()
+  const { loadData, loadHistory } = useChatActions()
+  const [isEditing, setIsEditing] = useState(false)
+  const [endpointValue, setEndpointValue] = useState('')
+  const [isMounted, setIsMounted] = useState(false)
+  const [isHovering, setIsHovering] = useState(false)
+  const [isRotating, setIsRotating] = useState(false)
 
   useEffect(() => {
-    setEndpointValue(selectedEndpoint);
-    setIsMounted(true);
-  }, [selectedEndpoint]);
+    setEndpointValue(selectedEndpoint)
+    setIsMounted(true)
+  }, [selectedEndpoint])
 
   const getStatusColor = (isActive: boolean) =>
-    isActive ? "bg-positive" : "bg-destructive";
+    isActive ? 'bg-positive' : 'bg-destructive'
 
   const handleSave = () => {
-    setSelectedEndpoint(endpointValue);
-    setIsEditing(false);
-    setIsHovering(false);
-  };
+    setSelectedEndpoint(endpointValue)
+    setIsEditing(false)
+    setIsHovering(false)
+  }
 
   const truncateText = (text: string, maxLength: number = 20) => {
-    return text.length > maxLength
-      ? `${text.substring(0, maxLength)}...`
-      : text;
-  };
+    return text.length > maxLength ? `${text.substring(0, maxLength)}...` : text
+  }
 
   const handleCancel = () => {
-    setEndpointValue(selectedEndpoint);
-    setIsEditing(false);
-    setIsHovering(false);
-  };
+    setEndpointValue(selectedEndpoint)
+    setIsEditing(false)
+    setIsHovering(false)
+  }
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter") {
-      handleSave();
-    } else if (e.key === "Escape") {
-      handleCancel();
+    if (e.key === 'Enter') {
+      handleSave()
+    } else if (e.key === 'Escape') {
+      handleCancel()
     }
-  };
+  }
 
   const handleRefresh = async () => {
-    setIsRotating(true);
-    const agents = await loadData();
-    await loadHistory(agents?.[0]?.value ?? "");
-    setTimeout(() => setIsRotating(false), 500);
-  };
+    setIsRotating(true)
+    const agents = await loadData()
+    await loadHistory(agents?.[0]?.value ?? '')
+    setTimeout(() => setIsRotating(false), 500)
+  }
 
   return (
     <div className="flex flex-col items-start gap-2">
-      <div className="uppercase text-xs font-medium text-primary">Endpoint</div>
+      <div className="text-xs font-medium uppercase text-primary">Endpoint</div>
       {isEditing ? (
-        <div className="flex w-full gap-1 items-center">
+        <div className="flex w-full items-center gap-1">
           <input
             type="text"
             value={endpointValue}
             onChange={(e) => setEndpointValue(e.target.value)}
             onKeyDown={handleKeyDown}
-            className="flex w-full items-center border-primary/15 border bg-accent rounded-xl p-3 h-9 text-xs font-medium text-muted text-ellipsis"
+            className="flex h-9 w-full items-center text-ellipsis rounded-xl border border-primary/15 bg-accent p-3 text-xs font-medium text-muted"
             autoFocus
           />
           <Button
             variant="ghost"
             size="icon"
             onClick={handleSave}
-            className="hover:bg-transparent hover:cursor-pointer"
+            className="hover:cursor-pointer hover:bg-transparent"
           >
             <Icon type="save" size="xs" />
           </Button>
@@ -120,11 +118,11 @@ const Endpoint = () => {
       ) : (
         <div className="flex w-full items-center gap-1">
           <motion.div
-            className="flex w-full items-center justify-between border-primary/15 border bg-accent rounded-xl uppercase p-3 h-9 relative cursor-pointer"
+            className="relative flex h-9 w-full cursor-pointer items-center justify-between rounded-xl border border-primary/15 bg-accent p-3 uppercase"
             onMouseEnter={() => setIsHovering(true)}
             onMouseLeave={() => setIsHovering(false)}
             onClick={() => setIsEditing(true)}
-            transition={{ type: "spring", stiffness: 400, damping: 10 }}
+            transition={{ type: 'spring', stiffness: 400, damping: 10 }}
           >
             <AnimatePresence mode="wait">
               {isHovering ? (
@@ -136,7 +134,7 @@ const Endpoint = () => {
                   exit={{ opacity: 0 }}
                   transition={{ duration: 0.2 }}
                 >
-                  <p className="text-xs font-medium text-primary flex items-center gap-2">
+                  <p className="flex items-center gap-2 text-xs font-medium text-primary">
                     <Icon type="edit" size="xxs" /> EDIT ENDPOINT
                   </p>
                 </motion.div>
@@ -152,7 +150,7 @@ const Endpoint = () => {
                   <p className="text-xs font-medium text-muted">
                     {isMounted
                       ? truncateText(selectedEndpoint)
-                      : "http://localhost:7777"}
+                      : 'http://localhost:7777'}
                   </p>
                   <div
                     className={`size-2 rounded-full ${getStatusColor(isEndpointActive)}`}
@@ -165,12 +163,12 @@ const Endpoint = () => {
             variant="ghost"
             size="icon"
             onClick={handleRefresh}
-            className="hover:bg-transparent hover:cursor-pointer"
+            className="hover:cursor-pointer hover:bg-transparent"
           >
             <motion.div
-              key={isRotating ? "rotating" : "idle"}
+              key={isRotating ? 'rotating' : 'idle'}
               animate={{ rotate: isRotating ? 360 : 0 }}
-              transition={{ duration: 0.5, ease: "easeInOut" }}
+              transition={{ duration: 0.5, ease: 'easeInOut' }}
             >
               <Icon type="refresh" size="xs" />
             </motion.div>
@@ -178,59 +176,59 @@ const Endpoint = () => {
         </div>
       )}
     </div>
-  );
-};
+  )
+}
 
 const Sidebar = () => {
-  const [isCollapsed, setIsCollapsed] = useState(false);
-  const { clearChat, focusChatInput, loadData } = useChatActions();
+  const [isCollapsed, setIsCollapsed] = useState(false)
+  const { clearChat, focusChatInput, loadData } = useChatActions()
   const { messages, selectedEndpoint, isEndpointActive, selectedModel } =
-    usePlaygroundStore();
-  const [isMounted, setIsMounted] = useState(false);
+    usePlaygroundStore()
+  const [isMounted, setIsMounted] = useState(false)
 
   useEffect(() => {
-    setIsMounted(true);
+    setIsMounted(true)
     if (selectedEndpoint) {
-      loadData();
+      loadData()
     }
-  }, [selectedEndpoint, loadData]);
+  }, [selectedEndpoint, loadData])
 
   const handleNewChat = () => {
-    clearChat();
-    focusChatInput();
-  };
+    clearChat()
+    focusChatInput()
+  }
   return (
     <motion.aside
-      className="h-screen font-dmmono relative py-3 px-2 flex flex-col gap-y-3 shrink-0 grow-0 overflow-hidden"
-      initial={{ width: isCollapsed ? "2.5rem" : "16rem" }}
-      animate={{ width: isCollapsed ? "2.5rem" : "16rem" }}
+      className="relative flex h-screen shrink-0 grow-0 flex-col gap-y-3 overflow-hidden px-2 py-3 font-dmmono"
+      initial={{ width: isCollapsed ? '2.5rem' : '16rem' }}
+      animate={{ width: isCollapsed ? '2.5rem' : '16rem' }}
       transition={{
-        type: "spring",
+        type: 'spring',
         stiffness: 300,
-        damping: 30,
+        damping: 30
       }}
     >
       <motion.button
         onClick={() => setIsCollapsed(!isCollapsed)}
-        className="absolute top-2 right-2 p-1 z-10"
-        aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+        className="absolute right-2 top-2 z-10 p-1"
+        aria-label={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
         type="button"
         whileTap={{ scale: 0.95 }}
       >
         <Icon
           type="sheet"
           size="xs"
-          className={`transform ${isCollapsed ? "rotate-180" : "rotate-0"}`}
+          className={`transform ${isCollapsed ? 'rotate-180' : 'rotate-0'}`}
         />
       </motion.button>
       <AnimatePresence>
         {!isCollapsed && (
           <motion.div
-            className="space-y-5 w-60"
+            className="w-60 space-y-5"
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -20 }}
-            transition={{ duration: 0.3, ease: "easeInOut" }}
+            transition={{ duration: 0.3, ease: 'easeInOut' }}
           >
             <SidebarHeader />
             <NewChatButton
@@ -245,9 +243,9 @@ const Sidebar = () => {
                     className="flex flex-col items-start gap-2"
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
-                    transition={{ duration: 0.5, ease: "easeInOut" }}
+                    transition={{ duration: 0.5, ease: 'easeInOut' }}
                   >
-                    <div className="uppercase text-xs font-medium text-primary">
+                    <div className="text-xs font-medium uppercase text-primary">
                       Agent
                     </div>
                     <AgentSelector />
@@ -261,7 +259,7 @@ const Sidebar = () => {
         )}
       </AnimatePresence>
     </motion.aside>
-  );
-};
+  )
+}
 
-export default Sidebar;
+export default Sidebar

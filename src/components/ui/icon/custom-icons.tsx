@@ -1,4 +1,4 @@
-import { type FC } from "react";
+import { type FC } from 'react'
 
 export const AgnoIcon: FC = ({ ...props }) => {
   return (
@@ -24,8 +24,8 @@ export const AgnoIcon: FC = ({ ...props }) => {
         </clipPath>
       </defs>
     </svg>
-  );
-};
+  )
+}
 
 export const UserIcon: FC = ({ ...props }) => {
   return (
@@ -46,8 +46,8 @@ export const UserIcon: FC = ({ ...props }) => {
         strokeLinejoin="round"
       />
     </svg>
-  );
-};
+  )
+}
 
 export const AgentIcon: FC = ({ ...props }) => {
   return (
@@ -93,8 +93,8 @@ export const AgentIcon: FC = ({ ...props }) => {
         fill="white"
       />
     </svg>
-  );
-};
+  )
+}
 
 export const MistralLogo: FC = ({ ...props }) => (
   <svg
@@ -214,7 +214,7 @@ export const MistralLogo: FC = ({ ...props }) => (
       fill="#FAFAFA"
     />
   </svg>
-);
+)
 
 export const GeminiLogo: FC = () => (
   <svg
@@ -229,7 +229,7 @@ export const GeminiLogo: FC = () => (
       fill="#FAFAFA"
     />
   </svg>
-);
+)
 
 export const AwsLogo: FC = ({ ...props }) => (
   <svg
@@ -264,7 +264,7 @@ export const AwsLogo: FC = ({ ...props }) => (
       </clipPath>
     </defs>
   </svg>
-);
+)
 
 export const AnthropicLogo: FC = ({ ...props }) => (
   <svg
@@ -287,7 +287,7 @@ export const AnthropicLogo: FC = ({ ...props }) => (
       </clipPath>
     </defs>
   </svg>
-);
+)
 
 export const OllamaLogo: FC = ({ ...props }) => (
   <svg
@@ -321,7 +321,7 @@ export const OllamaLogo: FC = ({ ...props }) => (
       fill="#FAFAFA"
     />
   </svg>
-);
+)
 
 export const GroqLogo: FC = ({ ...props }) => (
   <svg
@@ -337,7 +337,7 @@ export const GroqLogo: FC = ({ ...props }) => (
       fill="#FAFAFA"
     />
   </svg>
-);
+)
 export const DeepseekLogo: FC = ({ ...props }) => (
   <svg
     width="20"
@@ -352,7 +352,7 @@ export const DeepseekLogo: FC = ({ ...props }) => (
       fill="#FAFAFA"
     />
   </svg>
-);
+)
 
 export const CohereLogo: FC = ({ ...props }) => (
   <svg
@@ -380,7 +380,7 @@ export const CohereLogo: FC = ({ ...props }) => (
       fill="#FAFAFA"
     />
   </svg>
-);
+)
 export const FireworksLogo: FC = ({ ...props }) => (
   <svg
     width="22"
@@ -397,7 +397,7 @@ export const FireworksLogo: FC = ({ ...props }) => (
       fill="#FAFAFA"
     />
   </svg>
-);
+)
 
 export const AzureLogo: FC = ({ ...props }) => (
   <svg
@@ -413,7 +413,7 @@ export const AzureLogo: FC = ({ ...props }) => (
       fill="#FAFAFA"
     />
   </svg>
-);
+)
 export const XaiLogo: FC = ({ ...props }) => (
   <svg
     width="22"
@@ -440,7 +440,7 @@ export const XaiLogo: FC = ({ ...props }) => (
       fill="#FAFAFA"
     />
   </svg>
-);
+)
 export const OpenAILogo: FC = ({ ...props }) => (
   <svg
     width="22"
@@ -455,7 +455,7 @@ export const OpenAILogo: FC = ({ ...props }) => (
       fill="#FAFAFA"
     />
   </svg>
-);
+)
 
 export const SheetIcon: FC = ({ ...props }) => (
   <svg
@@ -473,7 +473,7 @@ export const SheetIcon: FC = ({ ...props }) => (
       strokeLinejoin="round"
     />
   </svg>
-);
+)
 
 export const NextjsTag: FC = ({ ...props }) => (
   <svg
@@ -583,7 +583,7 @@ export const NextjsTag: FC = ({ ...props }) => (
       </clipPath>
     </defs>
   </svg>
-);
+)
 
 export const ShadcnTag: FC = ({ ...props }) => (
   <svg
@@ -702,7 +702,7 @@ export const ShadcnTag: FC = ({ ...props }) => (
       />
     </defs>
   </svg>
-);
+)
 
 export const TailwindTag: FC = ({ ...props }) => (
   <svg
@@ -815,7 +815,7 @@ export const TailwindTag: FC = ({ ...props }) => (
       </filter>
     </defs>
   </svg>
-);
+)
 
 export const AgnoTag: FC = ({ ...props }) => {
   return (
@@ -927,8 +927,8 @@ export const AgnoTag: FC = ({ ...props }) => {
         </clipPath>
       </defs>
     </svg>
-  );
-};
+  )
+}
 
 export const ReasoningIcon: FC = ({ ...props }) => (
   <svg
@@ -954,7 +954,7 @@ export const ReasoningIcon: FC = ({ ...props }) => (
       </clipPath>
     </defs>
   </svg>
-);
+)
 
 export const ReferencesIcon: FC = ({ ...props }) => (
   <svg
@@ -980,4 +980,4 @@ export const ReferencesIcon: FC = ({ ...props }) => (
       </clipPath>
     </defs>
   </svg>
-);
+)

@@ -1,3 +1,3 @@
-import Audios from "./Audios";
+import Audios from './Audios'
 
-export default Audios;
+export default Audios

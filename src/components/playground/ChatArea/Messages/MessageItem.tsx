@@ -1,31 +1,31 @@
-import Icon from "@/components/ui/icon";
-import MarkdownRenderer from "@/components/ui/typography/MarkdownRenderer";
-import { usePlaygroundStore } from "@/store";
-import type { PlaygroundChatMessage } from "@/types/playground";
-import Videos from "./Multimedia/Videos";
-import Images from "./Multimedia/Images";
-import Audios from "./Multimedia/Audios";
-import { memo } from "react";
-import AgentThinkingLoader from "./AgentThinkingLoader";
+import Icon from '@/components/ui/icon'
+import MarkdownRenderer from '@/components/ui/typography/MarkdownRenderer'
+import { usePlaygroundStore } from '@/store'
+import type { PlaygroundChatMessage } from '@/types/playground'
+import Videos from './Multimedia/Videos'
+import Images from './Multimedia/Images'
+import Audios from './Multimedia/Audios'
+import { memo } from 'react'
+import AgentThinkingLoader from './AgentThinkingLoader'
 
 interface MessageProps {
-  message: PlaygroundChatMessage;
+  message: PlaygroundChatMessage
 }
 
 export const AgentMessage = ({ message }: MessageProps) => {
-  const { streamingErrorMessage } = usePlaygroundStore();
-  let messageContent;
+  const { streamingErrorMessage } = usePlaygroundStore()
+  let messageContent
   if (message.streamingError) {
     messageContent = (
       <p className="text-destructive">
-        Oops! Something went wrong while streaming.{" "}
+        Oops! Something went wrong while streaming.{' '}
         {streamingErrorMessage ? (
           <>{streamingErrorMessage}</>
         ) : (
-          "Please try refreshing the page or try again later."
+          'Please try refreshing the page or try again later.'
         )}
       </p>
-    );
+    )
   } else if (message.content) {
     messageContent = (
       <div className="flex w-full flex-col gap-4">
@@ -40,14 +40,14 @@ export const AgentMessage = ({ message }: MessageProps) => {
           <Audios audio={message.audio} />
         )}
       </div>
-    );
+    )
   } else if (message.response_audio) {
     if (!message.response_audio.transcript) {
       messageContent = (
         <div className="mt-2 flex items-start">
           <AgentThinkingLoader />
         </div>
-      );
+      )
     } else {
       messageContent = (
         <div className="flex w-full flex-col gap-4">
@@ -58,14 +58,14 @@ export const AgentMessage = ({ message }: MessageProps) => {
             <Audios audio={[message.response_audio]} />
           )}
         </div>
-      );
+      )
     }
   } else {
     messageContent = (
       <div className="mt-2">
         <AgentThinkingLoader />
       </div>
-    );
+    )
   }
 
   return (
@@ -75,22 +75,22 @@ export const AgentMessage = ({ message }: MessageProps) => {
       </div>
       {messageContent}
     </div>
-  );
-};
+  )
+}
 
 export const UserMessage = memo(({ message }: MessageProps) => {
   return (
     <div className="flex items-start pt-4 text-start max-md:break-words">
       <div className="flex flex-row gap-x-3">
-        <p className="text-muted flex items-center gap-x-2 text-sm font-medium">
+        <p className="flex items-center gap-x-2 text-sm font-medium text-muted">
           <Icon type="user" size="sm" />
         </p>
-        <div className="text-md text-secondary py-1 rounded-lg font-geist">
+        <div className="text-md rounded-lg py-1 font-geist text-secondary">
           {message.content}
         </div>
       </div>
     </div>
-  );
-});
+  )
+})
 
-UserMessage.displayName = "UserMessage";
+UserMessage.displayName = 'UserMessage'

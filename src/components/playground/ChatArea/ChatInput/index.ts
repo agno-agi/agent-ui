@@ -1,3 +1,3 @@
-import ChatInput from "./ChatInput";
+import ChatInput from './ChatInput'
 
-export default ChatInput;
+export default ChatInput

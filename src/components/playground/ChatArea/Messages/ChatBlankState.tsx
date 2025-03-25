@@ -1,68 +1,68 @@
-"use client";
+'use client'
 
-import Link from "next/link";
-import { motion, Variants } from "framer-motion";
-import Icon from "@/components/ui/icon";
-import { IconType } from "@/components/ui/icon/types";
-import React, { useState } from "react";
+import Link from 'next/link'
+import { motion, Variants } from 'framer-motion'
+import Icon from '@/components/ui/icon'
+import { IconType } from '@/components/ui/icon/types'
+import React, { useState } from 'react'
 
 const EXTERNAL_LINKS = {
   documentation:
-    "https://docs.agno.com/get-started/playground#agent-playground",
-  playground: "https://app.agno.com/playground/chat",
-  agno: "https://agno.com",
-};
+    'https://docs.agno.com/get-started/playground#agent-playground',
+  playground: 'https://app.agno.com/playground/chat',
+  agno: 'https://agno.com'
+}
 
 const TECH_ICONS = [
   {
-    type: "nextjs" as IconType,
-    position: "left-0",
-    link: "https://nextjs.org",
-    name: "Next.js",
-    zIndex: 10,
+    type: 'nextjs' as IconType,
+    position: 'left-0',
+    link: 'https://nextjs.org',
+    name: 'Next.js',
+    zIndex: 10
   },
   {
-    type: "shadcn" as IconType,
-    position: "left-[15px]",
-    link: "https://ui.shadcn.com",
-    name: "shadcn/ui",
-    zIndex: 20,
+    type: 'shadcn' as IconType,
+    position: 'left-[15px]',
+    link: 'https://ui.shadcn.com',
+    name: 'shadcn/ui',
+    zIndex: 20
   },
   {
-    type: "tailwind" as IconType,
-    position: "left-[30px]",
-    link: "https://tailwindcss.com",
-    name: "Tailwind CSS",
-    zIndex: 30,
-  },
-];
+    type: 'tailwind' as IconType,
+    position: 'left-[30px]',
+    link: 'https://tailwindcss.com',
+    name: 'Tailwind CSS',
+    zIndex: 30
+  }
+]
 
 interface ActionButtonProps {
-  href: string;
-  variant?: "primary";
-  text: string;
+  href: string
+  variant?: 'primary'
+  text: string
 }
 
 const ActionButton = ({ href, variant, text }: ActionButtonProps) => {
   const baseStyles =
-    "px-4 py-2 text-sm transition-colors font-dmmono tracking-tight";
+    'px-4 py-2 text-sm transition-colors font-dmmono tracking-tight'
   const variantStyles = {
-    primary: "border border-border hover:bg-neutral-800 rounded-xl",
-  };
+    primary: 'border border-border hover:bg-neutral-800 rounded-xl'
+  }
 
   return (
     <Link
       href={href}
       target="_blank"
-      className={`${baseStyles} ${variant ? variantStyles[variant] : ""}`}
+      className={`${baseStyles} ${variant ? variantStyles[variant] : ''}`}
     >
       {text}
     </Link>
-  );
-};
+  )
+}
 
 export const ChatBlankState = () => {
-  const [hoveredIcon, setHoveredIcon] = useState<string | null>(null);
+  const [hoveredIcon, setHoveredIcon] = useState<string | null>(null)
 
   // Animation variants for the icon
   const iconVariants: Variants = {
@@ -70,22 +70,22 @@ export const ChatBlankState = () => {
     hover: {
       y: -8,
       transition: {
-        type: "spring",
+        type: 'spring',
         stiffness: 150,
         damping: 10,
-        mass: 0.5,
-      },
+        mass: 0.5
+      }
     },
     exit: {
       y: 0,
       transition: {
-        type: "spring",
+        type: 'spring',
         stiffness: 200,
         damping: 15,
-        mass: 0.6,
-      },
-    },
-  };
+        mass: 0.6
+      }
+    }
+  }
 
   // Animation variants for the tooltip
   const tooltipVariants: Variants = {
@@ -93,35 +93,35 @@ export const ChatBlankState = () => {
       opacity: 0,
       transition: {
         duration: 0.15,
-        ease: "easeInOut",
-      },
+        ease: 'easeInOut'
+      }
     },
     visible: {
       opacity: 1,
       transition: {
         duration: 0.15,
-        ease: "easeInOut",
-      },
-    },
-  };
+        ease: 'easeInOut'
+      }
+    }
+  }
 
   return (
     <section
       className="flex flex-col items-center text-center font-geist"
       aria-label="Welcome message"
     >
-      <div className="max-w-3xl flex flex-col gap-y-8">
+      <div className="flex max-w-3xl flex-col gap-y-8">
         <motion.h1
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.3 }}
           className="text-3xl font-[600] tracking-tight"
         >
-          <div className="flex items-center justify-center whitespace-nowrap gap-x-2 font-medium">
+          <div className="flex items-center justify-center gap-x-2 whitespace-nowrap font-medium">
             <span className="flex items-center font-[600]">
               This is an open-source
             </span>
-            <span className="inline-flex items-center translate-y-[10px] scale-125 hover:rotate-6 transition-transform duration-200">
+            <span className="inline-flex translate-y-[10px] scale-125 items-center transition-transform duration-200 hover:rotate-6">
               <Link
                 href={EXTERNAL_LINKS.agno}
                 target="_blank"
@@ -134,8 +134,8 @@ export const ChatBlankState = () => {
             <span className="flex items-center font-[600]">
               Agent UI, built with
             </span>
-            <span className="inline-flex items-center translate-y-[5px] scale-125">
-              <div className="relative w-[90px] h-[40px] ml-2">
+            <span className="inline-flex translate-y-[5px] scale-125 items-center">
+              <div className="relative ml-2 h-[40px] w-[90px]">
                 {TECH_ICONS.map((icon) => (
                   <motion.div
                     key={icon.type}
@@ -144,7 +144,7 @@ export const ChatBlankState = () => {
                     variants={iconVariants}
                     initial="initial"
                     whileHover="hover"
-                    animate={hoveredIcon === icon.type ? "hover" : "exit"}
+                    animate={hoveredIcon === icon.type ? 'hover' : 'exit'}
                     onHoverStart={() => setHoveredIcon(icon.type)}
                     onHoverEnd={() => setHoveredIcon(null)}
                   >
@@ -152,17 +152,17 @@ export const ChatBlankState = () => {
                       href={icon.link}
                       target="_blank"
                       rel="noopener"
-                      className="block cursor-pointer relative"
+                      className="relative block cursor-pointer"
                     >
                       <div>
                         <Icon type={icon.type} size="default" />
                       </div>
                       <motion.div
-                        className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-1 px-2 py-1 bg-neutral-800 text-primary text-xs rounded whitespace-nowrap pointer-events-none"
+                        className="pointer-events-none absolute bottom-full left-1/2 mb-1 -translate-x-1/2 transform whitespace-nowrap rounded bg-neutral-800 px-2 py-1 text-xs text-primary"
                         variants={tooltipVariants}
                         initial="hidden"
                         animate={
-                          hoveredIcon === icon.type ? "visible" : "hidden"
+                          hoveredIcon === icon.type ? 'visible' : 'hidden'
                         }
                       >
                         {icon.name}
@@ -179,7 +179,7 @@ export const ChatBlankState = () => {
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.5 }}
-          className="flex gap-4 justify-center"
+          className="flex justify-center gap-4"
         >
           <ActionButton
             href={EXTERNAL_LINKS.documentation}
@@ -193,5 +193,5 @@ export const ChatBlankState = () => {
         </motion.div>
       </div>
     </section>
-  );
-};
+  )
+}

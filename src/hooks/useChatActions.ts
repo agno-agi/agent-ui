@@ -1,108 +1,104 @@
-import { useCallback } from "react";
-import { toast } from "sonner";
+import { useCallback } from 'react'
+import { toast } from 'sonner'
 
-import { usePlaygroundStore } from "../store";
+import { usePlaygroundStore } from '../store'
 
-import { ComboboxAgent, type PlaygroundChatMessage } from "@/types/playground";
+import { ComboboxAgent, type PlaygroundChatMessage } from '@/types/playground'
 import {
   getPlaygroundAgentsAPI,
-  getPlaygroundStatusAPI,
-} from "@/api/playground";
-import { useQueryState } from "nuqs";
-import { getAllPlaygroundSessionsAPI } from "@/api/playground";
+  getPlaygroundStatusAPI
+} from '@/api/playground'
+import { useQueryState } from 'nuqs'
+import { getAllPlaygroundSessionsAPI } from '@/api/playground'
 
 const useChatActions = () => {
-  const { chatInputRef } = usePlaygroundStore();
-  const selectedEndpoint = usePlaygroundStore(
-    (state) => state.selectedEndpoint,
-  );
-  const setSelectedModel = usePlaygroundStore(
-    (state) => state.setSelectedModel,
-  );
-  const [, setAgentId] = useQueryState("agent");
-  const [, setSessionId] = useQueryState("session");
-  const setMessages = usePlaygroundStore((state) => state.setMessages);
+  const { chatInputRef } = usePlaygroundStore()
+  const selectedEndpoint = usePlaygroundStore((state) => state.selectedEndpoint)
+  const setSelectedModel = usePlaygroundStore((state) => state.setSelectedModel)
+  const [, setAgentId] = useQueryState('agent')
+  const [, setSessionId] = useQueryState('session')
+  const setMessages = usePlaygroundStore((state) => state.setMessages)
   const setIsEndpointActive = usePlaygroundStore(
-    (state) => state.setIsEndpointActive,
-  );
+    (state) => state.setIsEndpointActive
+  )
   const setIsEndpointLoading = usePlaygroundStore(
-    (state) => state.setIsEndpointLoading,
-  );
-  const setAgents = usePlaygroundStore((state) => state.setAgents);
-  const setHistoryData = usePlaygroundStore((state) => state.setHistoryData);
+    (state) => state.setIsEndpointLoading
+  )
+  const setAgents = usePlaygroundStore((state) => state.setAgents)
+  const setHistoryData = usePlaygroundStore((state) => state.setHistoryData)
   const getStatus = useCallback(async () => {
     try {
-      const status = await getPlaygroundStatusAPI(selectedEndpoint);
-      return status;
+      const status = await getPlaygroundStatusAPI(selectedEndpoint)
+      return status
     } catch {
-      return 503;
+      return 503
     }
-  }, [selectedEndpoint]);
+  }, [selectedEndpoint])
 
   const getAgents = useCallback(async () => {
     try {
-      const agents = await getPlaygroundAgentsAPI(selectedEndpoint);
-      return agents;
+      const agents = await getPlaygroundAgentsAPI(selectedEndpoint)
+      return agents
     } catch {
-      toast.error("Error fetching agents");
-      return [];
+      toast.error('Error fetching agents')
+      return []
     }
-  }, [selectedEndpoint]);
+  }, [selectedEndpoint])
 
   const clearChat = useCallback(() => {
-    setMessages([]);
-    setSessionId(null);
+    setMessages([])
+    setSessionId(null)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [])
 
   const focusChatInput = useCallback(() => {
     setTimeout(() => {
-      requestAnimationFrame(() => chatInputRef?.current?.focus());
-    }, 0);
+      requestAnimationFrame(() => chatInputRef?.current?.focus())
+    }, 0)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [])
 
   const addMessage = useCallback(
     (message: PlaygroundChatMessage) => {
-      setMessages((prevMessages) => [...prevMessages, message]);
+      setMessages((prevMessages) => [...prevMessages, message])
     },
-    [setMessages],
-  );
+    [setMessages]
+  )
 
   const resetData = useCallback(({ agent }: { agent: ComboboxAgent }) => {
-    if (!agent) setSelectedModel("");
-    setAgentId(agent?.value ?? null);
+    if (!agent) setSelectedModel('')
+    setAgentId(agent?.value ?? null)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [])
 
   const loadHistory = useCallback(
     async (agentId: string) => {
-      if (!agentId || !selectedEndpoint) return;
+      if (!agentId || !selectedEndpoint) return
       const history = await getAllPlaygroundSessionsAPI(
         selectedEndpoint,
-        agentId,
-      );
-      setHistoryData(history);
+        agentId
+      )
+      setHistoryData(history)
     },
-    [selectedEndpoint, setHistoryData],
-  );
+    [selectedEndpoint, setHistoryData]
+  )
 
   const loadData = useCallback(async () => {
-    setIsEndpointLoading(true);
+    setIsEndpointLoading(true)
     try {
-      const status = await getStatus();
-      let agents: ComboboxAgent[] = [];
+      const status = await getStatus()
+      let agents: ComboboxAgent[] = []
       if (status === 200) {
-        setIsEndpointActive(true);
-        agents = await getAgents();
+        setIsEndpointActive(true)
+        agents = await getAgents()
       } else {
-        setIsEndpointActive(false);
+        setIsEndpointActive(false)
       }
-      resetData({ agent: agents?.[0] });
-      setAgents(agents);
-      return agents;
+      resetData({ agent: agents?.[0] })
+      setAgents(agents)
+      return agents
     } finally {
-      setIsEndpointLoading(false);
+      setIsEndpointLoading(false)
     }
   }, [
     getStatus,
@@ -110,8 +106,8 @@ const useChatActions = () => {
     setIsEndpointActive,
     setIsEndpointLoading,
     setAgents,
-    resetData,
-  ]);
+    resetData
+  ])
 
   return {
     clearChat,
@@ -119,8 +115,8 @@ const useChatActions = () => {
     getAgents,
     focusChatInput,
     loadData,
-    loadHistory,
-  };
-};
+    loadHistory
+  }
+}
 
-export default useChatActions;
+export default useChatActions

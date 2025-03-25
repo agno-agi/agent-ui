@@ -1,70 +1,70 @@
-"use client";
+'use client'
 
-import * as React from "react";
+import * as React from 'react'
 import {
   Select,
   SelectTrigger,
   SelectValue,
   SelectContent,
-  SelectItem,
-} from "@/components/ui/select";
-import { usePlaygroundStore } from "@/store";
-import { useQueryState } from "nuqs";
-import Icon from "@/components/ui/icon";
-import { useEffect } from "react";
-import useChatActions from "@/hooks/useChatActions";
+  SelectItem
+} from '@/components/ui/select'
+import { usePlaygroundStore } from '@/store'
+import { useQueryState } from 'nuqs'
+import Icon from '@/components/ui/icon'
+import { useEffect } from 'react'
+import useChatActions from '@/hooks/useChatActions'
 
 export function AgentSelector() {
-  const { agents, setMessages, setSelectedModel } = usePlaygroundStore();
-  const { focusChatInput } = useChatActions();
-  const [agentId, setAgentId] = useQueryState("agent", {
+  const { agents, setMessages, setSelectedModel } = usePlaygroundStore()
+  const { focusChatInput } = useChatActions()
+  const [agentId, setAgentId] = useQueryState('agent', {
     parse: (value) => value || undefined,
-    history: "push",
-  });
+    history: 'push'
+  })
 
   // Set the model when the component mounts if an agent is already selected
   useEffect(() => {
     if (agentId && agents.length > 0) {
-      const agent = agents.find((agent) => agent.value === agentId);
+      const agent = agents.find((agent) => agent.value === agentId)
       if (agent) {
-        setSelectedModel(agent.model.provider || "");
+        setSelectedModel(agent.model.provider || '')
         if (agent.model.provider) {
-          focusChatInput();
+          focusChatInput()
         }
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [agentId, agents, setSelectedModel]);
+  }, [agentId, agents, setSelectedModel])
 
   const handleOnValueChange = (value: string) => {
-    const newAgent = value === agentId ? "" : value;
+    const newAgent = value === agentId ? '' : value
     setSelectedModel(
-      agents.find((agent) => agent.value === newAgent)?.model.provider || "",
-    );
-    setAgentId(newAgent);
-    setMessages([]);
+      agents.find((agent) => agent.value === newAgent)?.model.provider || ''
+    )
+    setAgentId(newAgent)
+    setMessages([])
     if (agents.find((agent) => agent.value === newAgent)?.model.provider) {
-      focusChatInput();
+      focusChatInput()
     }
-  };
+  }
 
   return (
     <Select
-      value={agentId || ""}
+      value={agentId || ''}
       onValueChange={(value) => handleOnValueChange(value)}
     >
-      <SelectTrigger className="w-full h-9 border-primary/15 border text-xs font-medium bg-primaryAccent rounded-xl uppercase">
+      <SelectTrigger className="h-9 w-full rounded-xl border border-primary/15 bg-primaryAccent text-xs font-medium uppercase">
         <SelectValue placeholder="Select Agent" />
       </SelectTrigger>
-      <SelectContent className="shadow-lg border-none bg-primaryAccent font-dmmono">
+      <SelectContent className="border-none bg-primaryAccent font-dmmono shadow-lg">
         {agents.map((agent, index) => (
           <SelectItem
             className="cursor-pointer"
             key={`${agent.value}-${index}`}
             value={agent.value}
           >
-            <div className="flex items-center gap-3 uppercase text-xs font-medium">
-              <Icon type={"agent"} size="xs" />
+            <div className="flex items-center gap-3 text-xs font-medium uppercase">
+              <Icon type={'agent'} size="xs" />
               {agent.label}
             </div>
           </SelectItem>
@@ -72,12 +72,12 @@ export function AgentSelector() {
         {agents.length === 0 && (
           <SelectItem
             value="no-agents"
-            className="text-center cursor-not-allowed select-none"
+            className="cursor-not-allowed select-none text-center"
           >
             No agents found
           </SelectItem>
         )}
       </SelectContent>
     </Select>
-  );
+  )
 }
