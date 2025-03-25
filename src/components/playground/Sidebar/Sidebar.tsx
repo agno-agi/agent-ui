@@ -68,7 +68,7 @@ const Endpoint = () => {
     setIsHovering(false);
   };
 
-  const truncateText = (text: string, maxLength: number = 23) => {
+  const truncateText = (text: string, maxLength: number = 20) => {
     return text.length > maxLength
       ? `${text.substring(0, maxLength)}...`
       : text;

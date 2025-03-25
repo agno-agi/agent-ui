@@ -107,7 +107,7 @@ const SessionBlankState = () => {
       <div className="flex flex-col items-center gap-1">
         <HistoryBlankStateIcon />
         <div className="flex flex-col items-center gap-2">
-          <h3 className="text-sm font-medium text-primary">No history</h3>
+          <h3 className="text-sm font-medium text-primary">No Session found</h3>
           <p className="max-w-[210px] text-center text-sm text-muted">
             {errorMessage}
           </p>
