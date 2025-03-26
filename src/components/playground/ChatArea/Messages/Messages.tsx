@@ -1,7 +1,7 @@
 import type { PlaygroundChatMessage } from '@/types/playground'
 
 import { AgentMessage, UserMessage } from './MessageItem'
-import Tooltip from '@/components/ui/Tooltip'
+import Tooltip from '@/components/ui/tooltip'
 import { memo } from 'react'
 import {
   ToolCallProps,
