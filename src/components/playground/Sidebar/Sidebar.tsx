@@ -264,7 +264,7 @@ const Sidebar = () => {
             ref={contentRef}
             className="w-60 space-y-5"
             initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
+            animate={{ opacity: isCollapsed ? 0 : 1, x: isCollapsed ? -20 : 0 }}
             exit={{ opacity: 0, x: -20 }}
             style={{
               opacity: isCollapsed ? 0 : 1,
