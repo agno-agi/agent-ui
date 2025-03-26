@@ -270,7 +270,10 @@ const Sidebar = () => {
                   {isEndpointLoading ? (
                     <div className="flex w-full flex-col gap-2">
                       {Array.from({ length: 2 }).map((_, index) => (
-                        <Skeleton key={index} className="h-9 w-full rounded-xl" />
+                        <Skeleton
+                          key={index}
+                          className="h-9 w-full rounded-xl"
+                        />
                       ))}
                     </div>
                   ) : (
