@@ -1,6 +1,7 @@
 import React from 'react'
 import { usePlaygroundStore } from '@/store'
 import { useQueryState } from 'nuqs'
+import Link from 'next/link'
 
 const HistoryBlankStateIcon = () => (
   <svg
@@ -99,19 +100,31 @@ const SessionBlankState = () => {
       case !agentId:
         return 'Select an agent to see the history.'
       case !hasStorage:
-        return 'Agent does not have storage enabled. Sessions data will not be saved.'
+        return (
+          <>
+            Connect{' '}
+            <Link
+              className="underline"
+              href={'https://docs.agno.com/storage'}
+              target="_blank"
+            >
+              storage
+            </Link>{' '}
+            to your agent to see sessions.{' '}
+          </>
+        )
       default:
         return 'No session records yet. Start a conversation to create one.'
     }
   })()
 
   return (
-    <div className="mt-1 flex items-center justify-center rounded-lg bg-background-secondary/50 pb-6 pt-4">
+    <div className="bg-background-secondary/50 mt-1 flex items-center justify-center rounded-lg pb-6 pt-4">
       <div className="flex flex-col items-center gap-1">
         <HistoryBlankStateIcon />
         <div className="flex flex-col items-center gap-2">
-          <h3 className="text-sm font-medium text-primary">No Session found</h3>
-          <p className="max-w-[210px] text-center text-sm text-muted">
+          <h3 className="text-primary text-sm font-medium">No Session found</h3>
+          <p className="text-muted max-w-[210px] text-center text-sm">
             {errorMessage}
           </p>
         </div>
