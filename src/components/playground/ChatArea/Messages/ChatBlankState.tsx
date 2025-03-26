@@ -172,7 +172,7 @@ const ChatBlankState = () => {
               </div>
             </span>
           </div>
-          <p>For the full experience, visit our Agent Playground.</p>
+          <p>For the full experience, visit the Agent Playground.</p>
         </motion.h1>
         <motion.div
           initial={{ opacity: 0, y: 10 }}
