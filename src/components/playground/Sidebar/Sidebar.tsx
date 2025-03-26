@@ -12,7 +12,7 @@ import { isValidUrl } from '@/lib/utils'
 import { toast } from 'sonner'
 import { useQueryState } from 'nuqs'
 import { truncateText } from '@/lib/utils'
-
+import { SkeletonList } from '@/components/ui/SkeletonList'
 const ENDPOINT_PLACEHOLDER = 'NO ENDPOINT ADDED'
 const SidebarHeader = () => (
   <div className="flex items-center gap-2">
@@ -206,7 +206,8 @@ const Sidebar = () => {
     selectedEndpoint,
     isEndpointActive,
     selectedModel,
-    hydrated
+    hydrated,
+    isEndpointLoading
   } = usePlaygroundStore()
   const [isMounted, setIsMounted] = useState(false)
   const [agentId] = useQueryState('agent')
@@ -256,22 +257,32 @@ const Sidebar = () => {
           <>
             <Endpoint />
             {isEndpointActive && (
-              <motion.div
-                className="flex w-full flex-col items-start gap-2"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.5, ease: 'easeInOut' }}
-              >
-                <div className="text-xs font-medium uppercase text-primary">
-                  Agent
-                </div>
-                <AgentSelector />
-                {selectedModel && agentId && (
-                  <ModelDisplay model={selectedModel} />
-                )}
-              </motion.div>
+              <>
+                <motion.div
+                  className="flex w-full flex-col items-start gap-2"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.5, ease: 'easeInOut' }}
+                >
+                  <div className="text-xs font-medium uppercase text-primary">
+                    Agent
+                  </div>
+                  {isEndpointLoading ? (
+                    <div className="flex w-full flex-col">
+                      <SkeletonList skeletonCount={2} />
+                    </div>
+                  ) : (
+                    <>
+                      <AgentSelector />
+                      {selectedModel && agentId && (
+                        <ModelDisplay model={selectedModel} />
+                      )}
+                    </>
+                  )}
+                </motion.div>
+                <Sessions />
+              </>
             )}
-            <Sessions />
           </>
         )}
       </motion.div>

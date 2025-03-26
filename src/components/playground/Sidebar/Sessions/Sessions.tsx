@@ -9,30 +9,7 @@ import { useQueryState } from 'nuqs'
 import SessionItem from './SessionItem'
 import SessionBlankState from './SessionBlankState'
 import useSessionLoader from '@/hooks/useSessionLoader'
-import { Skeleton } from '@/components/ui/skeleton'
-import { cn } from '@/lib/utils'
-import { FC } from 'react'
-
-interface SkeletonListProps {
-  skeletonCount: number
-}
-
-const SkeletonList: FC<SkeletonListProps> = ({ skeletonCount }) => {
-  const skeletons = useMemo(
-    () => Array.from({ length: skeletonCount }, (_, i) => i),
-    [skeletonCount]
-  )
-
-  return skeletons.map((skeleton, index) => (
-    <Skeleton
-      key={skeleton}
-      className={cn(
-        'mx-3 mb-1 h-11 rounded-lg px-3 py-2',
-        index > 0 && 'bg-background-secondary'
-      )}
-    />
-  ))
-}
+import { SkeletonList } from '@/components/ui/SkeletonList'
 
 dayjs.extend(utc)
 
