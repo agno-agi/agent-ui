@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button'
 import { AgentSelector } from '@/components/playground/Sidebar/AgentSelector'
 import useChatActions from '@/hooks/useChatActions'
 import { usePlaygroundStore } from '@/store'
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 import { useState, useEffect, useRef } from 'react'
 import Icon from '@/components/ui/icon'
 import { getProviderIcon } from '@/lib/modelProvider'
@@ -142,24 +142,41 @@ const Endpoint = () => {
             onClick={() => setIsEditing(true)}
             transition={{ type: 'spring', stiffness: 400, damping: 10 }}
           >
-            {isHovering ? (
-              <div className="absolute inset-0 flex items-center justify-center">
-                <p className="flex items-center gap-2 whitespace-nowrap text-xs font-medium text-primary">
-                  <Icon type="edit" size="xxs" /> EDIT ENDPOINT
-                </p>
-              </div>
-            ) : (
-              <div className="absolute inset-0 flex items-center justify-between px-3">
-                <p className="text-xs font-medium text-muted">
-                  {isMounted
-                    ? truncateText(selectedEndpoint, 21) || ENDPOINT_PLACEHOLDER
-                    : 'http://localhost:7777'}
-                </p>
-                <div
-                  className={`size-2 shrink-0 rounded-full ${getStatusColor(isEndpointActive)}`}
-                />
-              </div>
-            )}
+            <AnimatePresence mode="wait">
+              {isHovering ? (
+                <motion.div
+                  key="endpoint-display-hover"
+                  className="absolute inset-0 flex items-center justify-center"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <p className="flex items-center gap-2 whitespace-nowrap text-xs font-medium text-primary">
+                    <Icon type="edit" size="xxs" /> EDIT ENDPOINT
+                  </p>
+                </motion.div>
+              ) : (
+                <motion.div
+                  key="endpoint-display"
+                  className="absolute inset-0 flex items-center justify-between px-3"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <p className="text-xs font-medium text-muted">
+                    {isMounted
+                      ? truncateText(selectedEndpoint, 21) ||
+                        ENDPOINT_PLACEHOLDER
+                      : 'http://localhost:7777'}
+                  </p>
+                  <div
+                    className={`size-2 shrink-0 rounded-full ${getStatusColor(isEndpointActive)}`}
+                  />
+                </motion.div>
+              )}
+            </AnimatePresence>
           </motion.div>
           <Button
             variant="ghost"
@@ -168,6 +185,7 @@ const Endpoint = () => {
             className="hover:cursor-pointer hover:bg-transparent"
           >
             <motion.div
+              key={isRotating ? 'rotating' : 'idle'}
               animate={{ rotate: isRotating ? 360 : 0 }}
               transition={{ duration: 0.5, ease: 'easeInOut' }}
             >
@@ -192,6 +210,7 @@ const Sidebar = () => {
   } = usePlaygroundStore()
   const [isMounted, setIsMounted] = useState(false)
   const [agentId] = useQueryState('agent')
+
   const contentRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -204,7 +223,6 @@ const Sidebar = () => {
     focusChatInput()
   }
 
-  // Update content visibility based on sidebar state
   useEffect(() => {
     if (contentRef.current) {
       if (isCollapsed) {
@@ -216,7 +234,6 @@ const Sidebar = () => {
       }
     }
   }, [isCollapsed])
-
   return (
     <motion.aside
       className="relative flex h-screen shrink-0 grow-0 flex-col gap-y-3 overflow-hidden px-2 py-3 font-dmmono"
@@ -241,47 +258,60 @@ const Sidebar = () => {
           className={`transform ${isCollapsed ? 'rotate-180' : 'rotate-0'}`}
         />
       </motion.button>
-      <div
-        ref={contentRef}
-        className="w-60 space-y-5 transition-opacity duration-300"
-        style={{
-          opacity: isCollapsed ? 0 : 1,
-          visibility: isCollapsed ? 'hidden' : 'visible',
-          pointerEvents: isCollapsed ? 'none' : 'auto',
-          position: 'absolute',
-          left: '0.5rem'
-        }}
-      >
-        <SidebarHeader />
-        <NewChatButton
-          disabled={messages.length === 0}
-          onClick={handleNewChat}
-        />
-        {isMounted && (
-          <>
-            <Endpoint />
-            {isEndpointActive && (
-              <motion.div
-                className="flex flex-col items-start gap-2"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.5, ease: 'easeInOut' }}
-              >
-                <div className="text-xs font-medium uppercase text-primary">
-                  Agent
-                </div>
-                <AgentSelector />
+      <AnimatePresence>
+        {
+          <motion.div
+            ref={contentRef}
+            className="w-60 space-y-5"
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -20 }}
+            style={{
+              opacity: isCollapsed ? 0 : 1,
+              visibility: isCollapsed ? 'hidden' : 'visible',
+              pointerEvents: isCollapsed ? 'none' : 'auto'
+            }}
+            transition={{ duration: 0.3, ease: 'easeInOut' }}
+          >
+            <SidebarHeader />
+            <NewChatButton
+              disabled={messages.length === 0}
+              onClick={handleNewChat}
+            />
+            {isMounted && (
+              <>
+                <Endpoint />
+                {isEndpointActive && (
+                  <motion.div
+                    className="flex w-full flex-col items-start gap-2"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ duration: 0.5, ease: 'easeInOut' }}
+                  >
+                    <div className="text-xs font-medium uppercase text-primary">
+                      Agent
+                    </div>
+                    <AgentSelector />
 
-                {selectedModel && agentId && (
-                  <ModelDisplay model={selectedModel} />
+                    {selectedModel && agentId && (
+                      <ModelDisplay model={selectedModel} />
+                    )}
+                  </motion.div>
                 )}
-              </motion.div>
+                <div
+                  className="w-full"
+                  style={{
+                    opacity: isCollapsed ? 0 : 1,
+                    visibility: isCollapsed ? 'hidden' : 'visible'
+                  }}
+                >
+                  <Sessions />
+                </div>
+              </>
             )}
-          </>
-        )}
-
-        <Sessions />
-      </div>
+          </motion.div>
+        }
+      </AnimatePresence>
     </motion.aside>
   )
 }
