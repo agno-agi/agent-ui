@@ -12,7 +12,7 @@ import { isValidUrl } from '@/lib/utils'
 import { toast } from 'sonner'
 import { useQueryState } from 'nuqs'
 import { truncateText } from '@/lib/utils'
-import { SkeletonList } from '@/components/ui/SkeletonList'
+import { Skeleton } from '@/components/ui/skeleton'
 const ENDPOINT_PLACEHOLDER = 'NO ENDPOINT ADDED'
 const SidebarHeader = () => (
   <div className="flex items-center gap-2">
@@ -268,8 +268,9 @@ const Sidebar = () => {
                     Agent
                   </div>
                   {isEndpointLoading ? (
-                    <div className="flex w-full flex-col">
-                      <SkeletonList skeletonCount={2} />
+                    <div className="flex w-full flex-col gap-2">
+                      <Skeleton className="h-9 w-full rounded-xl" />
+                      <Skeleton className="h-9 w-full rounded-xl" />
                     </div>
                   ) : (
                     <>
