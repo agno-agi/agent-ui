@@ -269,8 +269,9 @@ const Sidebar = () => {
                   </div>
                   {isEndpointLoading ? (
                     <div className="flex w-full flex-col gap-2">
-                      <Skeleton className="h-9 w-full rounded-xl" />
-                      <Skeleton className="h-9 w-full rounded-xl" />
+                      {Array.from({ length: 2 }).map((_, index) => (
+                        <Skeleton key={index} className="h-9 w-full rounded-xl" />
+                      ))}
                     </div>
                   ) : (
                     <>
