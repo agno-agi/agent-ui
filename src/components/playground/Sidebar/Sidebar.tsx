@@ -13,6 +13,8 @@ import { toast } from 'sonner'
 import { useQueryState } from 'nuqs'
 import { truncateText } from '@/lib/utils'
 import { Skeleton } from '@/components/ui/skeleton'
+import { TeamSelector } from './TeamSelector'
+
 const ENDPOINT_PLACEHOLDER = 'NO ENDPOINT ADDED'
 const SidebarHeader = () => (
   <div className="flex items-center gap-2">
@@ -207,18 +209,25 @@ const Sidebar = () => {
     isEndpointActive,
     selectedModel,
     hydrated,
-    isEndpointLoading
+    isEndpointLoading,
+    teams,
+    agents,
+    selectedEntityType
   } = usePlaygroundStore()
   const [isMounted, setIsMounted] = useState(false)
   const [agentId] = useQueryState('agent')
+  const [teamId] = useQueryState('team')
+
   useEffect(() => {
     setIsMounted(true)
     if (hydrated) initializePlayground()
   }, [selectedEndpoint, initializePlayground, hydrated])
+
   const handleNewChat = () => {
     clearChat()
     focusChatInput()
   }
+
   return (
     <motion.aside
       className="relative flex h-screen shrink-0 grow-0 flex-col overflow-hidden px-2 py-3 font-dmmono"
@@ -265,7 +274,7 @@ const Sidebar = () => {
                   transition={{ duration: 0.5, ease: 'easeInOut' }}
                 >
                   <div className="text-xs font-medium uppercase text-primary">
-                    Agent
+                    {teams.length > 0 ? 'Team' : 'Agent'}
                   </div>
                   {isEndpointLoading ? (
                     <div className="flex w-full flex-col gap-2">
@@ -278,8 +287,16 @@ const Sidebar = () => {
                     </div>
                   ) : (
                     <>
-                      <AgentSelector />
-                      {selectedModel && agentId && (
+                      {teams.length > 0 ? (
+                        <TeamSelector />
+                      ) : agents.length > 0 ? (
+                        <AgentSelector />
+                      ) : (
+                        <div className="flex h-9 w-full items-center justify-center rounded-xl border border-primary/15 bg-accent p-3 text-xs font-medium uppercase text-muted">
+                          No Agents or Teams
+                        </div>
+                      )}
+                      {selectedModel && (agentId || teamId) && (
                         <ModelDisplay model={selectedModel} />
                       )}
                     </>
