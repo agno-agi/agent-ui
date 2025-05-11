@@ -1,6 +1,8 @@
 import { useCallback } from 'react'
 import { type RunResponse } from '@/types/playground'
 
+const USER_ID = '7'
+
 /**
  * Processes a single JSON chunk by passing it to the provided callback.
  * @param chunk - A parsed JSON object of type RunResponse.
@@ -120,16 +122,20 @@ export default function useAIResponseStream() {
         const response = await fetch(apiUrl, {
           method: 'POST',
           headers: {
-            // Set content-type only for non-FormData requests.
+            'X-User-ID': USER_ID,
             ...(!(requestBody instanceof FormData) && {
               'Content-Type': 'application/json'
             }),
             ...headers
           },
-          body:
-            requestBody instanceof FormData
-              ? requestBody
-              : JSON.stringify(requestBody)
+          body: (() => {
+            if (requestBody instanceof FormData) {
+              requestBody.append('user_id', USER_ID)
+              return requestBody
+            } else {
+              return JSON.stringify({ ...requestBody, user_id: USER_ID })
+            }
+          })()
         })
 
         if (!response.ok) {
