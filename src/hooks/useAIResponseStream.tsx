@@ -1,7 +1,8 @@
 import { useCallback } from 'react'
 import { type RunResponse } from '@/types/playground'
+import { getUserId } from '@/utils/user';
 
-const USER_ID = '7'
+const USER_ID = getUserId()
 
 /**
  * Processes a single JSON chunk by passing it to the provided callback.

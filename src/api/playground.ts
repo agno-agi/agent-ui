@@ -3,8 +3,9 @@ import { toast } from 'sonner'
 import { APIRoutes } from './routes'
 
 import { Agent, ComboboxAgent, SessionEntry } from '@/types/playground'
+import { getUserId } from '@/utils/user';
 
-const USER_ID = '7'
+const USER_ID = getUserId()
 
 export const getPlaygroundAgentsAPI = async (
   endpoint: string
