@@ -7,7 +7,7 @@ export function getUserId(): string | null {
   const userId = params.get('user_id');
 
   if (!userId) {
-    window.location.href = 'http://localhost:3001/auth/login';
+    window.location.href = `${process.env.NEXT_PUBLIC_AUTH_APP_URL}/auth/login`;
     return null;
   }
 
