@@ -17,7 +17,7 @@ const ENDPOINT_PLACEHOLDER = 'NO ENDPOINT ADDED'
 const SidebarHeader = () => (
   <div className="flex items-center gap-2">
     <Icon type="agno" size="xs" />
-    <span className="text-xs font-medium uppercase text-white">Agent UI</span>
+    <span className="text-xs font-medium uppercase text-white">Meniu</span>
   </div>
 )
 
@@ -35,7 +35,7 @@ const NewChatButton = ({
     className="h-9 w-full rounded-xl bg-primary text-xs font-medium text-background hover:bg-primary/80"
   >
     <Icon type="plus-icon" size="xs" className="text-background" />
-    <span className="uppercase">New Chat</span>
+    <span className="uppercase">Naujas pokalbis</span>
   </Button>
 )
 
@@ -264,26 +264,6 @@ const Sidebar = () => {
                   animate={{ opacity: 1 }}
                   transition={{ duration: 0.5, ease: 'easeInOut' }}
                 >
-                  <div className="text-xs font-medium uppercase text-primary">
-                    Agent
-                  </div>
-                  {isEndpointLoading ? (
-                    <div className="flex w-full flex-col gap-2">
-                      {Array.from({ length: 2 }).map((_, index) => (
-                        <Skeleton
-                          key={index}
-                          className="h-9 w-full rounded-xl"
-                        />
-                      ))}
-                    </div>
-                  ) : (
-                    <>
-                      <AgentSelector />
-                      {selectedModel && agentId && (
-                        <ModelDisplay model={selectedModel} />
-                      )}
-                    </>
-                  )}
                 </motion.div>
                 <Sessions />
               </>
