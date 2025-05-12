@@ -35,7 +35,7 @@ const NewChatButton = ({
     className="h-9 w-full rounded-xl bg-primary text-xs font-medium text-background hover:bg-primary/80"
   >
     <Icon type="plus-icon" size="xs" className="text-background" />
-    <span className="uppercase">Naujas pokalbis</span>
+    <span className="uppercase">Naujas Pokalbis</span>
   </Button>
 )
 
@@ -264,6 +264,20 @@ const Sidebar = () => {
                   animate={{ opacity: 1 }}
                   transition={{ duration: 0.5, ease: 'easeInOut' }}
                 >
+                  {isEndpointLoading ? (
+                    <div className="flex w-full flex-col gap-2">
+                      {Array.from({ length: 2 }).map((_, index) => (
+                        <Skeleton
+                          key={index}
+                          className="h-9 w-full rounded-xl"
+                        />
+                      ))}
+                    </div>
+                  ) : (
+                    <>
+                      <AgentSelector />
+                    </>
+                  )}
                 </motion.div>
                 <Sessions />
               </>

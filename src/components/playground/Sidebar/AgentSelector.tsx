@@ -55,35 +55,7 @@ export function AgentSelector() {
   }
 
   return (
-    <Select
-      value={agentId || ''}
-      onValueChange={(value) => handleOnValueChange(value)}
-    >
-      <SelectTrigger className="h-9 w-full rounded-xl border border-primary/15 bg-primaryAccent text-xs font-medium uppercase">
-        <SelectValue placeholder="Select Agent" />
-      </SelectTrigger>
-      <SelectContent className="border-none bg-primaryAccent font-dmmono shadow-lg">
-        {agents.map((agent, index) => (
-          <SelectItem
-            className="cursor-pointer"
-            key={`${agent.value}-${index}`}
-            value={agent.value}
-          >
-            <div className="flex items-center gap-3 text-xs font-medium uppercase">
-              <Icon type={'agent'} size="xs" />
-              {agent.label}
-            </div>
-          </SelectItem>
-        ))}
-        {agents.length === 0 && (
-          <SelectItem
-            value="no-agents"
-            className="cursor-not-allowed select-none text-center"
-          >
-            No agents found
-          </SelectItem>
-        )}
-      </SelectContent>
-    </Select>
+    <>
+    </>
   )
 }
