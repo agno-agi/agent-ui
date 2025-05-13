@@ -26,10 +26,10 @@ const DeleteSessionModal: FC<DeleteSessionModalProps> = ({
   <Dialog open={isOpen} onOpenChange={onClose}>
     <DialogContent className="font-geist">
       <DialogHeader>
-        <DialogTitle>Confirm deletion</DialogTitle>
+        <DialogTitle>Patvirtinti</DialogTitle>
         <DialogDescription>
-          This will permanently delete the session. This action cannot be
-          undone.
+          Tai visam laikui ištrins šią sesiją.
+          <br/>Ar tikrai norite tęsti?
         </DialogDescription>
       </DialogHeader>
       <DialogFooter>
@@ -39,7 +39,7 @@ const DeleteSessionModal: FC<DeleteSessionModalProps> = ({
           onClick={onClose}
           disabled={isDeleting}
         >
-          CANCEL
+          ATŠAUKTI
         </Button>
         <Button
           variant="destructive"
@@ -47,7 +47,7 @@ const DeleteSessionModal: FC<DeleteSessionModalProps> = ({
           disabled={isDeleting}
           className="rounded-xl font-geist"
         >
-          DELETE
+          IŠTRINTI
         </Button>
       </DialogFooter>
     </DialogContent>
