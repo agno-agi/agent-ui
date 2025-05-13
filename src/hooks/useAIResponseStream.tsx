@@ -123,7 +123,7 @@ export default function useAIResponseStream() {
         const response = await fetch(apiUrl, {
           method: 'POST',
           headers: {
-            'X-User-ID': USER_ID,
+            ...(USER_ID && { 'X-User-ID': USER_ID }),
             ...(!(requestBody instanceof FormData) && {
               'Content-Type': 'application/json'
             }),
@@ -131,10 +131,15 @@ export default function useAIResponseStream() {
           },
           body: (() => {
             if (requestBody instanceof FormData) {
-              requestBody.append('user_id', USER_ID)
+              if (USER_ID) {
+                requestBody.append('user_id', USER_ID)
+              }
               return requestBody
             } else {
-              return JSON.stringify({ ...requestBody, user_id: USER_ID })
+              return JSON.stringify({
+                ...requestBody,
+                ...(USER_ID && { user_id: USER_ID })
+              })
             }
           })()
         })
