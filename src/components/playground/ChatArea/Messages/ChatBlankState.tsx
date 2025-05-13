@@ -116,12 +116,7 @@ const ChatBlankState = () => {
           transition={{ duration: 0.5, delay: 0.3 }}
           className="text-3xl font-[600] tracking-tight"
         >
-          <div className="flex items-center justify-center gap-x-2 whitespace-nowrap font-medium">
-            <span className="flex items-center font-[600]">
-              Agentas, apmokytas naudojant Generatyvųjį Dirbtinį Intelektą (GenAI)
-            </span>
-          </div>
-          <p> ir Paieška Papildyta Generaciją (RAG).</p>
+          <p>Labas!</p>
         </motion.h1>
         <motion.div
           initial={{ opacity: 0, y: 10 }}
