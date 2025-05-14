@@ -167,7 +167,8 @@ const useAIChatStreamHandler = () => {
                 } else if (
                   lastMessage &&
                   lastMessage.role === 'agent' &&
-                  typeof chunk?.content !== 'string'
+                  typeof chunk?.content !== 'string' &&
+                  chunk.content !== null
                 ) {
                   const jsonBlock = getJsonMarkdown(chunk?.content)
 
