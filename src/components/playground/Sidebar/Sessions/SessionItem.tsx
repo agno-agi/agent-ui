@@ -2,13 +2,9 @@ import { useQueryState } from 'nuqs'
 import { SessionEntry } from '@/types/playground'
 import { Button } from '../../../ui/button'
 import useSessionLoader from '@/hooks/useSessionLoader'
-import { deletePlaygroundSessionAPI } from '@/api/playground'
-import { usePlaygroundStore } from '@/store'
-import { toast } from 'sonner'
 import Icon from '@/components/ui/icon'
 import { useState } from 'react'
 import DeleteSessionModal from './DeleteSessionModal'
-import useChatActions from '@/hooks/useChatActions'
 import { truncateText, cn } from '@/lib/utils'
 
 type SessionItemProps = SessionEntry & {
@@ -26,10 +22,8 @@ const SessionItem = ({
   const [workflowId] = useQueryState('workflow')
   const { getSession } = useSessionLoader()
   const [, setSessionId] = useQueryState('session')
-  const { selectedEndpoint, sessionsData, setSessionsData } =
-    usePlaygroundStore()
+
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
-  const { clearChat } = useChatActions()
 
   const handleGetSession = async () => {
     if (agentId || teamId || workflowId) {
@@ -40,44 +34,42 @@ const SessionItem = ({
   }
 
   const handleDeleteSession = async () => {
-    if (agentId || teamId || workflowId) {
-      try {
-        let response;
-        
-        if (workflowId) {
-          response = await deletePlaygroundWorkflowSessionAPI(
-            selectedEndpoint,
-            workflowId,
-            session_id
-          );
-        } else if (teamId) {
-          // Assuming there's a team session delete API
-          toast.error('Team session deletion not implemented');
-          setIsDeleteModalOpen(false);
-          return;
-        } else if (agentId) {
-          response = await deletePlaygroundSessionAPI(
-            selectedEndpoint,
-            agentId,
-            session_id
-          );
-        }
-        
-        if (response && response.status === 200 && sessionsData) {
-          setSessionsData(
-            sessionsData.filter((session) => session.session_id !== session_id)
-          )
-          clearChat()
-          toast.success('Session deleted')
-        } else {
-          toast.error('Failed to delete session')
-        }
-      } catch {
-        toast.error('Failed to delete session')
-      } finally {
-        setIsDeleteModalOpen(false)
-      }
-    }
+    // if (agentId || teamId || workflowId) {
+    //   try {
+    //     let response;
+    //     if (workflowId) {
+    //       response = await deletePlaygroundWorkflowSessionAPI(
+    //         selectedEndpoint,
+    //         workflowId,
+    //         session_id
+    //       );
+    //     } else if (teamId) {
+    //       // Assuming there's a team session delete API
+    //       toast.error('Team session deletion not implemented');
+    //       setIsDeleteModalOpen(false);
+    //       return;
+    //     } else if (agentId) {
+    //       response = await deletePlaygroundSessionAPI(
+    //         selectedEndpoint,
+    //         agentId,
+    //         session_id
+    //       );
+    //     }
+    //     if (response && response.status === 200 && sessionsData) {
+    //       setSessionsData(
+    //         sessionsData.filter((session) => session.session_id !== session_id)
+    //       )
+    //       clearChat()
+    //       toast.success('Session deleted')
+    //     } else {
+    //       toast.error('Failed to delete session')
+    //     }
+    //   } catch {
+    //     toast.error('Failed to delete session')
+    //   } finally {
+    //     setIsDeleteModalOpen(false)
+    //   }
+    // }
   }
   return (
     <>

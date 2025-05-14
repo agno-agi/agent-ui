@@ -28,7 +28,9 @@ export function WorkflowSelector() {
   // Set storage flag when the component mounts if a workflow is already selected
   useEffect(() => {
     if (workflowId && workflows.length > 0) {
-      const workflow = workflows.find((workflow) => workflow.value === workflowId)
+      const workflow = workflows.find(
+        (workflow) => workflow.value === workflowId
+      )
       if (workflow) {
         // Force storage to true for workflows to enable session loading
         setHasStorage(true)
@@ -43,11 +45,8 @@ export function WorkflowSelector() {
   const handleOnValueChange = (value: string) => {
     // If clicking the already selected workflow, clear it
     const newWorkflow = value === workflowId ? null : value
-    
+
     if (newWorkflow) {
-      // If selecting a workflow, clear agent and team
-      const selectedWorkflow = workflows.find((workflow) => workflow.value === newWorkflow)
-      
       // Force storage to true for workflows to enable session loading
       setHasStorage(true)
       setWorkflowId(newWorkflow)
@@ -55,7 +54,7 @@ export function WorkflowSelector() {
       setAgentId(null)
       setMessages([])
       setSessionId(null)
-      
+
       focusChatInput()
     } else {
       // Just clearing the workflow
@@ -87,7 +86,7 @@ export function WorkflowSelector() {
           </SelectItem>
         ))}
         {workflows.length === 0 && (
-          <div className="cursor-not-allowed select-none text-center px-2 py-1.5 text-xs text-muted-foreground">
+          <div className="text-muted-foreground cursor-not-allowed select-none px-2 py-1.5 text-center text-xs">
             No workflows found
           </div>
         )}

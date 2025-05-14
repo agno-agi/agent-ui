@@ -1,16 +1,25 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 
 import { APIRoutes } from '@/api/routes'
 
 import useChatActions from '@/hooks/useChatActions'
 import { usePlaygroundStore } from '../store'
-import { RunEvent, type RunResponse, Workflow, WorkflowRunRequest, SessionEntry, PlaygroundChatMessage } from '@/types/playground'
+import {
+  RunEvent,
+  type RunResponse,
+  Workflow,
+  SessionEntry,
+  PlaygroundChatMessage
+} from '@/types/playground'
 import { constructEndpointUrl } from '@/lib/constructEndpointUrl'
 import useAIResponseStream from './useAIResponseStream'
 import { ToolCall } from '@/types/playground'
 import { useQueryState } from 'nuqs'
 import { getJsonMarkdown } from '@/lib/utils'
-import { getPlaygroundWorkflowAPI, getWorkflowSessionStateAPI } from '@/api/playground'
+import {
+  getPlaygroundWorkflowAPI,
+  getWorkflowSessionStateAPI
+} from '@/api/playground'
 
 /**
  * useAIChatStreamHandler is responsible for making API calls and handling the stream response.
@@ -31,17 +40,19 @@ const useAIChatStreamHandler = () => {
   const setSessionsData = usePlaygroundStore((state) => state.setSessionsData)
   const hasStorage = usePlaygroundStore((state) => state.hasStorage)
   const { streamResponse } = useAIResponseStream()
-  
+
   // State to store the current workflow details
   const [currentWorkflow, setCurrentWorkflow] = useState<Workflow | null>(null)
 
-  
   // Fetch workflow details when workflowId changes
   useEffect(() => {
     const fetchWorkflowDetails = async () => {
       if (workflowId && selectedEndpoint) {
         try {
-          const workflow = await getPlaygroundWorkflowAPI(selectedEndpoint, workflowId)
+          const workflow = await getPlaygroundWorkflowAPI(
+            selectedEndpoint,
+            workflowId
+          )
           setCurrentWorkflow(workflow)
         } catch (error) {
           console.error('Error fetching workflow details:', error)
@@ -51,7 +62,7 @@ const useAIChatStreamHandler = () => {
         setCurrentWorkflow(null)
       }
     }
-    
+
     fetchWorkflowDetails()
   }, [workflowId, selectedEndpoint])
 
@@ -146,7 +157,10 @@ const useAIChatStreamHandler = () => {
             currentAgentId
           )
         } else if (currentWorkflowId) {
-          playgroundRunUrl = APIRoutes.WorkflowRun(endpointUrl, currentWorkflowId)
+          playgroundRunUrl = APIRoutes.WorkflowRun(
+            endpointUrl,
+            currentWorkflowId
+          )
         } else {
           console.error(
             'Inconsistent state: No agent, team, or workflow ID found despite initial check.'
@@ -156,60 +170,65 @@ const useAIChatStreamHandler = () => {
         }
 
         // Handle different request formats for different endpoints
-        let requestBody: any = {}
+        let requestBody = {}
         let headers: Record<string, string> = {}
-        
+
         if (currentWorkflowId && currentWorkflow) {
           // For workflows, we need to use the exact format shown in the example
           const userMessage = formData.get('message') as string
-          
+
           // Generate a unique session ID for workflows if we don't have one yet
           if (!sessionId) {
             // Generate a unique session ID
             const generateUniqueSessionId = (): string => {
               // Generate a random UUID
-              const uuid = crypto.randomUUID();
-              
+              const uuid = crypto.randomUUID()
+
               // Check if this UUID already exists in the sessions list
-              const sessionsData = usePlaygroundStore.getState().sessionsData;
-              if (sessionsData && sessionsData.some((session: SessionEntry) => session.session_id === uuid)) {
+              const sessionsData = usePlaygroundStore.getState().sessionsData
+              if (
+                sessionsData &&
+                sessionsData.some(
+                  (session: SessionEntry) => session.session_id === uuid
+                )
+              ) {
                 // If it exists, generate another one
-                return generateUniqueSessionId();
+                return generateUniqueSessionId()
               }
-              return uuid;
-            };
-            
+              return uuid
+            }
+
             // Generate a unique session ID
-            newSessionId = generateUniqueSessionId();
-            
+            newSessionId = generateUniqueSessionId()
+
             // Store the session data
             if (hasStorage) {
               const sessionData = {
                 session_id: newSessionId,
                 title: formData.get('message') as string,
                 created_at: Math.floor(Date.now() / 1000)
-              };
-              
+              }
+
               // Add the session to the sessions list
               setSessionsData((prevSessionsData: SessionEntry[] | null) => {
-                return [sessionData, ...(prevSessionsData ?? [])];
-              });
-              
+                return [sessionData, ...(prevSessionsData ?? [])]
+              })
+
               // Set the session ID in the URL
-              setSessionId(newSessionId);
-              
+              setSessionId(newSessionId)
+
               // Update all messages with this session ID
               setMessages((prevMessages) => {
-                return prevMessages.map(msg => ({
+                return prevMessages.map((msg) => ({
                   ...msg,
-                  session_id: newSessionId
-                }));
-              });
+                  session_id: newSessionId || undefined
+                }))
+              })
             } else {
-              setSessionId(newSessionId);
+              setSessionId(newSessionId)
             }
           }
-          
+
           // Create the exact payload format for workflows
           requestBody = {
             input: {
@@ -218,11 +237,11 @@ const useAIChatStreamHandler = () => {
             user_id: null,
             session_id: newSessionId || sessionId || null // Use our generated ID, or existing ID, or null
           }
-          
+
           // Set the exact headers needed
           headers = {
             'Content-Type': 'application/json',
-            'Accept': '*/*'
+            Accept: '*/*'
           }
         } else {
           // For agents and teams, use the FormData approach
@@ -237,7 +256,6 @@ const useAIChatStreamHandler = () => {
           requestBody,
           headers,
           onChunk: (chunk: RunResponse) => {
-            
             if (
               chunk.event === RunEvent.RunStarted ||
               chunk.event === RunEvent.ReasoningStarted
@@ -257,7 +275,8 @@ const useAIChatStreamHandler = () => {
                 }
                 setSessionsData((prevSessionsData: SessionEntry[] | null) => {
                   const sessionExists = prevSessionsData?.some(
-                    (session: SessionEntry) => session.session_id === chunk.session_id
+                    (session: SessionEntry) =>
+                      session.session_id === chunk.session_id
                   )
                   if (sessionExists) {
                     return prevSessionsData
@@ -401,7 +420,7 @@ const useAIChatStreamHandler = () => {
             // Make sure to end streaming state even if no RunCompleted event was received
             // This is particularly important for workflows where the session_id might be null initially
             setIsStreaming(false)
-            
+
             // If this is a workflow and we have a session ID, fetch the session state
             if (currentWorkflowId && newSessionId) {
               try {
@@ -412,7 +431,9 @@ const useAIChatStreamHandler = () => {
                 )
                 // Store the session state in the store
                 console.log('Workflow session state:', sessionState)
-                usePlaygroundStore.getState().setWorkflowSessionState(sessionState)
+                usePlaygroundStore
+                  .getState()
+                  .setWorkflowSessionState(sessionState)
               } catch (error) {
                 console.error('Error fetching workflow session state:', error)
                 // Clear the session state on error

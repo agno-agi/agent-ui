@@ -11,7 +11,6 @@ import Icon from '@/components/ui/icon'
 import { getProviderIcon } from '@/lib/modelProvider'
 import Sessions from './Sessions'
 import Documents from './Documents'
-import SessionState from './SessionState'
 import { isValidUrl } from '@/lib/utils'
 import { toast } from 'sonner'
 import { useQueryState } from 'nuqs'
@@ -217,7 +216,6 @@ const Sidebar = () => {
   const [isMounted, setIsMounted] = useState(false)
   const [agentId] = useQueryState('agent')
   const [teamId] = useQueryState('team')
-  const [workflowId] = useQueryState('workflow')
 
   useEffect(() => {
     setIsMounted(true)
@@ -226,15 +224,15 @@ const Sidebar = () => {
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
-      const target = e.target as HTMLElement;
+      const target = e.target as HTMLElement
       if (isMobileOpen && !target.closest('.sidebar-container')) {
-        setIsMobileOpen(false);
+        setIsMobileOpen(false)
       }
-    };
+    }
 
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [isMobileOpen]);
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [isMobileOpen])
 
   const handleNewChat = () => {
     clearChat()
@@ -245,9 +243,9 @@ const Sidebar = () => {
     <>
       {/* Mobile Hamburger Menu - Only visible on small screens */}
       {!isMobileOpen && (
-        <button 
+        <button
           onClick={() => setIsMobileOpen(!isMobileOpen)}
-          className="md:hidden fixed top-3 left-3 z-50 p-2 bg-background/80 rounded-md"
+          className="bg-background/80 fixed left-3 top-3 z-50 rounded-md p-2 md:hidden"
           aria-label="Toggle mobile menu"
         >
           <Icon type="sheet" size="xs" />
@@ -256,133 +254,140 @@ const Sidebar = () => {
 
       {/* Mobile overlay backdrop when sidebar is open */}
       {isMobileOpen && (
-        <div 
-          className="md:hidden fixed inset-0 bg-black/50 z-30" 
+        <div
+          className="fixed inset-0 z-30 bg-black/50 md:hidden"
           onClick={() => setIsMobileOpen(false)}
           aria-hidden="true"
         />
       )}
 
       <motion.aside
-        className="sidebar-container font-dmmono fixed md:relative flex h-screen shrink-0 grow-0 flex-col overflow-hidden px-2 py-3 z-40 bg-background/95 md:bg-transparent shadow-lg md:shadow-none"
+        className="sidebar-container font-dmmono bg-background/95 fixed z-40 flex h-screen shrink-0 grow-0 flex-col overflow-hidden px-2 py-3 shadow-lg md:relative md:bg-transparent md:shadow-none"
         initial={{ width: '16rem', x: '-100%' }}
-        animate={{ 
+        animate={{
           width: isCollapsed ? '2.5rem' : '16rem',
-          x: isMobileOpen ? '0%' : (typeof window !== 'undefined' && window.innerWidth < 768 ? '-100%' : '0%')
+          x: isMobileOpen
+            ? '0%'
+            : typeof window !== 'undefined' && window.innerWidth < 768
+              ? '-100%'
+              : '0%'
         }}
         transition={{ type: 'spring', stiffness: 300, damping: 30 }}
       >
-      <motion.button
-        onClick={() => {setIsCollapsed(!isCollapsed); setIsMobileOpen(false)}}
-        className="absolute right-2 top-2 z-10 p-1"
-        aria-label={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-        type="button"
-        whileTap={{ scale: 0.95 }}
-      >
-        <Icon
-          type="sheet"
-          size="xs"
-          className={`transform ${isCollapsed ? 'rotate-180' : 'rotate-0'}`}
-        />
-      </motion.button>
-      <motion.div
-        className="w-60 space-y-5"
-        initial={{ opacity: 0, x: -20 }}
-        animate={{ opacity: isCollapsed ? 0 : 1, x: isCollapsed ? -20 : 0 }}
-        transition={{ duration: 0.3, ease: 'easeInOut' }}
-        style={{
-          pointerEvents: isCollapsed ? 'none' : 'auto'
-        }}
-      >
-        <SidebarHeader />
-        <NewChatButton
-          disabled={messages.length === 0}
-          onClick={handleNewChat}
-        />
-        {isMounted && (
-          <>
-            <Endpoint />
-            {isEndpointActive && (
-              <>
-                <motion.div
-                  className="flex w-full flex-col items-start gap-2"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ duration: 0.5, ease: 'easeInOut' }}
-                >
-                  <div className="text-primary text-xs font-medium uppercase">
-                    Agent
-                  </div>
-                  {isEndpointLoading ? (
-                    <div className="flex w-full flex-col gap-2">
-                      {Array.from({ length: 2 }).map((_, index) => (
-                        <Skeleton
-                          key={index}
-                          className="h-9 w-full rounded-xl"
-                        />
-                      ))}
+        <motion.button
+          onClick={() => {
+            setIsCollapsed(!isCollapsed)
+            setIsMobileOpen(false)
+          }}
+          className="absolute right-2 top-2 z-10 p-1"
+          aria-label={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+          type="button"
+          whileTap={{ scale: 0.95 }}
+        >
+          <Icon
+            type="sheet"
+            size="xs"
+            className={`transform ${isCollapsed ? 'rotate-180' : 'rotate-0'}`}
+          />
+        </motion.button>
+        <motion.div
+          className="w-60 space-y-5"
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: isCollapsed ? 0 : 1, x: isCollapsed ? -20 : 0 }}
+          transition={{ duration: 0.3, ease: 'easeInOut' }}
+          style={{
+            pointerEvents: isCollapsed ? 'none' : 'auto'
+          }}
+        >
+          <SidebarHeader />
+          <NewChatButton
+            disabled={messages.length === 0}
+            onClick={handleNewChat}
+          />
+          {isMounted && (
+            <>
+              <Endpoint />
+              {isEndpointActive && (
+                <>
+                  <motion.div
+                    className="flex w-full flex-col items-start gap-2"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ duration: 0.5, ease: 'easeInOut' }}
+                  >
+                    <div className="text-primary text-xs font-medium uppercase">
+                      Agent
                     </div>
-                  ) : (
-                    <>
-                      <AgentSelector />
-                      {selectedModel && agentId && !teamId && (
-                        <ModelDisplay model={selectedModel} />
-                      )}
-                    </>
-                  )}
-                </motion.div>
-                <motion.div
-                  className="flex w-full flex-col items-start gap-2"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ duration: 0.5, ease: 'easeInOut' }}
-                >
-                  <div className="text-primary text-xs font-medium uppercase">
-                    Team
-                  </div>
-                  {isEndpointLoading ? (
-                    <div className="flex w-full flex-col gap-2">
-                      {Array.from({ length: 1 }).map((_, index) => (
-                        <Skeleton
-                          key={index}
-                          className="h-9 w-full rounded-xl"
-                        />
-                      ))}
+                    {isEndpointLoading ? (
+                      <div className="flex w-full flex-col gap-2">
+                        {Array.from({ length: 2 }).map((_, index) => (
+                          <Skeleton
+                            key={index}
+                            className="h-9 w-full rounded-xl"
+                          />
+                        ))}
+                      </div>
+                    ) : (
+                      <>
+                        <AgentSelector />
+                        {selectedModel && agentId && !teamId && (
+                          <ModelDisplay model={selectedModel} />
+                        )}
+                      </>
+                    )}
+                  </motion.div>
+                  <motion.div
+                    className="flex w-full flex-col items-start gap-2"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ duration: 0.5, ease: 'easeInOut' }}
+                  >
+                    <div className="text-primary text-xs font-medium uppercase">
+                      Team
                     </div>
-                  ) : (
-                    <TeamSelector />
-                  )}
-                </motion.div>
-                <motion.div
-                  className="flex w-full flex-col items-start gap-2"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ duration: 0.5, ease: 'easeInOut' }}
-                >
-                  <div className="text-primary text-xs font-medium uppercase">
-                    Workflow
-                  </div>
-                  {isEndpointLoading ? (
-                    <div className="flex w-full flex-col gap-2">
-                      {Array.from({ length: 1 }).map((_, index) => (
-                        <Skeleton
-                          key={index}
-                          className="h-9 w-full rounded-xl"
-                        />
-                      ))}
+                    {isEndpointLoading ? (
+                      <div className="flex w-full flex-col gap-2">
+                        {Array.from({ length: 1 }).map((_, index) => (
+                          <Skeleton
+                            key={index}
+                            className="h-9 w-full rounded-xl"
+                          />
+                        ))}
+                      </div>
+                    ) : (
+                      <TeamSelector />
+                    )}
+                  </motion.div>
+                  <motion.div
+                    className="flex w-full flex-col items-start gap-2"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ duration: 0.5, ease: 'easeInOut' }}
+                  >
+                    <div className="text-primary text-xs font-medium uppercase">
+                      Workflow
                     </div>
-                  ) : (
-                    <WorkflowSelector />
-                  )}
-                </motion.div>
-                <Sessions />
-                <Documents />
-              </>
-            )}
-          </>
-        )}
-      </motion.div>
-    </motion.aside>
+                    {isEndpointLoading ? (
+                      <div className="flex w-full flex-col gap-2">
+                        {Array.from({ length: 1 }).map((_, index) => (
+                          <Skeleton
+                            key={index}
+                            className="h-9 w-full rounded-xl"
+                          />
+                        ))}
+                      </div>
+                    ) : (
+                      <WorkflowSelector />
+                    )}
+                  </motion.div>
+                  <Sessions />
+                  <Documents />
+                </>
+              )}
+            </>
+          )}
+        </motion.div>
+      </motion.aside>
     </>
   )
 }

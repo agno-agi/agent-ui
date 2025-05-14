@@ -30,6 +30,7 @@ const Documents = () => {
     if (selectedEndpoint) {
       loadDocuments()
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedEndpoint])
 
   const handleAddDocument = async (name: string, content: string) => {
