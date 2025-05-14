@@ -69,6 +69,14 @@ export interface Agent {
   storage?: boolean
 }
 
+export interface Team{
+  team_id: string
+  name: string
+  description: string
+  model: Model
+  storage?: boolean
+}
+
 interface MessageContext {
   query: string
   docs?: Array<Record<string, object>>
@@ -163,6 +171,16 @@ export interface ComboboxAgent {
   }
   storage?: boolean
 }
+
+export interface ComboboxTeam {
+  value: string
+  label: string
+  model:{
+    provider: string
+  }
+  storage?: boolean
+}
+
 export interface ImageData {
   revised_prompt: string
   url: string
