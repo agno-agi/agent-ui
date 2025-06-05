@@ -14,9 +14,9 @@ import Icon from '@/components/ui/icon'
 import { useEffect } from 'react'
 import useChatActions from '@/hooks/useChatActions'
 
-export function AgentSelector() {
+export function TeamSelector() {
   const {
-    agents,
+    teams,
     setMessages,
     setSelectedModel,
     setHasStorage,
@@ -24,78 +24,75 @@ export function AgentSelector() {
     setSelectedEntityType
   } = usePlaygroundStore()
   const { focusChatInput } = useChatActions()
-  const [agentId, setAgentId] = useQueryState('agent', {
+  const [teamId, setTeamId] = useQueryState('team', {
     parse: (value) => value || undefined,
     history: 'push'
   })
   const [, setSessionId] = useQueryState('session')
-  const [, setTeamId] = useQueryState('team')
+  const [, setAgentId] = useQueryState('agent')
 
-  // Set the model when the component mounts if an agent is already selected
   useEffect(() => {
-    if (agentId && agents.length > 0) {
-      const agent = agents.find((agent) => agent.value === agentId)
-      if (agent) {
-        setSelectedModel(agent.model.provider || '')
-        setHasStorage(!!agent.storage)
-        setSelectedEntityType('agent')
-        if (agent.model.provider) {
+    if (teamId && teams.length > 0) {
+      const team = teams.find((t) => t.value === teamId)
+      if (team) {
+        setSelectedModel(team.model.provider || '')
+        setHasStorage(!!team.storage)
+        setSelectedTeamId(team.value)
+        setSelectedEntityType('team')
+        if (team.model.provider) {
           focusChatInput()
         }
       } else {
-        setAgentId(agents[0].value)
+        setTeamId(teams[0].value) // Default to first team if selected one not found
       }
+    } else if (teams.length > 0 && !teamId) {
+      // Optionally select the first team if none is selected in the URL
+      // setTeamId(teams[0].value);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [agentId, agents, setSelectedModel])
+  }, [teamId, teams, setSelectedModel])
 
   const handleOnValueChange = (value: string) => {
-    const newAgentId = value === agentId ? null : value
-    const selectedAgent = agents.find((agent) => agent.value === newAgentId)
+    const newTeam = value === teamId ? null : value
+    const selectedTeam = teams.find((team) => team.value === newTeam)
 
-    setSelectedModel(selectedAgent?.model.provider || '')
-    setHasStorage(!!selectedAgent?.storage)
-    setSelectedTeamId(null)
-    setSelectedEntityType(newAgentId ? 'agent' : null)
-    setAgentId(newAgentId)
-    setTeamId(null)
+    setSelectedModel(selectedTeam?.model.provider || '')
+    setHasStorage(!!selectedTeam?.storage)
+    setSelectedTeamId(newTeam)
+    setSelectedEntityType(newTeam ? 'team' : null)
+    setTeamId(newTeam)
+    setAgentId(null) // Clear agent selection
     setMessages([])
     setSessionId(null)
-    if (selectedAgent?.model.provider) {
+
+    if (selectedTeam?.model.provider) {
       focusChatInput()
     }
   }
 
   return (
     <Select
-      value={agentId || ''}
+      value={teamId || ''}
       onValueChange={(value) => handleOnValueChange(value)}
     >
       <SelectTrigger className="h-9 w-full rounded-xl border border-primary/15 bg-primaryAccent text-xs font-medium uppercase">
-        <SelectValue placeholder="Select Agent" />
+        <SelectValue placeholder="Select Team" />
       </SelectTrigger>
       <SelectContent className="border-none bg-primaryAccent font-dmmono shadow-lg">
-        {agents.map((agent, index) => (
+        {teams.map((team, index) => (
           <SelectItem
             className="cursor-pointer"
-            key={`${agent.value}-${index}`}
-            value={agent.value}
+            key={`${team.value}-${index}`}
+            value={team.value}
           >
             <div className="flex items-center gap-3 text-xs font-medium uppercase">
-              <Icon type={'agent'} size="xs" />
-              {agent.label}
+              <Icon type={'user'} size="xs" />
+              {team.label}
             </div>
           </SelectItem>
         ))}
-        {agents.length === 0 && (
-          <SelectItem
-            value="no-agents"
-            className="cursor-not-allowed select-none text-center"
-          >
-            No agents found
-          </SelectItem>
-        )}
+        {/* No need for a 'no teams found' message here as this component only renders if teams exist */}
       </SelectContent>
     </Select>
   )
-}
+} 

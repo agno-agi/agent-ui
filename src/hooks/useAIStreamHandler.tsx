@@ -11,16 +11,16 @@ import { ToolCall } from '@/types/playground'
 import { useQueryState } from 'nuqs'
 import { getJsonMarkdown } from '@/lib/utils'
 
-/**
- * useAIChatStreamHandler is responsible for making API calls and handling the stream response.
- * For now, it only streams message content and updates the messages state.
- */
 const useAIChatStreamHandler = () => {
   const setMessages = usePlaygroundStore((state) => state.setMessages)
   const { addMessage, focusChatInput } = useChatActions()
   const [agentId] = useQueryState('agent')
+  const [teamId] = useQueryState('team')
   const [sessionId, setSessionId] = useQueryState('session')
   const selectedEndpoint = usePlaygroundStore((state) => state.selectedEndpoint)
+  const selectedEntityType = usePlaygroundStore(
+    (state) => state.selectedEntityType
+  )
   const setStreamingErrorMessage = usePlaygroundStore(
     (state) => state.setStreamingErrorMessage
   )
@@ -83,11 +83,23 @@ const useAIChatStreamHandler = () => {
       try {
         const endpointUrl = constructEndpointUrl(selectedEndpoint)
 
-        if (!agentId) return
-        const playgroundRunUrl = APIRoutes.AgentRun(endpointUrl).replace(
-          '{agent_id}',
-          agentId
-        )
+        let playgroundRunUrl: string | null = null
+
+        if (selectedEntityType === 'team' && teamId) {
+          playgroundRunUrl = APIRoutes.TeamRun(endpointUrl, teamId)
+        } else if (selectedEntityType === 'agent' && agentId) {
+          playgroundRunUrl = APIRoutes.AgentRun(endpointUrl).replace(
+            '{agent_id}',
+            agentId
+          )
+        }
+
+        if (!playgroundRunUrl) {
+          updateMessagesWithErrorState()
+          setStreamingErrorMessage('Please select an agent or team first.')
+          setIsStreaming(false)
+          return
+        }
 
         formData.append('stream', 'true')
         formData.append('session_id', sessionId ?? '')
@@ -282,6 +294,8 @@ const useAIChatStreamHandler = () => {
       selectedEndpoint,
       streamResponse,
       agentId,
+      teamId,
+      selectedEntityType,
       setStreamingErrorMessage,
       setIsStreaming,
       focusChatInput,
