@@ -282,19 +282,12 @@ const Sidebar = () => {
                     <>
                       <AgentSelector />
                       {selectedModel && agentId && (
-                        <motion.div 
-                          className="flex flex-col gap-2"
-                          initial={{ opacity: 0 }}
-                          animate={{ opacity: 1 }}
-                          transition={{ duration: 0.2 }}
-                        >
-                          <ModelDisplay model={selectedModel} />
-                          <ToolCallsToggle />
-                        </motion.div>
+                        <ModelDisplay model={selectedModel} />
                       )}
                     </>
                   )}
                 </motion.div>
+                <ToolCallsToggle />
                 <Sessions />
               </>
             )}

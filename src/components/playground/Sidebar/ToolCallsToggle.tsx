@@ -23,7 +23,7 @@ const ToolCallsToggle = memo(() => {
           size="xs" 
           aria-hidden="true"
         />
-        <span className="text-xs font-medium uppercase text-muted">
+        <span className="text-xs font-medium uppercase">
           Show Tool Calls
         </span>
       </div>
