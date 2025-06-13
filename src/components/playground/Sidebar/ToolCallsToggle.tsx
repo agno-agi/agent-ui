@@ -1,8 +1,10 @@
+"use client"
+
+import { memo } from "react"
 import { Switch } from "@/components/ui/switch"
-import { usePlaygroundStore } from "@/store"
 import Icon from "@/components/ui/icon"
-import Tooltip from "@/components/ui/tooltip"
-import { memo } from 'react'
+import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip/tooltip"
+import { usePlaygroundStore } from "@/store"
 
 const ToolCallsToggle = memo(() => {
   const showToolCalls = usePlaygroundStore((state) => state.showToolCalls)
@@ -13,39 +15,35 @@ const ToolCallsToggle = memo(() => {
   }
 
   return (
-    <div 
+    <div
       className="flex w-full items-center justify-between rounded-xl border border-primary/15 bg-accent p-3"
       data-testid="tool-calls-toggle"
     >
       <div className="flex items-center gap-2">
-        <Icon 
-          type="hammer" 
-          size="xs" 
-          aria-hidden="true"
-        />
+        <Icon type="hammer" size="xs" aria-hidden="true" />
         <span className="text-xs font-medium uppercase">
           Show Tool Calls
         </span>
       </div>
-      <Tooltip
-        delayDuration={0}
-        content={
-          <p className="text-xs">
-            {showToolCalls ? "Hide" : "Show"} tool calls in chat
-          </p>
-        }
-      >
-        <Switch
-          checked={showToolCalls}
-          onCheckedChange={handleToggleChange}
-          className="data-[state=checked]:bg-primary"
-          aria-label="Toggle tool calls visibility"
-        />
-      </Tooltip>
+      <TooltipProvider delayDuration={0}>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Switch
+              checked={showToolCalls}
+              onCheckedChange={handleToggleChange}
+              className={`${!showToolCalls ? "bg-black" : "bg-primary"} transition-colors`}
+              aria-label="Toggle tool calls visibility"
+            />
+          </TooltipTrigger>
+          <TooltipContent side="top" className="text-xs">
+            <p>{showToolCalls ? "Hide" : "Show"} tool calls in chat</p>
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
     </div>
   )
 })
 
-ToolCallsToggle.displayName = 'ToolCallsToggle'
+ToolCallsToggle.displayName = "ToolCallsToggle"
 
 export default ToolCallsToggle
