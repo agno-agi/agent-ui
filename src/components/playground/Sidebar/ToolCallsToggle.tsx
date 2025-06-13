@@ -1,5 +1,3 @@
-"use client"
-
 import { memo } from "react"
 import { Switch } from "@/components/ui/switch"
 import Icon from "@/components/ui/icon"
