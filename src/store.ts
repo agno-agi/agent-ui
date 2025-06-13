@@ -119,18 +119,12 @@ export const usePlaygroundStore = create<PlaygroundStore>()(
       name: 'endpoint-storage',
       storage: createJSONStorage(() => localStorage),
       partialize: (state) => ({
-        selectedEndpoint: state.selectedEndpoint
+        selectedEndpoint: state.selectedEndpoint,
+        showToolCalls: state.showToolCalls,
       }),
       onRehydrateStorage: () => (state) => {
         state?.setHydrated?.()
       }
     },
-    {
-      name: 'playground-storage',
-      partialize: (state) => ({
-        ...state,
-        showToolCalls: state.showToolCalls,
-      }),
-    }
   )
 )
