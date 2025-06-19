@@ -4,7 +4,11 @@ import { APIRoutes } from '@/api/routes'
 
 import useChatActions from '@/hooks/useChatActions'
 import { usePlaygroundStore } from '../store'
-import { RunEvent, type RunResponse } from '@/types/playground'
+import {
+  RunEvent,
+  RunResponseContent,
+  type RunResponse
+} from '@/types/playground'
 import { constructEndpointUrl } from '@/lib/constructEndpointUrl'
 import useAIResponseStream from './useAIResponseStream'
 import { ToolCall } from '@/types/playground'
@@ -39,6 +43,67 @@ const useAIChatStreamHandler = () => {
       return newMessages
     })
   }, [setMessages])
+
+  /**
+   * Processes a new tool call and adds it to the message
+   * @param toolCall - The tool call to add
+   * @param prevToolCalls - The previous tool calls array
+   * @returns Updated tool calls array
+   */
+  const processToolCall = useCallback(
+    (toolCall: ToolCall, prevToolCalls: ToolCall[] = []) => {
+      const toolCallId =
+        toolCall.tool_call_id || `${toolCall.tool_name}-${toolCall.created_at}`
+
+      const existingToolCallIndex = prevToolCalls.findIndex(
+        (tc) =>
+          (tc.tool_call_id && tc.tool_call_id === toolCall.tool_call_id) ||
+          (!tc.tool_call_id &&
+            toolCall.tool_name &&
+            toolCall.created_at &&
+            `${tc.tool_name}-${tc.created_at}` === toolCallId)
+      )
+      if (existingToolCallIndex >= 0) {
+        const updatedToolCalls = [...prevToolCalls]
+        updatedToolCalls[existingToolCallIndex] = {
+          ...updatedToolCalls[existingToolCallIndex],
+          ...toolCall
+        }
+        return updatedToolCalls
+      } else {
+        return [...prevToolCalls, toolCall]
+      }
+    },
+    []
+  )
+
+  /**
+   * Processes tool calls from a chunk, handling both single tool object and tools array formats
+   * @param chunk - The chunk containing tool call data
+   * @param existingToolCalls - The existing tool calls array
+   * @returns Updated tool calls array
+   */
+  const processChunkToolCalls = useCallback(
+    (
+      chunk: RunResponseContent | RunResponse,
+      existingToolCalls: ToolCall[] = []
+    ) => {
+      let updatedToolCalls = [...existingToolCalls]
+      // Handle new single tool object format
+      if (chunk.tool) {
+        updatedToolCalls = processToolCall(chunk.tool, updatedToolCalls)
+      }
+      // Handle legacy tools array format
+      if (chunk.tools && chunk.tools.length > 0) {
+        for (const toolCall of chunk.tools) {
+          updatedToolCalls = processToolCall(toolCall, updatedToolCalls)
+        }
+      }
+
+      return updatedToolCalls
+    },
+    [processToolCall]
+  )
 
   const handleStreamResponse = useCallback(
     async (input: string | FormData) => {
@@ -122,7 +187,22 @@ const useAIChatStreamHandler = () => {
                   return [sessionData, ...(prevSessionsData ?? [])]
                 })
               }
-            } else if (chunk.event === RunEvent.RunResponse) {
+            } else if (chunk.event === RunEvent.ToolCallStarted) {
+              setMessages((prevMessages) => {
+                const newMessages = [...prevMessages]
+                const lastMessage = newMessages[newMessages.length - 1]
+                if (lastMessage && lastMessage.role === 'agent') {
+                  lastMessage.tool_calls = processChunkToolCalls(
+                    chunk,
+                    lastMessage.tool_calls
+                  )
+                }
+                return newMessages
+              })
+            } else if (
+              chunk.event === RunEvent.RunResponse ||
+              chunk.event === RunEvent.RunResponseContent
+            ) {
               setMessages((prevMessages) => {
                 const newMessages = [...prevMessages]
                 const lastMessage = newMessages[newMessages.length - 1]
@@ -135,10 +215,11 @@ const useAIChatStreamHandler = () => {
                   lastMessage.content += uniqueContent
                   lastContent = chunk.content
 
-                  const toolCalls: ToolCall[] = [...(chunk.tools ?? [])]
-                  if (toolCalls.length > 0) {
-                    lastMessage.tool_calls = toolCalls
-                  }
+                  // Handle tool calls streaming
+                  lastMessage.tool_calls = processChunkToolCalls(
+                    chunk,
+                    lastMessage.tool_calls
+                  )
                   if (chunk.extra_data?.reasoning_steps) {
                     lastMessage.extra_data = {
                       ...lastMessage.extra_data,
@@ -167,7 +248,8 @@ const useAIChatStreamHandler = () => {
                 } else if (
                   lastMessage &&
                   lastMessage.role === 'agent' &&
-                  typeof chunk?.content !== 'string'
+                  typeof chunk?.content !== 'string' &&
+                  chunk.content !== null
                 ) {
                   const jsonBlock = getJsonMarkdown(chunk?.content)
 
@@ -182,6 +264,20 @@ const useAIChatStreamHandler = () => {
                     ...lastMessage.response_audio,
                     transcript:
                       lastMessage.response_audio?.transcript + transcript
+                  }
+                }
+                return newMessages
+              })
+            } else if (chunk.event === RunEvent.ReasoningCompleted) {
+              setMessages((prevMessages) => {
+                const newMessages = [...prevMessages]
+                const lastMessage = newMessages[newMessages.length - 1]
+                if (lastMessage && lastMessage.role === 'agent') {
+                  if (chunk.extra_data?.reasoning_steps) {
+                    lastMessage.extra_data = {
+                      ...lastMessage.extra_data,
+                      reasoning_steps: chunk.extra_data.reasoning_steps
+                    }
                   }
                 }
                 return newMessages
@@ -218,10 +314,10 @@ const useAIChatStreamHandler = () => {
                     return {
                       ...message,
                       content: updatedContent,
-                      tool_calls:
-                        chunk.tools && chunk.tools.length > 0
-                          ? [...chunk.tools]
-                          : message.tool_calls,
+                      tool_calls: processChunkToolCalls(
+                        chunk,
+                        message.tool_calls
+                      ),
                       images: chunk.images ?? message.images,
                       videos: chunk.videos ?? message.videos,
                       response_audio: chunk.response_audio,
@@ -287,7 +383,8 @@ const useAIChatStreamHandler = () => {
       setSessionsData,
       sessionId,
       setSessionId,
-      hasStorage
+      hasStorage,
+      processChunkToolCalls
     ]
   )
 
