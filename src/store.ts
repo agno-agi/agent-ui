@@ -59,6 +59,8 @@ interface PlaygroundStore {
   ) => void
   isSessionsLoading: boolean
   setIsSessionsLoading: (isSessionsLoading: boolean) => void
+  showToolCalls: boolean
+  setShowToolCalls: (show: boolean) => void
 }
 
 export const usePlaygroundStore = create<PlaygroundStore>()(
@@ -105,17 +107,24 @@ export const usePlaygroundStore = create<PlaygroundStore>()(
         })),
       isSessionsLoading: false,
       setIsSessionsLoading: (isSessionsLoading) =>
-        set(() => ({ isSessionsLoading }))
+        set(() => ({ isSessionsLoading })),
+      showToolCalls: true, // default to showing tool calls
+      setShowToolCalls: (show: boolean) => 
+        set((state) => ({
+          ...state, // preserve other state
+          showToolCalls: show
+        })),
     }),
     {
       name: 'endpoint-storage',
       storage: createJSONStorage(() => localStorage),
       partialize: (state) => ({
-        selectedEndpoint: state.selectedEndpoint
+        selectedEndpoint: state.selectedEndpoint,
+        showToolCalls: state.showToolCalls,
       }),
       onRehydrateStorage: () => (state) => {
         state?.setHydrated?.()
       }
-    }
+    },
   )
 )

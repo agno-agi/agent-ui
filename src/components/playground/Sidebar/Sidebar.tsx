@@ -13,6 +13,8 @@ import { toast } from 'sonner'
 import { useQueryState } from 'nuqs'
 import { truncateText } from '@/lib/utils'
 import { Skeleton } from '@/components/ui/skeleton'
+import ToolCallsToggle from './ToolCallsToggle'
+
 const ENDPOINT_PLACEHOLDER = 'NO ENDPOINT ADDED'
 const SidebarHeader = () => (
   <div className="flex items-center gap-2">
@@ -284,6 +286,14 @@ const Sidebar = () => {
                       )}
                     </>
                   )}
+                </motion.div>
+                <motion.div
+                  className="flex flex-col gap-2"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.2 }}
+                  >
+                    <ToolCallsToggle />
                 </motion.div>
                 <Sessions />
               </>

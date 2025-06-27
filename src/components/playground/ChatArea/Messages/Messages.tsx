@@ -13,6 +13,7 @@ import {
 import React, { type FC } from 'react'
 import ChatBlankState from './ChatBlankState'
 import Icon from '@/components/ui/icon'
+import { usePlaygroundStore } from '@/store'
 
 interface MessageListProps {
   messages: PlaygroundChatMessage[]
@@ -59,6 +60,7 @@ const References: FC<ReferenceProps> = ({ references }) => (
 )
 
 const AgentMessageWrapper = ({ message }: MessageWrapperProps) => {
+  const showToolCalls = usePlaygroundStore((state) => state.showToolCalls)
   return (
     <div className="flex flex-col gap-y-9">
       {message.extra_data?.reasoning_steps &&
@@ -92,7 +94,7 @@ const AgentMessageWrapper = ({ message }: MessageWrapperProps) => {
             </div>
           </div>
         )}
-      {message.tool_calls && message.tool_calls.length > 0 && (
+      {message.tool_calls && message.tool_calls.length > 0 && showToolCalls && (
         <div className="flex items-start gap-3">
           <Tooltip
             delayDuration={0}
