@@ -66,7 +66,10 @@ const OrderedList = ({ className, ...props }: OrderedListProps) => (
 )
 
 const Paragraph = ({ className, ...props }: ParagraphProps) => (
-  <p className={cn(className, PARAGRAPH_SIZES.body)} {...filterProps(props)} />
+  <div
+    className={cn(className, PARAGRAPH_SIZES.body)}
+    {...filterProps(props)}
+  />
 )
 
 const EmphasizedText = ({ className, ...props }: EmphasizedTextProps) => (
