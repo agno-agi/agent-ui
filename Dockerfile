@@ -36,7 +36,7 @@ RUN \
 FROM base AS runner
 WORKDIR /app
 
-ENV NODE_ENV production
+ENV NODE_ENV=production
 # Uncomment the following line in case you want to disable telemetry during runtime.
 # ENV NEXT_TELEMETRY_DISABLED 1
 
@@ -56,11 +56,11 @@ COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
 USER nextjs
 
-# Expose port 7860 (Hugging Face Spaces default)
-EXPOSE 7860
+# Expose port 3000 (Next.js default)
+EXPOSE 3000
 
-ENV PORT 7860
-ENV HOSTNAME "0.0.0.0"
+ENV PORT=3000
+ENV HOSTNAME="0.0.0.0"
 
 # Run the application
 CMD ["node", "server.js"]
