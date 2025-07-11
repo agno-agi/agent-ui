@@ -32,6 +32,9 @@ RUN \
     npm run build; \
   fi
 
+# Create public directory if it doesn't exist
+RUN mkdir -p ./public
+
 # Production image, copy all the files and run next
 FROM base AS runner
 WORKDIR /app
