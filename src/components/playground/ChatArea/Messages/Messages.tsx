@@ -93,7 +93,7 @@ const AgentMessageWrapper = ({ message }: MessageWrapperProps) => {
           </div>
         )}
       {message.tool_calls && message.tool_calls.length > 0 && (
-        <div className="flex items-center gap-3">
+        <div className="flex items-start gap-3">
           <Tooltip
             delayDuration={0}
             content={<p className="text-accent">Tool Calls</p>}

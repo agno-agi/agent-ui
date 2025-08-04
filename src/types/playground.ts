@@ -86,15 +86,17 @@ interface MessageContext {
 export enum RunEvent {
   RunStarted = 'RunStarted',
   RunResponse = 'RunResponse',
+  RunResponseContent = 'RunResponseContent',
   RunCompleted = 'RunCompleted',
+  RunError = 'RunError',
   ToolCallStarted = 'ToolCallStarted',
   ToolCallCompleted = 'ToolCallCompleted',
   UpdatingMemory = 'UpdatingMemory',
   ReasoningStarted = 'ReasoningStarted',
   ReasoningStep = 'ReasoningStep',
-  ReasoningCompleted = 'ReasoningCompleted',
-  RunError = 'RunError'
+  ReasoningCompleted = 'ReasoningCompleted'
 }
+
 export interface ResponseAudio {
   id?: string
   content?: string
@@ -102,6 +104,33 @@ export interface ResponseAudio {
   channels?: number
   sample_rate?: number
 }
+
+export interface NewRunResponse {
+  status: 'RUNNING' | 'PAUSED' | 'CANCELLED'
+}
+
+export interface RunResponseContent {
+  content?: string | object
+  content_type: string
+  context?: MessageContext[]
+  event: RunEvent
+  event_data?: object
+  messages?: ModelMessage[]
+  metrics?: object
+  model?: string
+  run_id?: string
+  agent_id?: string
+  session_id?: string
+  tool?: ToolCall
+  tools?: Array<ToolCall>
+  created_at: number
+  extra_data?: PlaygroundAgentExtraData
+  images?: ImageData[]
+  videos?: VideoData[]
+  audio?: AudioData[]
+  response_audio?: ResponseAudio
+}
+
 export interface RunResponse {
   content?: string | object
   content_type: string
@@ -114,8 +143,9 @@ export interface RunResponse {
   run_id?: string
   agent_id?: string
   session_id?: string
+  tool?: ToolCall
+  tools?: Array<ToolCall>
   created_at: number
-  tools?: ToolCall[]
   extra_data?: PlaygroundAgentExtraData
   images?: ImageData[]
   videos?: VideoData[]
