@@ -22,8 +22,7 @@ export function EntitySelector() {
     setMessages,
     setSelectedModel,
     setHasStorage,
-    setSelectedTeamId,
-    setSelectedEntityType
+    setSelectedTeamId
   } = usePlaygroundStore()
   const { focusChatInput } = useChatActions()
   const [agentId, setAgentId] = useQueryState('agent', {
@@ -40,43 +39,12 @@ export function EntitySelector() {
   const currentValue = mode === 'team' ? teamId : agentId
   const placeholder = mode === 'team' ? 'Select Team' : 'Select Agent'
 
-  React.useEffect(() => {
-    const timer = setTimeout(() => {
-      if (currentEntities.length > 0 && !currentValue) {
-        const firstEntity = currentEntities[0]
-
-        if (mode === 'team') {
-          setTeamId(firstEntity.value)
-          setSelectedTeamId(firstEntity.value)
-        } else {
-          setAgentId(firstEntity.value)
-        }
-        setSelectedModel(firstEntity.model.provider || '')
-        setHasStorage(!!firstEntity.storage)
-        setSelectedEntityType(mode)
-      }
-    }, 100)
-
-    return () => clearTimeout(timer)
-  }, [
-    mode,
-    currentEntities,
-    currentValue,
-    setAgentId,
-    setTeamId,
-    setSelectedTeamId,
-    setSelectedModel,
-    setHasStorage,
-    setSelectedEntityType
-  ])
-
   useEffect(() => {
     if (currentValue && currentEntities.length > 0) {
       const entity = currentEntities.find((item) => item.value === currentValue)
       if (entity) {
         setSelectedModel(entity.model.provider || '')
         setHasStorage(!!entity.storage)
-        setSelectedEntityType(mode)
         if (mode === 'team') {
           setSelectedTeamId(entity.value)
         }
@@ -96,7 +64,6 @@ export function EntitySelector() {
 
     setSelectedModel(selectedEntity?.model.provider || '')
     setHasStorage(!!selectedEntity?.storage)
-    setSelectedEntityType(newValue ? mode : null)
 
     if (mode === 'team') {
       setSelectedTeamId(newValue)

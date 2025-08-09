@@ -15,7 +15,7 @@ interface Agent {
   storage?: boolean
 }
 
-export interface Team{
+export interface Team {
   value: string
   label: string
   model: {
@@ -23,7 +23,6 @@ export interface Team{
   }
   storage?: boolean
 }
-
 
 interface PlaygroundStore {
   hydrated: boolean
@@ -65,8 +64,6 @@ interface PlaygroundStore {
   setSelectedModel: (model: string) => void
   selectedTeamId: string | null
   setSelectedTeamId: (teamId: string | null) => void
-  selectedEntityType: 'agent' | 'team' | null
-  setSelectedEntityType: (type: 'agent' | 'team' | null) => void
   mode: 'agent' | 'team'
   setMode: (mode: 'agent' | 'team') => void
   sessionsData: SessionEntry[] | null
@@ -117,9 +114,7 @@ export const usePlaygroundStore = create<PlaygroundStore>()(
       setSelectedModel: (selectedModel) => set(() => ({ selectedModel })),
       selectedTeamId: null,
       setSelectedTeamId: (teamId) => set(() => ({ selectedTeamId: teamId })),
-      selectedEntityType: null,
-      setSelectedEntityType: (type) => set(() => ({ selectedEntityType: type })),
-      mode: 'agent',
+      mode: 'team',
       setMode: (mode) => set(() => ({ mode })),
       sessionsData: null,
       setSessionsData: (sessionsData) =>

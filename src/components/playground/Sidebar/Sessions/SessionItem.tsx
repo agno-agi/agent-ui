@@ -30,12 +30,8 @@ const SessionItem = ({
   const [teamId] = useQueryState('team')
   const [, setSessionId] = useQueryState('session')
   const { getSession } = useSessionLoader()
-  const {
-    selectedEndpoint,
-    sessionsData,
-    setSessionsData,
-    selectedEntityType
-  } = usePlaygroundStore()
+  const { selectedEndpoint, sessionsData, setSessionsData, mode } =
+    usePlaygroundStore()
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
   const { clearChat } = useChatActions()
@@ -46,7 +42,7 @@ const SessionItem = ({
     onSessionClick()
     await getSession(
       {
-        entityType: selectedEntityType,
+        entityType: mode,
         agentId,
         teamId
       },
@@ -60,13 +56,13 @@ const SessionItem = ({
     setIsDeleting(true)
     try {
       let response
-      if (selectedEntityType === 'team' && teamId) {
+      if (mode === 'team' && teamId) {
         response = await deletePlaygroundTeamSessionAPI(
           selectedEndpoint,
           teamId,
           session_id
         )
-      } else if (selectedEntityType === 'agent' && agentId) {
+      } else if (mode === 'agent' && agentId) {
         response = await deletePlaygroundSessionAPI(
           selectedEndpoint,
           agentId,

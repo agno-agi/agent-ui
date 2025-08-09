@@ -52,7 +52,7 @@ const Sessions = () => {
 
   const {
     selectedEndpoint,
-    selectedEntityType,
+    mode,
     isEndpointActive,
     isEndpointLoading,
     hydrated,
@@ -108,7 +108,7 @@ const Sessions = () => {
 
     setSessionsData(() => null)
     getSessions({
-      entityType: selectedEntityType,
+      entityType: mode,
       agentId,
       teamId
     })
@@ -116,7 +116,7 @@ const Sessions = () => {
     selectedEndpoint,
     agentId,
     teamId,
-    selectedEntityType,
+    mode,
     isEndpointLoading,
     hasStorage,
     getSessions,

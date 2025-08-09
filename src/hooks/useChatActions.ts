@@ -33,9 +33,6 @@ const useChatActions = () => {
   const setSelectedTeamId = usePlaygroundStore(
     (state) => state.setSelectedTeamId
   )
-  const setSelectedEntityType = usePlaygroundStore(
-    (state) => state.setSelectedEntityType
-  )
   const setMode = usePlaygroundStore((state) => state.setMode)
   const [agentId, setAgentId] = useQueryState('agent')
   const [teamId, setTeamId] = useQueryState('team')
@@ -109,33 +106,28 @@ const useChatActions = () => {
             setSelectedTeamId(firstTeam.value)
             setSelectedModel(firstTeam.model.provider || '')
             setHasStorage(!!firstTeam.storage)
-            setSelectedEntityType('team')
           } else if (currentMode === 'agent' && agents.length > 0) {
             const firstAgent = agents[0]
             setAgentId(firstAgent.value)
             setSelectedModel(firstAgent.model.provider || '')
             setHasStorage(!!firstAgent.storage)
             setSelectedTeamId(null)
-            setSelectedEntityType('agent')
           } else {
-            if (teams.length > 0 && agents.length === 0) {
+            if (teams.length > 0) {
+              // Prioritize team mode when teams are available
               setMode('team')
               const firstTeam = teams[0]
               setTeamId(firstTeam.value)
               setSelectedTeamId(firstTeam.value)
               setSelectedModel(firstTeam.model.provider || '')
               setHasStorage(!!firstTeam.storage)
-              setSelectedEntityType('team')
-            } else if (agents.length > 0 && teams.length === 0) {
+            } else if (agents.length > 0) {
               setMode('agent')
               const firstAgent = agents[0]
               setAgentId(firstAgent.value)
               setSelectedModel(firstAgent.model.provider || '')
               setHasStorage(!!firstAgent.storage)
               setSelectedTeamId(null)
-              setSelectedEntityType('agent')
-            } else if (teams.length > 0 || agents.length > 0) {
-              setMode('team')
             }
           }
         }
@@ -145,7 +137,6 @@ const useChatActions = () => {
         setSelectedModel('')
         setHasStorage(false)
         setSelectedTeamId(null)
-        setSelectedEntityType(null)
         setAgentId(null)
         setTeamId(null)
       }
@@ -159,7 +150,6 @@ const useChatActions = () => {
       setSelectedModel('')
       setHasStorage(false)
       setSelectedTeamId(null)
-      setSelectedEntityType(null)
       setAgentId(null)
       setTeamId(null)
       setAgents([])
@@ -179,7 +169,6 @@ const useChatActions = () => {
     setSelectedModel,
     setHasStorage,
     setSelectedTeamId,
-    setSelectedEntityType,
     setMode,
     setTeamId,
     agentId,

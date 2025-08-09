@@ -21,8 +21,7 @@ export function ModeSelector() {
     setMessages,
     setSelectedModel,
     setHasStorage,
-    setSelectedTeamId,
-    setSelectedEntityType
+    setSelectedTeamId
   } = usePlaygroundStore()
   const { clearChat } = useChatActions()
   const [, setAgentId] = useQueryState('agent')
@@ -41,7 +40,6 @@ export function ModeSelector() {
     setAgentId(null)
     setTeamId(null)
     setSelectedTeamId(null)
-    setSelectedEntityType(null)
     setSelectedModel('')
     setHasStorage(false)
     setMessages([])
