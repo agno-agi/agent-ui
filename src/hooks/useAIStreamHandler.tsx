@@ -175,7 +175,9 @@ const useAIChatStreamHandler = () => {
           onChunk: (chunk: RunResponse) => {
             if (
               chunk.event === RunEvent.RunStarted ||
-              chunk.event === RunEvent.ReasoningStarted
+              chunk.event === RunEvent.TeamRunStarted ||
+              chunk.event === RunEvent.ReasoningStarted ||
+              chunk.event === RunEvent.TeamReasoningStarted
             ) {
               newSessionId = chunk.session_id as string
               setSessionId(chunk.session_id as string)
@@ -199,7 +201,12 @@ const useAIChatStreamHandler = () => {
                   return [sessionData, ...(prevSessionsData ?? [])]
                 })
               }
-            } else if (chunk.event === RunEvent.ToolCallStarted) {
+            } else if (
+              chunk.event === RunEvent.ToolCallStarted ||
+              chunk.event === RunEvent.TeamToolCallStarted ||
+              chunk.event === RunEvent.ToolCallCompleted ||
+              chunk.event === RunEvent.TeamToolCallCompleted
+            ) {
               setMessages((prevMessages) => {
                 const newMessages = [...prevMessages]
                 const lastMessage = newMessages[newMessages.length - 1]
@@ -213,7 +220,8 @@ const useAIChatStreamHandler = () => {
               })
             } else if (
               chunk.event === RunEvent.RunResponse ||
-              chunk.event === RunEvent.RunResponseContent
+              chunk.event === RunEvent.RunResponseContent ||
+              chunk.event === RunEvent.TeamRunResponseContent
             ) {
               setMessages((prevMessages) => {
                 const newMessages = [...prevMessages]
@@ -280,7 +288,28 @@ const useAIChatStreamHandler = () => {
                 }
                 return newMessages
               })
-            } else if (chunk.event === RunEvent.ReasoningCompleted) {
+            } else if (
+              chunk.event === RunEvent.ReasoningStep ||
+              chunk.event === RunEvent.TeamReasoningStep
+            ) {
+              setMessages((prevMessages) => {
+                const newMessages = [...prevMessages]
+                const lastMessage = newMessages[newMessages.length - 1]
+                if (lastMessage && lastMessage.role === 'agent') {
+                  const existingSteps =
+                    lastMessage.extra_data?.reasoning_steps ?? []
+                  const incomingSteps = chunk.extra_data?.reasoning_steps ?? []
+                  lastMessage.extra_data = {
+                    ...lastMessage.extra_data,
+                    reasoning_steps: [...existingSteps, ...incomingSteps]
+                  }
+                }
+                return newMessages
+              })
+            } else if (
+              chunk.event === RunEvent.ReasoningCompleted ||
+              chunk.event === RunEvent.TeamReasoningCompleted
+            ) {
               setMessages((prevMessages) => {
                 const newMessages = [...prevMessages]
                 const lastMessage = newMessages[newMessages.length - 1]
@@ -294,9 +323,17 @@ const useAIChatStreamHandler = () => {
                 }
                 return newMessages
               })
-            } else if (chunk.event === RunEvent.RunError) {
+            } else if (
+              chunk.event === RunEvent.RunError ||
+              chunk.event === RunEvent.TeamRunError ||
+              chunk.event === RunEvent.TeamRunCancelled
+            ) {
               updateMessagesWithErrorState()
-              const errorContent = chunk.content as string
+              const errorContent =
+                (chunk.content as string) ||
+                (chunk.event === RunEvent.TeamRunCancelled
+                  ? 'Run cancelled'
+                  : 'Error during run')
               setStreamingErrorMessage(errorContent)
               if (hasStorage && newSessionId) {
                 setSessionsData(
@@ -306,7 +343,16 @@ const useAIChatStreamHandler = () => {
                     ) ?? null
                 )
               }
-            } else if (chunk.event === RunEvent.RunCompleted) {
+            } else if (
+              chunk.event === RunEvent.UpdatingMemory ||
+              chunk.event === RunEvent.TeamMemoryUpdateStarted ||
+              chunk.event === RunEvent.TeamMemoryUpdateCompleted
+            ) {
+              // No-op for now; could surface a lightweight UI indicator in the future
+            } else if (
+              chunk.event === RunEvent.RunCompleted ||
+              chunk.event === RunEvent.TeamRunCompleted
+            ) {
               setMessages((prevMessages) => {
                 const newMessages = prevMessages.map((message, index) => {
                   if (

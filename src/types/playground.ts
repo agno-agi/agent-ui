@@ -94,7 +94,20 @@ export enum RunEvent {
   UpdatingMemory = 'UpdatingMemory',
   ReasoningStarted = 'ReasoningStarted',
   ReasoningStep = 'ReasoningStep',
-  ReasoningCompleted = 'ReasoningCompleted'
+  ReasoningCompleted = 'ReasoningCompleted',
+  // Team Events
+  TeamRunStarted = 'TeamRunStarted',
+  TeamRunResponseContent = 'TeamRunResponseContent',
+  TeamRunCompleted = 'TeamRunCompleted',
+  TeamRunError = 'TeamRunError',
+  TeamRunCancelled = 'TeamRunCancelled',
+  TeamToolCallStarted = 'TeamToolCallStarted',
+  TeamToolCallCompleted = 'TeamToolCallCompleted',
+  TeamReasoningStarted = 'TeamReasoningStarted',
+  TeamReasoningStep = 'TeamReasoningStep',
+  TeamReasoningCompleted = 'TeamReasoningCompleted',
+  TeamMemoryUpdateStarted = 'TeamMemoryUpdateStarted',
+  TeamMemoryUpdateCompleted = 'TeamMemoryUpdateCompleted'
 }
 
 export interface ResponseAudio {

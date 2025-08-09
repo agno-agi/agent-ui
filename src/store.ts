@@ -67,6 +67,8 @@ interface PlaygroundStore {
   setSelectedTeamId: (teamId: string | null) => void
   selectedEntityType: 'agent' | 'team' | null
   setSelectedEntityType: (type: 'agent' | 'team' | null) => void
+  mode: 'agent' | 'team'
+  setMode: (mode: 'agent' | 'team') => void
   sessionsData: SessionEntry[] | null
   setSessionsData: (
     sessionsData:
@@ -110,13 +112,15 @@ export const usePlaygroundStore = create<PlaygroundStore>()(
       agents: [],
       setAgents: (agents) => set({ agents }),
       teams: [],
-      setTeams: (teams) => set(({ teams })),
+      setTeams: (teams) => set({ teams }),
       selectedModel: '',
       setSelectedModel: (selectedModel) => set(() => ({ selectedModel })),
       selectedTeamId: null,
       setSelectedTeamId: (teamId) => set(() => ({ selectedTeamId: teamId })),
       selectedEntityType: null,
       setSelectedEntityType: (type) => set(() => ({ selectedEntityType: type })),
+      mode: 'agent',
+      setMode: (mode) => set(() => ({ mode })),
       sessionsData: null,
       setSessionsData: (sessionsData) =>
         set((state) => ({

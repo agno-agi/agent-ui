@@ -25,8 +25,10 @@ export const getPlaygroundAgentsAPI = async (
     const agents: ComboboxAgent[] = data.map((item: Agent) => ({
       value: item.agent_id || '',
       label: item.name || '',
-      model: item.model || '',
-      storage: item.storage || false
+      model: {
+        provider: item.model?.provider || ''
+      },
+      storage: !!item.storage
     }))
     return agents
   } catch {
@@ -108,8 +110,10 @@ export const getPlaygroundTeamsAPI = async (
     const teams: ComboboxTeam[] = data.map((item: Team) => ({
       value: item.team_id || '',
       label: item.name || '',
-      model: item.model || '',
-      storage: item.storage || false
+      model: {
+        provider: item.model?.provider || ''
+      },
+      storage: !!item.storage
     }))
     return teams
   } catch {

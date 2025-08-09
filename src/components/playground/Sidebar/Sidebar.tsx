@@ -1,6 +1,7 @@
 'use client'
 import { Button } from '@/components/ui/button'
-import { AgentSelector } from '@/components/playground/Sidebar/AgentSelector'
+import { ModeSelector } from '@/components/playground/Sidebar/ModeSelector'
+import { EntitySelector } from '@/components/playground/Sidebar/EntitySelector'
 import useChatActions from '@/hooks/useChatActions'
 import { usePlaygroundStore } from '@/store'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -13,7 +14,6 @@ import { toast } from 'sonner'
 import { useQueryState } from 'nuqs'
 import { truncateText } from '@/lib/utils'
 import { Skeleton } from '@/components/ui/skeleton'
-import { TeamSelector } from './TeamSelector'
 
 const ENDPOINT_PLACEHOLDER = 'NO ENDPOINT ADDED'
 const SidebarHeader = () => (
@@ -34,7 +34,7 @@ const NewChatButton = ({
     onClick={onClick}
     disabled={disabled}
     size="lg"
-    className="h-9 w-full rounded-xl bg-primary text-xs font-medium text-background hover:bg-primary/80"
+    className="bg-primary text-background hover:bg-primary/80 h-9 w-full rounded-xl text-xs font-medium"
   >
     <Icon type="plus-icon" size="xs" className="text-background" />
     <span className="uppercase">New Chat</span>
@@ -42,7 +42,7 @@ const NewChatButton = ({
 )
 
 const ModelDisplay = ({ model }: { model: string }) => (
-  <div className="flex h-9 w-full items-center gap-3 rounded-xl border border-primary/15 bg-accent p-3 text-xs font-medium uppercase text-muted">
+  <div className="border-primary/15 bg-accent text-muted flex h-9 w-full items-center gap-3 rounded-xl border p-3 text-xs font-medium uppercase">
     {(() => {
       const icon = getProviderIcon(model)
       return icon ? <Icon type={icon} className="shrink-0" size="xs" /> : null
@@ -115,7 +115,7 @@ const Endpoint = () => {
 
   return (
     <div className="flex flex-col items-start gap-2">
-      <div className="text-xs font-medium uppercase text-primary">Endpoint</div>
+      <div className="text-primary text-xs font-medium uppercase">Endpoint</div>
       {isEditing ? (
         <div className="flex w-full items-center gap-1">
           <input
@@ -123,7 +123,7 @@ const Endpoint = () => {
             value={endpointValue}
             onChange={(e) => setEndpointValue(e.target.value)}
             onKeyDown={handleKeyDown}
-            className="flex h-9 w-full items-center text-ellipsis rounded-xl border border-primary/15 bg-accent p-3 text-xs font-medium text-muted"
+            className="border-primary/15 bg-accent text-muted flex h-9 w-full items-center text-ellipsis rounded-xl border p-3 text-xs font-medium"
             autoFocus
           />
           <Button
@@ -138,7 +138,7 @@ const Endpoint = () => {
       ) : (
         <div className="flex w-full items-center gap-1">
           <motion.div
-            className="relative flex h-9 w-full cursor-pointer items-center justify-between rounded-xl border border-primary/15 bg-accent p-3 uppercase"
+            className="border-primary/15 bg-accent relative flex h-9 w-full cursor-pointer items-center justify-between rounded-xl border p-3 uppercase"
             onMouseEnter={() => setIsHovering(true)}
             onMouseLeave={() => setIsHovering(false)}
             onClick={() => setIsEditing(true)}
@@ -154,7 +154,7 @@ const Endpoint = () => {
                   exit={{ opacity: 0 }}
                   transition={{ duration: 0.2 }}
                 >
-                  <p className="flex items-center gap-2 whitespace-nowrap text-xs font-medium text-primary">
+                  <p className="text-primary flex items-center gap-2 whitespace-nowrap text-xs font-medium">
                     <Icon type="edit" size="xxs" /> EDIT ENDPOINT
                   </p>
                 </motion.div>
@@ -167,7 +167,7 @@ const Endpoint = () => {
                   exit={{ opacity: 0 }}
                   transition={{ duration: 0.2 }}
                 >
-                  <p className="text-xs font-medium text-muted">
+                  <p className="text-muted text-xs font-medium">
                     {isMounted
                       ? truncateText(selectedEndpoint, 21) ||
                         ENDPOINT_PLACEHOLDER
@@ -209,10 +209,7 @@ const Sidebar = () => {
     isEndpointActive,
     selectedModel,
     hydrated,
-    isEndpointLoading,
-    teams,
-    agents,
-    selectedEntityType
+    isEndpointLoading
   } = usePlaygroundStore()
   const [isMounted, setIsMounted] = useState(false)
   const [agentId] = useQueryState('agent')
@@ -230,7 +227,7 @@ const Sidebar = () => {
 
   return (
     <motion.aside
-      className="relative flex h-screen shrink-0 grow-0 flex-col overflow-hidden px-2 py-3 font-dmmono"
+      className="font-dmmono relative flex h-screen shrink-0 grow-0 flex-col overflow-hidden px-2 py-3"
       initial={{ width: '16rem' }}
       animate={{ width: isCollapsed ? '2.5rem' : '16rem' }}
       transition={{ type: 'spring', stiffness: 300, damping: 30 }}
@@ -273,12 +270,12 @@ const Sidebar = () => {
                   animate={{ opacity: 1 }}
                   transition={{ duration: 0.5, ease: 'easeInOut' }}
                 >
-                  <div className="text-xs font-medium uppercase text-primary">
-                    {teams.length > 0 ? 'Team' : 'Agent'}
+                  <div className="text-primary text-xs font-medium uppercase">
+                    Mode
                   </div>
                   {isEndpointLoading ? (
                     <div className="flex w-full flex-col gap-2">
-                      {Array.from({ length: 2 }).map((_, index) => (
+                      {Array.from({ length: 3 }).map((_, index) => (
                         <Skeleton
                           key={index}
                           className="h-9 w-full rounded-xl"
@@ -287,15 +284,8 @@ const Sidebar = () => {
                     </div>
                   ) : (
                     <>
-                      {teams.length > 0 ? (
-                        <TeamSelector />
-                      ) : agents.length > 0 ? (
-                        <AgentSelector />
-                      ) : (
-                        <div className="flex h-9 w-full items-center justify-center rounded-xl border border-primary/15 bg-accent p-3 text-xs font-medium uppercase text-muted">
-                          No Agents or Teams
-                        </div>
-                      )}
+                      <ModeSelector />
+                      <EntitySelector />
                       {selectedModel && (agentId || teamId) && (
                         <ModelDisplay model={selectedModel} />
                       )}

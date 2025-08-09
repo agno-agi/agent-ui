@@ -3,14 +3,17 @@ import { toast } from 'sonner'
 
 import { usePlaygroundStore } from '../store'
 
-import { ComboboxAgent, ComboboxTeam, type PlaygroundChatMessage } from '@/types/playground'
+import {
+  ComboboxAgent,
+  ComboboxTeam,
+  type PlaygroundChatMessage
+} from '@/types/playground'
 import {
   getPlaygroundAgentsAPI,
   getPlaygroundStatusAPI,
   getPlaygroundTeamsAPI
 } from '@/api/playground'
 import { useQueryState } from 'nuqs'
-import { get } from 'http'
 
 const useChatActions = () => {
   const { chatInputRef } = usePlaygroundStore()
@@ -33,6 +36,7 @@ const useChatActions = () => {
   const setSelectedEntityType = usePlaygroundStore(
     (state) => state.setSelectedEntityType
   )
+  const setMode = usePlaygroundStore((state) => state.setMode)
   const [agentId, setAgentId] = useQueryState('agent')
   const [teamId, setTeamId] = useQueryState('team')
 
@@ -96,30 +100,48 @@ const useChatActions = () => {
         teams = await getTeams()
         agents = await getAgents()
 
-        if (teams.length > 0 && !agentId && !teamId) {
-          const firstTeam = teams[0]
-          setTeamId(firstTeam.value)
-          setSelectedTeamId(firstTeam.value)
-          setSelectedModel(firstTeam.model.provider || '')
-          setHasStorage(!!firstTeam.storage)
-          setSelectedEntityType('team')
-        } else if (agents.length > 0 && !agentId && !teamId) {
-          const firstAgent = agents[0]
-          setAgentId(firstAgent.value)
-          setSelectedModel(firstAgent.model.provider || '')
-          setHasStorage(!!firstAgent.storage)
-          setSelectedTeamId(null)
-          setSelectedEntityType('agent')
-        } else {
-          if (!agentId && !teamId) {
-            setSelectedModel('')
-            setHasStorage(false)
+        if (!agentId && !teamId) {
+          const currentMode = usePlaygroundStore.getState().mode
+
+          if (currentMode === 'team' && teams.length > 0) {
+            const firstTeam = teams[0]
+            setTeamId(firstTeam.value)
+            setSelectedTeamId(firstTeam.value)
+            setSelectedModel(firstTeam.model.provider || '')
+            setHasStorage(!!firstTeam.storage)
+            setSelectedEntityType('team')
+          } else if (currentMode === 'agent' && agents.length > 0) {
+            const firstAgent = agents[0]
+            setAgentId(firstAgent.value)
+            setSelectedModel(firstAgent.model.provider || '')
+            setHasStorage(!!firstAgent.storage)
             setSelectedTeamId(null)
-            setSelectedEntityType(null)
+            setSelectedEntityType('agent')
+          } else {
+            if (teams.length > 0 && agents.length === 0) {
+              setMode('team')
+              const firstTeam = teams[0]
+              setTeamId(firstTeam.value)
+              setSelectedTeamId(firstTeam.value)
+              setSelectedModel(firstTeam.model.provider || '')
+              setHasStorage(!!firstTeam.storage)
+              setSelectedEntityType('team')
+            } else if (agents.length > 0 && teams.length === 0) {
+              setMode('agent')
+              const firstAgent = agents[0]
+              setAgentId(firstAgent.value)
+              setSelectedModel(firstAgent.model.provider || '')
+              setHasStorage(!!firstAgent.storage)
+              setSelectedTeamId(null)
+              setSelectedEntityType('agent')
+            } else if (teams.length > 0 || agents.length > 0) {
+              setMode('team')
+            }
           }
         }
       } else {
         setIsEndpointActive(false)
+        setMode('agent')
         setSelectedModel('')
         setHasStorage(false)
         setSelectedTeamId(null)
@@ -131,8 +153,9 @@ const useChatActions = () => {
       setTeams(teams)
       return { agents, teams }
     } catch (error) {
-      console.error("Error initializing playground:", error)
+      console.error('Error initializing playground:', error)
       setIsEndpointActive(false)
+      setMode('agent')
       setSelectedModel('')
       setHasStorage(false)
       setSelectedTeamId(null)
@@ -157,6 +180,7 @@ const useChatActions = () => {
     setHasStorage,
     setSelectedTeamId,
     setSelectedEntityType,
+    setMode,
     setTeamId,
     agentId,
     teamId
