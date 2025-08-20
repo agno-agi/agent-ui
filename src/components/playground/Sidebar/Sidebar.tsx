@@ -1,6 +1,7 @@
 'use client'
 import { Button } from '@/components/ui/button'
-import { AgentSelector } from '@/components/playground/Sidebar/AgentSelector'
+import { ModeSelector } from '@/components/playground/Sidebar/ModeSelector'
+import { EntitySelector } from '@/components/playground/Sidebar/EntitySelector'
 import useChatActions from '@/hooks/useChatActions'
 import { usePlaygroundStore } from '@/store'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -13,6 +14,7 @@ import { toast } from 'sonner'
 import { useQueryState } from 'nuqs'
 import { truncateText } from '@/lib/utils'
 import { Skeleton } from '@/components/ui/skeleton'
+
 const ENDPOINT_PLACEHOLDER = 'NO ENDPOINT ADDED'
 const SidebarHeader = () => (
   <div className="flex items-center gap-2">
@@ -211,14 +213,18 @@ const Sidebar = () => {
   } = usePlaygroundStore()
   const [isMounted, setIsMounted] = useState(false)
   const [agentId] = useQueryState('agent')
+  const [teamId] = useQueryState('team')
+
   useEffect(() => {
     setIsMounted(true)
     if (hydrated) initializePlayground()
   }, [selectedEndpoint, initializePlayground, hydrated])
+
   const handleNewChat = () => {
     clearChat()
     focusChatInput()
   }
+
   return (
     <motion.aside
       className="relative flex h-screen shrink-0 grow-0 flex-col overflow-hidden px-2 py-3 font-dmmono"
@@ -265,11 +271,11 @@ const Sidebar = () => {
                   transition={{ duration: 0.5, ease: 'easeInOut' }}
                 >
                   <div className="text-xs font-medium uppercase text-primary">
-                    Agent
+                    Mode
                   </div>
                   {isEndpointLoading ? (
                     <div className="flex w-full flex-col gap-2">
-                      {Array.from({ length: 2 }).map((_, index) => (
+                      {Array.from({ length: 3 }).map((_, index) => (
                         <Skeleton
                           key={index}
                           className="h-9 w-full rounded-xl"
@@ -278,8 +284,9 @@ const Sidebar = () => {
                     </div>
                   ) : (
                     <>
-                      <AgentSelector />
-                      {selectedModel && agentId && (
+                      <ModeSelector />
+                      <EntitySelector />
+                      {selectedModel && (agentId || teamId) && (
                         <ModelDisplay model={selectedModel} />
                       )}
                     </>

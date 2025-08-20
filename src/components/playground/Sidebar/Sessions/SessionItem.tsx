@@ -2,7 +2,10 @@ import { useQueryState } from 'nuqs'
 import { SessionEntry } from '@/types/playground'
 import { Button } from '../../../ui/button'
 import useSessionLoader from '@/hooks/useSessionLoader'
-import { deletePlaygroundSessionAPI } from '@/api/playground'
+import {
+  deletePlaygroundSessionAPI,
+  deletePlaygroundTeamSessionAPI
+} from '@/api/playground'
 import { usePlaygroundStore } from '@/store'
 import { toast } from 'sonner'
 import Icon from '@/components/ui/icon'
@@ -13,62 +16,93 @@ import { truncateText, cn } from '@/lib/utils'
 
 type SessionItemProps = SessionEntry & {
   isSelected: boolean
+  currentSessionId: string | null
   onSessionClick: () => void
 }
 const SessionItem = ({
   title,
   session_id,
   isSelected,
+  currentSessionId,
   onSessionClick
 }: SessionItemProps) => {
   const [agentId] = useQueryState('agent')
-  const { getSession } = useSessionLoader()
+  const [teamId] = useQueryState('team')
   const [, setSessionId] = useQueryState('session')
-  const { selectedEndpoint, sessionsData, setSessionsData } =
+  const { getSession } = useSessionLoader()
+  const { selectedEndpoint, sessionsData, setSessionsData, mode } =
     usePlaygroundStore()
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
+  const [isDeleting, setIsDeleting] = useState(false)
   const { clearChat } = useChatActions()
 
   const handleGetSession = async () => {
-    if (agentId) {
-      onSessionClick()
-      await getSession(session_id, agentId)
-      setSessionId(session_id)
-    }
+    if (!(agentId || teamId)) return
+
+    onSessionClick()
+    await getSession(
+      {
+        entityType: mode,
+        agentId,
+        teamId
+      },
+      session_id
+    )
+    setSessionId(session_id)
   }
 
   const handleDeleteSession = async () => {
-    if (agentId) {
-      try {
-        const response = await deletePlaygroundSessionAPI(
+    if (!(agentId || teamId)) return
+    setIsDeleting(true)
+    try {
+      let response
+      if (mode === 'team' && teamId) {
+        response = await deletePlaygroundTeamSessionAPI(
+          selectedEndpoint,
+          teamId,
+          session_id
+        )
+      } else if (mode === 'agent' && agentId) {
+        response = await deletePlaygroundSessionAPI(
           selectedEndpoint,
           agentId,
           session_id
         )
-        if (response.status === 200 && sessionsData) {
-          setSessionsData(
-            sessionsData.filter((session) => session.session_id !== session_id)
-          )
-          clearChat()
-          toast.success('Session deleted')
-        } else {
-          toast.error('Failed to delete session')
-        }
-      } catch {
-        toast.error('Failed to delete session')
-      } finally {
-        setIsDeleteModalOpen(false)
+      } else {
+        throw new Error('No valid agent or team context for deletion')
       }
+
+      if (response?.ok && sessionsData) {
+        setSessionsData(sessionsData.filter((s) => s.session_id !== session_id))
+        // If the deleted session was the active one, clear the chat
+        if (currentSessionId === session_id) {
+          setSessionId(null)
+          clearChat()
+        }
+        toast.success('Session deleted')
+      } else {
+        const errorMsg = await response?.text()
+        toast.error(
+          `Failed to delete session: ${response?.statusText || 'Unknown error'} ${errorMsg || ''}`
+        )
+      }
+    } catch (error) {
+      toast.error(
+        `Failed to delete session: ${error instanceof Error ? error.message : String(error)}`
+      )
+    } finally {
+      setIsDeleteModalOpen(false)
+      setIsDeleting(false)
     }
   }
   return (
     <>
       <div
         className={cn(
-          'group flex h-11 w-full cursor-pointer items-center justify-between rounded-lg px-3 py-2 transition-colors duration-200',
+          'group flex h-11 w-full items-center justify-between rounded-lg px-3 py-2 transition-colors duration-200',
           isSelected
             ? 'cursor-default bg-primary/10'
-            : 'bg-background-secondary hover:bg-background-secondary/80'
+            : 'cursor-pointer bg-background-secondary hover:bg-background-secondary/80'
         )}
         onClick={handleGetSession}
       >
@@ -95,7 +129,7 @@ const SessionItem = ({
         isOpen={isDeleteModalOpen}
         onClose={() => setIsDeleteModalOpen(false)}
         onDelete={handleDeleteSession}
-        isDeleting={false}
+        isDeleting={isDeleting}
       />
     </>
   )

@@ -1,74 +1,74 @@
 'use client'
 
-import { useEffect, useMemo, useState, useRef, useCallback } from 'react'
+import { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import dayjs from 'dayjs'
 import utc from 'dayjs/plugin/utc'
+import { useQueryState } from 'nuqs'
 
 import { usePlaygroundStore } from '@/store'
-import { useQueryState } from 'nuqs'
-import SessionItem from './SessionItem'
-import SessionBlankState from './SessionBlankState'
 import useSessionLoader from '@/hooks/useSessionLoader'
 
-import { cn } from '@/lib/utils'
-import { FC } from 'react'
+import SessionItem from './SessionItem'
+import SessionBlankState from './SessionBlankState'
 import { Skeleton } from '@/components/ui/skeleton'
+import { cn } from '@/lib/utils'
+
+dayjs.extend(utc)
+
+const formatDate = (ts: number, style: 'natural' | 'full' = 'full'): string => {
+  const d = dayjs.unix(ts).utc()
+  return style === 'natural'
+    ? d.format('HH:mm')
+    : d.format('YYYY-MM-DD HH:mm:ss')
+}
 
 interface SkeletonListProps {
   skeletonCount: number
 }
-
 const SkeletonList: FC<SkeletonListProps> = ({ skeletonCount }) => {
-  const skeletons = useMemo(
+  const list = useMemo(
     () => Array.from({ length: skeletonCount }, (_, i) => i),
     [skeletonCount]
   )
 
-  return skeletons.map((skeleton, index) => (
+  return list.map((k, idx) => (
     <Skeleton
-      key={skeleton}
+      key={k}
       className={cn(
         'mb-1 h-11 rounded-lg px-3 py-2',
-        index > 0 && 'bg-background-secondary'
+        idx > 0 && 'bg-background-secondary'
       )}
     />
   ))
 }
 
-dayjs.extend(utc)
-
-const formatDate = (
-  timestamp: number,
-  format: 'natural' | 'full' = 'full'
-): string => {
-  const date = dayjs.unix(timestamp).utc()
-  return format === 'natural'
-    ? date.format('HH:mm')
-    : date.format('YYYY-MM-DD HH:mm:ss')
-}
-
 const Sessions = () => {
   const [agentId] = useQueryState('agent', {
-    parse: (value) => value || undefined,
+    parse: (v) => v || undefined,
     history: 'push'
   })
+  const [teamId] = useQueryState('team')
   const [sessionId] = useQueryState('session')
+
   const {
     selectedEndpoint,
+    mode,
     isEndpointActive,
     isEndpointLoading,
-    sessionsData,
     hydrated,
     hasStorage,
-    setSessionsData
+    sessionsData,
+    setSessionsData,
+    isSessionsLoading
   } = usePlaygroundStore()
+
   const [isScrolling, setIsScrolling] = useState(false)
   const [selectedSessionId, setSelectedSessionId] = useState<string | null>(
     null
   )
-  const { getSession, getSessions } = useSessionLoader()
+
+  const { getSessions, getSession } = useSessionLoader()
   const scrollTimeoutRef = useRef<ReturnType<typeof setTimeout>>(null)
-  const { isSessionsLoading } = usePlaygroundStore()
 
   const handleScroll = () => {
     setIsScrolling(true)
@@ -91,45 +91,47 @@ const Sessions = () => {
     }
   }, [])
 
-  // Load a session on render if a session id exists in url
   useEffect(() => {
-    if (sessionId && agentId && selectedEndpoint && hydrated) {
-      getSession(sessionId, agentId)
+    if (hydrated && sessionId && selectedEndpoint && (agentId || teamId)) {
+      const entityType = agentId ? 'agent' : 'team'
+      getSession({ entityType, agentId, teamId }, sessionId)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hydrated])
 
   useEffect(() => {
-    if (!selectedEndpoint || !agentId || !hasStorage) {
+    if (!selectedEndpoint || !hasStorage || isEndpointLoading) return
+    if (!(agentId || teamId)) {
       setSessionsData(() => null)
       return
     }
-    if (!isEndpointLoading) {
-      setSessionsData(() => null)
-      getSessions(agentId)
-    }
+
+    setSessionsData(() => null)
+    getSessions({
+      entityType: mode,
+      agentId,
+      teamId
+    })
   }, [
     selectedEndpoint,
     agentId,
-    getSessions,
+    teamId,
+    mode,
     isEndpointLoading,
     hasStorage,
+    getSessions,
     setSessionsData
   ])
 
   useEffect(() => {
-    if (sessionId) {
-      setSelectedSessionId(sessionId)
-    }
+    if (sessionId) setSelectedSessionId(sessionId)
   }, [sessionId])
 
-  const formattedSessionsData = useMemo(() => {
-    if (!sessionsData || !Array.isArray(sessionsData)) return []
-
-    return sessionsData.map((entry) => ({
-      ...entry,
-      created_at: entry.created_at,
-      formatted_time: formatDate(entry.created_at, 'natural')
+  const formattedSessions = useMemo(() => {
+    if (!Array.isArray(sessionsData)) return []
+    return sessionsData.map((e) => ({
+      ...e,
+      formatted_time: formatDate(e.created_at, 'natural')
     }))
   }, [sessionsData])
 
@@ -138,7 +140,7 @@ const Sessions = () => {
     []
   )
 
-  if (isSessionsLoading || isEndpointLoading)
+  if (isSessionsLoading || isEndpointLoading) {
     return (
       <div className="w-full">
         <div className="mb-2 text-xs font-medium uppercase">Sessions</div>
@@ -147,11 +149,17 @@ const Sessions = () => {
         </div>
       </div>
     )
+  }
+
   return (
     <div className="w-full">
       <div className="mb-2 w-full text-xs font-medium uppercase">Sessions</div>
       <div
-        className={`h-[calc(100vh-345px)] overflow-y-auto font-geist transition-all duration-300 [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar]:transition-opacity [&::-webkit-scrollbar]:duration-300 ${isScrolling ? '[&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-background [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar]:opacity-0' : '[&::-webkit-scrollbar]:opacity-100'}`}
+        className={`h-[calc(100vh-345px)] overflow-y-auto font-geist transition-all duration-300 [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar]:transition-opacity [&::-webkit-scrollbar]:duration-300 ${
+          isScrolling
+            ? '[&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-background [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar]:opacity-0'
+            : '[&::-webkit-scrollbar]:opacity-100'
+        }`}
         onScroll={handleScroll}
         onMouseOver={() => setIsScrolling(true)}
         onMouseLeave={handleScroll}
@@ -162,10 +170,11 @@ const Sessions = () => {
           <SessionBlankState />
         ) : (
           <div className="flex flex-col gap-y-1 pr-1">
-            {formattedSessionsData.map((entry, index) => (
+            {formattedSessions.map((entry, idx) => (
               <SessionItem
-                key={`${entry.session_id}-${index}`}
+                key={`${entry.session_id}-${idx}`}
                 {...entry}
+                currentSessionId={selectedSessionId}
                 isSelected={selectedSessionId === entry.session_id}
                 onSessionClick={handleSessionClick(entry.session_id)}
               />

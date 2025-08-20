@@ -19,5 +19,23 @@ export const APIRoutes = {
     agentId: string,
     sessionId: string
   ) =>
-    `${PlaygroundApiUrl}/v1/playground/agents/${agentId}/sessions/${sessionId}`
+    `${PlaygroundApiUrl}/v1/playground/agents/${agentId}/sessions/${sessionId}`,
+
+  GetPlayGroundTeams: (PlaygroundApiUrl: string) =>
+    `${PlaygroundApiUrl}/v1/playground/teams`,
+  TeamRun: (PlaygroundApiUrl: string, teamId: string) =>
+    `${PlaygroundApiUrl}/v1/playground/teams/${teamId}/runs`,
+  GetPlaygroundTeamSessions: (PlaygroundApiUrl: string, teamId: string) =>
+    `${PlaygroundApiUrl}/v1/playground/teams/${teamId}/sessions`,
+  GetPlaygroundTeamSession: (
+    PlaygroundApiUrl: string,
+    teamId: string,
+    sessionId: string
+  ) =>
+    `${PlaygroundApiUrl}/v1/playground/teams/${teamId}/sessions/${sessionId}`,
+  DeletePlaygroundTeamSession: (
+    PlaygroundApiUrl: string,
+    teamId: string,
+    sessionId: string
+  ) => `${PlaygroundApiUrl}/v1/playground/teams/${teamId}/sessions/${sessionId}`
 }

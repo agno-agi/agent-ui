@@ -69,6 +69,14 @@ export interface Agent {
   storage?: boolean
 }
 
+export interface Team {
+  team_id: string
+  name: string
+  description: string
+  model: Model
+  storage?: boolean
+}
+
 interface MessageContext {
   query: string
   docs?: Array<Record<string, object>>
@@ -86,7 +94,20 @@ export enum RunEvent {
   UpdatingMemory = 'UpdatingMemory',
   ReasoningStarted = 'ReasoningStarted',
   ReasoningStep = 'ReasoningStep',
-  ReasoningCompleted = 'ReasoningCompleted'
+  ReasoningCompleted = 'ReasoningCompleted',
+  // Team Events
+  TeamRunStarted = 'TeamRunStarted',
+  TeamRunResponseContent = 'TeamRunResponseContent',
+  TeamRunCompleted = 'TeamRunCompleted',
+  TeamRunError = 'TeamRunError',
+  TeamRunCancelled = 'TeamRunCancelled',
+  TeamToolCallStarted = 'TeamToolCallStarted',
+  TeamToolCallCompleted = 'TeamToolCallCompleted',
+  TeamReasoningStarted = 'TeamReasoningStarted',
+  TeamReasoningStep = 'TeamReasoningStep',
+  TeamReasoningCompleted = 'TeamReasoningCompleted',
+  TeamMemoryUpdateStarted = 'TeamMemoryUpdateStarted',
+  TeamMemoryUpdateCompleted = 'TeamMemoryUpdateCompleted'
 }
 
 export interface ResponseAudio {
@@ -193,6 +214,16 @@ export interface ComboboxAgent {
   }
   storage?: boolean
 }
+
+export interface ComboboxTeam {
+  value: string
+  label: string
+  model: {
+    provider: string
+  }
+  storage?: boolean
+}
+
 export interface ImageData {
   revised_prompt: string
   url: string
