@@ -21,9 +21,8 @@ export function EntitySelector() {
     teams,
     setMessages,
     setSelectedModel,
-    setHasStorage,
-    setSelectedTeamId
   } = usePlaygroundStore()
+  
   const { focusChatInput } = useChatActions()
   const [agentId, setAgentId] = useQueryState('agent', {
     parse: (value) => value || undefined,
@@ -41,14 +40,13 @@ export function EntitySelector() {
 
   useEffect(() => {
     if (currentValue && currentEntities.length > 0) {
-      const entity = currentEntities.find((item) => item.value === currentValue)
+      const entity = currentEntities.find((item) => item.id === currentValue)
       if (entity) {
-        setSelectedModel(entity.model.provider || '')
-        setHasStorage(!!entity.storage)
+        setSelectedModel(entity.model?.model || '')
         if (mode === 'team') {
-          setSelectedTeamId(entity.value)
+          setTeamId(entity.id)
         }
-        if (entity.model.provider) {
+        if (entity.model?.model) {
           focusChatInput()
         }
       }
@@ -59,18 +57,15 @@ export function EntitySelector() {
   const handleOnValueChange = (value: string) => {
     const newValue = value === currentValue ? null : value
     const selectedEntity = currentEntities.find(
-      (item) => item.value === newValue
+      (item) => item.id === newValue
     )
 
-    setSelectedModel(selectedEntity?.model.provider || '')
-    setHasStorage(!!selectedEntity?.storage)
+    setSelectedModel(selectedEntity?.model?.provider || '')
 
     if (mode === 'team') {
-      setSelectedTeamId(newValue)
       setTeamId(newValue)
       setAgentId(null)
     } else {
-      setSelectedTeamId(null)
       setAgentId(newValue)
       setTeamId(null)
     }
@@ -78,7 +73,7 @@ export function EntitySelector() {
     setMessages([])
     setSessionId(null)
 
-    if (selectedEntity?.model.provider) {
+    if (selectedEntity?.model?.provider) {
       focusChatInput()
     }
   }
@@ -105,12 +100,12 @@ export function EntitySelector() {
         {currentEntities.map((entity, index) => (
           <SelectItem
             className="cursor-pointer"
-            key={`${entity.value}-${index}`}
-            value={entity.value}
+            key={`${entity.id}-${index}`}
+            value={entity.id}
           >
             <div className="flex items-center gap-3 text-xs font-medium uppercase">
               <Icon type={'user'} size="xs" />
-              {entity.label}
+              {entity.name || entity.id}
             </div>
           </SelectItem>
         ))}

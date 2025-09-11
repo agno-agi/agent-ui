@@ -4,8 +4,8 @@ import { toast } from 'sonner'
 import { usePlaygroundStore } from '../store'
 
 import {
-  ComboboxAgent,
-  ComboboxTeam,
+  AgentDetails,
+  TeamDetails,
   type PlaygroundChatMessage
 } from '@/types/playground'
 import {
@@ -29,13 +29,10 @@ const useChatActions = () => {
   const setAgents = usePlaygroundStore((state) => state.setAgents)
   const setTeams = usePlaygroundStore((state) => state.setTeams)
   const setSelectedModel = usePlaygroundStore((state) => state.setSelectedModel)
-  const setHasStorage = usePlaygroundStore((state) => state.setHasStorage)
-  const setSelectedTeamId = usePlaygroundStore(
-    (state) => state.setSelectedTeamId
-  )
   const setMode = usePlaygroundStore((state) => state.setMode)
   const [agentId, setAgentId] = useQueryState('agent')
   const [teamId, setTeamId] = useQueryState('team')
+  const [dbId, setDbId] = useQueryState('db_id')
 
   const getStatus = useCallback(async () => {
     try {
@@ -90,44 +87,66 @@ const useChatActions = () => {
     setIsEndpointLoading(true)
     try {
       const status = await getStatus()
-      let agents: ComboboxAgent[] = []
-      let teams: ComboboxTeam[] = []
+      let agents: AgentDetails[] = []
+      let teams: TeamDetails[] = []
       if (status === 200) {
+        
         setIsEndpointActive(true)
         teams = await getTeams()
         agents = await getAgents()
+        console.log('Playground is active', teams, agents)
 
         if (!agentId && !teamId) {
           const currentMode = usePlaygroundStore.getState().mode
+          console.log('Current mode:', currentMode)
 
           if (currentMode === 'team' && teams.length > 0) {
             const firstTeam = teams[0]
-            setTeamId(firstTeam.value)
-            setSelectedTeamId(firstTeam.value)
-            setSelectedModel(firstTeam.model.provider || '')
-            setHasStorage(!!firstTeam.storage)
+            setTeamId(firstTeam.id)
+            setSelectedModel(firstTeam.model?.provider || '')
+            setDbId(firstTeam.db_id || '')
+            setAgentId(null)
+            setTeams(teams)
           } else if (currentMode === 'agent' && agents.length > 0) {
             const firstAgent = agents[0]
-            setAgentId(firstAgent.value)
-            setSelectedModel(firstAgent.model.provider || '')
-            setHasStorage(!!firstAgent.storage)
-            setSelectedTeamId(null)
-          } else {
-            if (teams.length > 0) {
-              // Prioritize team mode when teams are available
-              setMode('team')
-              const firstTeam = teams[0]
-              setTeamId(firstTeam.value)
-              setSelectedTeamId(firstTeam.value)
-              setSelectedModel(firstTeam.model.provider || '')
-              setHasStorage(!!firstTeam.storage)
-            } else if (agents.length > 0) {
+            setMode('agent')
+            setAgentId(firstAgent.id)
+            setSelectedModel(firstAgent.model?.model || '')
+            setDbId(firstAgent.db_id || '')
+            setAgents(agents)
+          }
+        } else {
+          setAgents(agents)
+          setTeams(teams)
+          if (agentId) {
+            const agent = agents.find((a) => a.id === agentId)
+            if (agent) {
               setMode('agent')
+              setSelectedModel(agent.model?.model || '')
+              setDbId(agent.db_id || '')
+              setTeamId(null)
+            } else if (agents.length > 0) {
               const firstAgent = agents[0]
-              setAgentId(firstAgent.value)
-              setSelectedModel(firstAgent.model.provider || '')
-              setHasStorage(!!firstAgent.storage)
-              setSelectedTeamId(null)
+              setMode('agent')
+              setAgentId(firstAgent.id)
+              setSelectedModel(firstAgent.model?.model || '')
+              setDbId(firstAgent.db_id || '')
+              setTeamId(null)
+            }
+          } else if (teamId) {
+            const team = teams.find((t) => t.id === teamId)
+            if (team) {
+              setMode('team')
+              setSelectedModel(team.model?.provider || '')
+              setDbId(team.db_id || '')
+              setAgentId(null)
+            } else if (teams.length > 0) {
+              const firstTeam = teams[0]
+              setMode('team')
+              setTeamId(firstTeam.id)
+              setSelectedModel(firstTeam.model?.provider || '')
+              setDbId(firstTeam.db_id || '')
+              setAgentId(null)
             }
           }
         }
@@ -135,21 +154,15 @@ const useChatActions = () => {
         setIsEndpointActive(false)
         setMode('agent')
         setSelectedModel('')
-        setHasStorage(false)
-        setSelectedTeamId(null)
         setAgentId(null)
         setTeamId(null)
       }
-      setAgents(agents)
-      setTeams(teams)
       return { agents, teams }
     } catch (error) {
       console.error('Error initializing playground:', error)
       setIsEndpointActive(false)
       setMode('agent')
       setSelectedModel('')
-      setHasStorage(false)
-      setSelectedTeamId(null)
       setAgentId(null)
       setTeamId(null)
       setAgents([])
@@ -167,12 +180,11 @@ const useChatActions = () => {
     setTeams,
     setAgentId,
     setSelectedModel,
-    setHasStorage,
-    setSelectedTeamId,
     setMode,
     setTeamId,
     agentId,
-    teamId
+    teamId,
+    dbId
   ])
 
   return {

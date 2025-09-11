@@ -85,19 +85,24 @@ interface MessageContext {
 
 export enum RunEvent {
   RunStarted = 'RunStarted',
-  RunResponse = 'RunResponse',
-  RunResponseContent = 'RunResponseContent',
+  RunContent = 'RunContent',
   RunCompleted = 'RunCompleted',
   RunError = 'RunError',
+  RunOutput = 'RunOutput',
+  UpdatingMemory = 'UpdatingMemory',
   ToolCallStarted = 'ToolCallStarted',
   ToolCallCompleted = 'ToolCallCompleted',
-  UpdatingMemory = 'UpdatingMemory',
+  MemoryUpdateStarted = 'MemoryUpdateStarted',
+  MemoryUpdateCompleted = 'MemoryUpdateCompleted',
   ReasoningStarted = 'ReasoningStarted',
   ReasoningStep = 'ReasoningStep',
   ReasoningCompleted = 'ReasoningCompleted',
+  RunCancelled = 'RunCancelled',
+  RunPaused = 'RunPaused',
+  RunContinued = 'RunContinued',
   // Team Events
   TeamRunStarted = 'TeamRunStarted',
-  TeamRunResponseContent = 'TeamRunResponseContent',
+  TeamRunContent = 'TeamRunContent',
   TeamRunCompleted = 'TeamRunCompleted',
   TeamRunError = 'TeamRunError',
   TeamRunCancelled = 'TeamRunCancelled',
@@ -206,22 +211,21 @@ export interface PlaygroundChatMessage {
   response_audio?: ResponseAudio
 }
 
-export interface ComboboxAgent {
-  value: string
-  label: string
-  model: {
-    provider: string
-  }
-  storage?: boolean
+export interface AgentDetails {
+  id: string
+  name?: string
+  db_id?: string
+  // Model
+  model?: Model
 }
 
-export interface ComboboxTeam {
-  value: string
-  label: string
-  model: {
-    provider: string
-  }
-  storage?: boolean
+export interface TeamDetails {
+  id: string
+  name?: string
+  db_id?: string
+
+  // Model
+  model?: Model
 }
 
 export interface ImageData {
@@ -262,8 +266,21 @@ export interface Reference {
 
 export interface SessionEntry {
   session_id: string
-  title: string
+  session_name: string
   created_at: number
+  updated_at?: number
+}
+
+export interface Pagination {
+  page: number
+  limit: number
+  total_pages: number
+  total_count: number
+}
+
+export interface Sessions extends SessionEntry {
+  data: SessionEntry[]
+  meta: Pagination
 }
 
 export interface ChatEntry {

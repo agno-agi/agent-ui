@@ -1,5 +1,5 @@
 import { useQueryState } from 'nuqs'
-import { SessionEntry } from '@/types/playground'
+import { Sessions } from '@/types/playground'
 import { Button } from '../../../ui/button'
 import useSessionLoader from '@/hooks/useSessionLoader'
 import {
@@ -14,13 +14,13 @@ import DeleteSessionModal from './DeleteSessionModal'
 import useChatActions from '@/hooks/useChatActions'
 import { truncateText, cn } from '@/lib/utils'
 
-type SessionItemProps = SessionEntry & {
+type SessionItemProps = Sessions & {
   isSelected: boolean
   currentSessionId: string | null
   onSessionClick: () => void
 }
 const SessionItem = ({
-  title,
+  session_name: title ,
   session_id,
   isSelected,
   currentSessionId,
@@ -28,6 +28,7 @@ const SessionItem = ({
 }: SessionItemProps) => {
   const [agentId] = useQueryState('agent')
   const [teamId] = useQueryState('team')
+  const [dbId] = useQueryState('db_id')
   const [, setSessionId] = useQueryState('session')
   const { getSession } = useSessionLoader()
   const { selectedEndpoint, sessionsData, setSessionsData, mode } =
@@ -44,7 +45,8 @@ const SessionItem = ({
       {
         entityType: mode,
         agentId,
-        teamId
+        teamId,
+        dbId
       },
       session_id
     )

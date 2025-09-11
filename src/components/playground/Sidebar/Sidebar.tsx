@@ -209,7 +209,8 @@ const Sidebar = () => {
     isEndpointActive,
     selectedModel,
     hydrated,
-    isEndpointLoading
+    isEndpointLoading,
+    mode
   } = usePlaygroundStore()
   const [isMounted, setIsMounted] = useState(false)
   const [agentId] = useQueryState('agent')
@@ -217,8 +218,9 @@ const Sidebar = () => {
 
   useEffect(() => {
     setIsMounted(true)
+
     if (hydrated) initializePlayground()
-  }, [selectedEndpoint, initializePlayground, hydrated])
+  }, [selectedEndpoint, initializePlayground, hydrated, mode])
 
   const handleNewChat = () => {
     clearChat()

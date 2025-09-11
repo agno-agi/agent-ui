@@ -49,6 +49,7 @@ const Sessions = () => {
   })
   const [teamId] = useQueryState('team')
   const [sessionId] = useQueryState('session')
+  const [dbId] = useQueryState('db_id')
 
   const {
     selectedEndpoint,
@@ -56,11 +57,12 @@ const Sessions = () => {
     isEndpointActive,
     isEndpointLoading,
     hydrated,
-    hasStorage,
     sessionsData,
     setSessionsData,
     isSessionsLoading
   } = usePlaygroundStore()
+
+  console.log({ sessionsData })
 
   const [isScrolling, setIsScrolling] = useState(false)
   const [selectedSessionId, setSelectedSessionId] = useState<string | null>(
@@ -94,23 +96,23 @@ const Sessions = () => {
   useEffect(() => {
     if (hydrated && sessionId && selectedEndpoint && (agentId || teamId)) {
       const entityType = agentId ? 'agent' : 'team'
-      getSession({ entityType, agentId, teamId }, sessionId)
+      getSession({ entityType, agentId, teamId, dbId }, sessionId)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [hydrated])
+  }, [hydrated, sessionId, selectedEndpoint, agentId, teamId, dbId])
 
   useEffect(() => {
-    if (!selectedEndpoint || !hasStorage || isEndpointLoading) return
+    if (!selectedEndpoint || isEndpointLoading) return
     if (!(agentId || teamId)) {
       setSessionsData(() => null)
       return
     }
-
     setSessionsData(() => null)
     getSessions({
       entityType: mode,
       agentId,
-      teamId
+      teamId,
+      dbId
     })
   }, [
     selectedEndpoint,
@@ -118,7 +120,6 @@ const Sessions = () => {
     teamId,
     mode,
     isEndpointLoading,
-    hasStorage,
     getSessions,
     setSessionsData
   ])
@@ -126,14 +127,6 @@ const Sessions = () => {
   useEffect(() => {
     if (sessionId) setSelectedSessionId(sessionId)
   }, [sessionId])
-
-  const formattedSessions = useMemo(() => {
-    if (!Array.isArray(sessionsData)) return []
-    return sessionsData.map((e) => ({
-      ...e,
-      formatted_time: formatDate(e.created_at, 'natural')
-    }))
-  }, [sessionsData])
 
   const handleSessionClick = useCallback(
     (id: string) => () => setSelectedSessionId(id),
@@ -165,18 +158,20 @@ const Sessions = () => {
         onMouseLeave={handleScroll}
       >
         {!isEndpointActive ||
-        !hasStorage ||
-        (!isSessionsLoading && (!sessionsData || sessionsData.length === 0)) ? (
+        (!isSessionsLoading && (!sessionsData || sessionsData?.length === 0)) ? (
           <SessionBlankState />
         ) : (
           <div className="flex flex-col gap-y-1 pr-1">
-            {formattedSessions.map((entry, idx) => (
+            {sessionsData?.map((entry, idx) => (
               <SessionItem
-                key={`${entry.session_id}-${idx}`}
+                key={`${entry?.session_id}-${idx}`}
                 {...entry}
                 currentSessionId={selectedSessionId}
-                isSelected={selectedSessionId === entry.session_id}
-                onSessionClick={handleSessionClick(entry.session_id)}
+                isSelected={selectedSessionId === entry?.session_id}
+                onSessionClick={handleSessionClick(entry?.session_id)}
+                session_name={entry?.session_name ?? "-"}
+                session_id={entry?.session_id}
+                created_at={entry?.created_at}
               />
             ))}
           </div>

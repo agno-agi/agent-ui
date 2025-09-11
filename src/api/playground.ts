@@ -4,15 +4,15 @@ import { APIRoutes } from './routes'
 
 import {
   Agent,
-  ComboboxAgent,
-  SessionEntry,
-  ComboboxTeam,
-  Team
+  AgentDetails,
+  Sessions,
+  Team,
+  TeamDetails
 } from '@/types/playground'
 
 export const getPlaygroundAgentsAPI = async (
   endpoint: string
-): Promise<ComboboxAgent[]> => {
+): Promise<AgentDetails[]> => {
   const url = APIRoutes.GetPlaygroundAgents(endpoint)
   try {
     const response = await fetch(url, { method: 'GET' })
@@ -21,16 +21,9 @@ export const getPlaygroundAgentsAPI = async (
       return []
     }
     const data = await response.json()
-    // Transform the API response into the expected shape.
-    const agents: ComboboxAgent[] = data.map((item: Agent) => ({
-      value: item.agent_id || '',
-      label: item.name || '',
-      model: {
-        provider: item.model?.provider || ''
-      },
-      storage: !!item.storage
-    }))
-    return agents
+
+    console.log('Fetched agents:', data) // Debug log
+    return data
   } catch {
     toast.error('Error fetching playground agents')
     return []
@@ -46,40 +39,59 @@ export const getPlaygroundStatusAPI = async (base: string): Promise<number> => {
 
 export const getAllPlaygroundSessionsAPI = async (
   base: string,
-  agentId: string
-): Promise<SessionEntry[]> => {
+  type: "agent" | "team",
+  componentId: string,
+  dbId: string
+): Promise<Sessions> => {
   try {
-    const response = await fetch(
-      APIRoutes.GetPlaygroundSessions(base, agentId),
-      {
-        method: 'GET'
-      }
-    )
+    const url = new URL(APIRoutes.GetPlaygroundSessions(base))
+
+    // add queries
+    url.searchParams.set("type", type)
+    url.searchParams.set("component_id", componentId)
+    url.searchParams.set("db_id", dbId)
+
+    const response = await fetch(url.toString(), {
+      method: "GET",
+    })
+
     if (!response.ok) {
       if (response.status === 404) {
-        return []
+        return null
       }
       throw new Error(`Failed to fetch sessions: ${response.statusText}`)
     }
     return response.json()
   } catch {
-    return []
+    return null
   }
 }
 
+
 export const getPlaygroundSessionAPI = async (
   base: string,
-  agentId: string,
-  sessionId: string
+  type: "agent" | "team",
+  sessionId: string,
+  dbId?: string
 ) => {
+  // build query string
+  const queryParams = new URLSearchParams({ type })
+  if (dbId) queryParams.append("db_id", dbId)
+
   const response = await fetch(
-    APIRoutes.GetPlaygroundSession(base, agentId, sessionId),
+    `${APIRoutes.GetPlaygroundSession(base, sessionId)}?${queryParams.toString()}`,
     {
-      method: 'GET'
+      method: "GET",
     }
   )
+
+  if (!response.ok) {
+    throw new Error(`Failed to fetch session: ${response.statusText}`)
+  }
+
   return response.json()
 }
+
 
 export const deletePlaygroundSessionAPI = async (
   base: string,
@@ -97,7 +109,7 @@ export const deletePlaygroundSessionAPI = async (
 
 export const getPlaygroundTeamsAPI = async (
   endpoint: string
-): Promise<ComboboxTeam[]> => {
+): Promise<TeamDetails[]> => {
   const url = APIRoutes.GetPlayGroundTeams(endpoint)
   try {
     const response = await fetch(url, { method: 'GET' })
@@ -106,16 +118,8 @@ export const getPlaygroundTeamsAPI = async (
       return []
     }
     const data = await response.json()
-    // Transform the API response into the expected shape.
-    const teams: ComboboxTeam[] = data.map((item: Team) => ({
-      value: item.team_id || '',
-      label: item.name || '',
-      model: {
-        provider: item.model?.provider || ''
-      },
-      storage: !!item.storage
-    }))
-    return teams
+
+    return data
   } catch {
     toast.error('Error fetching playground teams')
     return []
@@ -125,7 +129,7 @@ export const getPlaygroundTeamsAPI = async (
 export const getPlaygroundTeamSessionsAPI = async (
   base: string,
   teamId: string
-): Promise<SessionEntry[]> => {
+): Promise<Sessions[]> => {
   try {
     const response = await fetch(
       APIRoutes.GetPlaygroundTeamSessions(base, teamId),

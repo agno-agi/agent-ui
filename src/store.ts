@@ -2,27 +2,12 @@ import { create } from 'zustand'
 import { persist, createJSONStorage } from 'zustand/middleware'
 
 import {
-  type PlaygroundChatMessage,
-  type SessionEntry
+  AgentDetails,
+  SessionEntry,
+  Sessions,
+  TeamDetails,
+  type PlaygroundChatMessage
 } from '@/types/playground'
-
-interface Agent {
-  value: string
-  label: string
-  model: {
-    provider: string
-  }
-  storage?: boolean
-}
-
-export interface Team {
-  value: string
-  label: string
-  model: {
-    provider: string
-  }
-  storage?: boolean
-}
 
 interface PlaygroundStore {
   hydrated: boolean
@@ -51,19 +36,15 @@ interface PlaygroundStore {
       | PlaygroundChatMessage[]
       | ((prevMessages: PlaygroundChatMessage[]) => PlaygroundChatMessage[])
   ) => void
-  hasStorage: boolean
-  setHasStorage: (hasStorage: boolean) => void
   chatInputRef: React.RefObject<HTMLTextAreaElement | null>
   selectedEndpoint: string
   setSelectedEndpoint: (selectedEndpoint: string) => void
-  agents: Agent[]
-  setAgents: (agents: Agent[]) => void
-  teams: Team[]
-  setTeams: (teams: Team[]) => void
+  agents: AgentDetails[]
+  setAgents: (agents: AgentDetails[]) => void
+  teams: TeamDetails[]
+  setTeams: (teams: TeamDetails[]) => void
   selectedModel: string
   setSelectedModel: (model: string) => void
-  selectedTeamId: string | null
-  setSelectedTeamId: (teamId: string | null) => void
   mode: 'agent' | 'team'
   setMode: (mode: 'agent' | 'team') => void
   sessionsData: SessionEntry[] | null
@@ -100,8 +81,6 @@ export const usePlaygroundStore = create<PlaygroundStore>()(
           messages:
             typeof messages === 'function' ? messages(state.messages) : messages
         })),
-      hasStorage: false,
-      setHasStorage: (hasStorage) => set(() => ({ hasStorage })),
       chatInputRef: { current: null },
       selectedEndpoint: 'http://localhost:7777',
       setSelectedEndpoint: (selectedEndpoint) =>
@@ -112,9 +91,7 @@ export const usePlaygroundStore = create<PlaygroundStore>()(
       setTeams: (teams) => set({ teams }),
       selectedModel: '',
       setSelectedModel: (selectedModel) => set(() => ({ selectedModel })),
-      selectedTeamId: null,
-      setSelectedTeamId: (teamId) => set(() => ({ selectedTeamId: teamId })),
-      mode: 'team',
+      mode: 'agent',
       setMode: (mode) => set(() => ({ mode })),
       sessionsData: null,
       setSessionsData: (sessionsData) =>

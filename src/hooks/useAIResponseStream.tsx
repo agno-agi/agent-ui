@@ -1,18 +1,69 @@
+import { RunResponseContent } from '@/types/playground'
 import { useCallback } from 'react'
-import { type RunResponse } from '@/types/playground'
+
 
 /**
  * Processes a single JSON chunk by passing it to the provided callback.
- * @param chunk - A parsed JSON object of type RunResponse.
+ * @param chunk - A parsed JSON object of type RunResponseContent.
  * @param onChunk - Callback to handle the chunk.
  */
 function processChunk(
-  chunk: RunResponse,
-  onChunk: (chunk: RunResponse) => void
+  chunk: RunResponseContent,
+  onChunk: (chunk: RunResponseContent) => void
 ) {
   onChunk(chunk)
 }
 
+// TODO: Make new format the default and phase out legacy format
+
+/**
+ * Detects if the incoming data is in the legacy format (direct RunResponseContent)
+ * @param data - The parsed data object
+ * @returns true if it's in the legacy format, false if it's in the new format
+ */
+function isLegacyFormat(data: RunResponseContent): boolean {
+  return (
+    typeof data === 'object' &&
+    data !== null &&
+    'event' in data &&
+    !('data' in data) &&
+    typeof data.event === 'string'
+  )
+}
+
+interface NewFormatData {
+  event: string
+  data: string | Record<string, unknown>
+}
+
+type LegacyEventFormat = RunResponseContent & { event: string }
+
+function convertNewFormatToLegacy(
+  newFormatData: NewFormatData
+): LegacyEventFormat {
+  const { event, data } = newFormatData
+
+  // Parse the data field if it's a string
+  let parsedData: Record<string, unknown>
+  if (typeof data === 'string') {
+    try {
+      // First try to parse as JSON
+      parsedData = JSON.parse(data)
+    } catch {
+      parsedData = {}
+    }
+  } else {
+    parsedData = data
+  }
+
+  const { ...cleanData } = parsedData
+
+  // Convert to legacy format by flattening the structure
+  return {
+    event: event,
+    ...cleanData
+  } as LegacyEventFormat
+}
 /**
  * Parses a string buffer to extract complete JSON objects.
  *
@@ -30,66 +81,97 @@ function processChunk(
  */
 function parseBuffer(
   buffer: string,
-  onChunk: (chunk: RunResponse) => void
+  onChunk: (chunk: RunResponseContent) => void
 ): string {
-  let jsonStartIndex = buffer.indexOf('{')
-  let jsonEndIndex = -1
+  let currentIndex = 0
+  let jsonStartIndex = buffer.indexOf('{', currentIndex)
 
-  while (jsonStartIndex !== -1) {
+  // Process as many complete JSON objects as possible.
+  while (jsonStartIndex !== -1 && jsonStartIndex < buffer.length) {
     let braceCount = 0
     let inString = false
+    let escapeNext = false
+    let jsonEndIndex = -1
+    let i = jsonStartIndex
 
-    // Iterate through the buffer to find the end of the JSON object
-    for (let i = jsonStartIndex; i < buffer.length; i++) {
+    // Walk through the string to find the matching closing brace.
+    for (; i < buffer.length; i++) {
       const char = buffer[i]
 
-      // Check if the character is a double quote and the previous character is not a backslash
-      // This is to handle escaped quotes in JSON strings
-      if (char === '"' && buffer[i - 1] !== '\\') {
-        inString = !inString
-      }
-
-      // If the character is not inside a string, count the braces
-      if (!inString) {
-        if (char === '{') braceCount++
-        if (char === '}') braceCount--
-      }
-
-      // If the brace count is 0, we have found the end of the JSON object
-      if (braceCount === 0) {
-        jsonEndIndex = i
-        break
+      if (inString) {
+        if (escapeNext) {
+          escapeNext = false
+        } else if (char === '\\') {
+          escapeNext = true
+        } else if (char === '"') {
+          inString = false
+        }
+      } else {
+        if (char === '"') {
+          inString = true
+        } else if (char === '{') {
+          braceCount++
+        } else if (char === '}') {
+          braceCount--
+          if (braceCount === 0) {
+            jsonEndIndex = i
+            break
+          }
+        }
       }
     }
 
-    // If we found a complete JSON object, process it
+    // If we found a complete JSON object, try to parse it.
     if (jsonEndIndex !== -1) {
       const jsonString = buffer.slice(jsonStartIndex, jsonEndIndex + 1)
+
       try {
-        const parsed = JSON.parse(jsonString) as RunResponse
-        processChunk(parsed, onChunk)
+        const parsed = JSON.parse(jsonString)
+
+        // Check if it's in the legacy format - use as is
+        if (isLegacyFormat(parsed)) {
+          processChunk(parsed, onChunk)
+        } else {
+          // New format - convert to legacy format for compatibility
+          const legacyChunk = convertNewFormatToLegacy(parsed)
+          processChunk(legacyChunk, onChunk)
+        }
       } catch {
-        // Skip invalid JSON, continue accumulating
-        break
+        // Move past the starting brace to avoid re-parsing the same invalid JSON.
+        jsonStartIndex = buffer.indexOf('{', jsonStartIndex + 1)
+        continue
       }
-      buffer = buffer.slice(jsonEndIndex + 1).trim()
-      jsonStartIndex = buffer.indexOf('{')
-      jsonEndIndex = -1
+
+      // Move currentIndex past the parsed JSON and trim any leading whitespace.
+      currentIndex = jsonEndIndex + 1
+      buffer = buffer.slice(currentIndex).trim()
+
+      // Reset currentIndex and search for the next JSON object.
+      currentIndex = 0
+      jsonStartIndex = buffer.indexOf('{', currentIndex)
     } else {
-      // No complete JSON found, wait for the next chunk
+      // If a complete JSON object is not found, break out and wait for more data.
       break
     }
   }
 
+  // Return any unprocessed (partial) data.
   return buffer
 }
 
 /**
  * Custom React hook to handle streaming API responses as JSON objects.
  *
- * This hook:
+ * This hook supports two streaming formats:
+ * 1. Legacy format: Direct JSON objects matching RunResponseContent interface
+ * 2. New format: Event/data structure with { event: string, data: string|object }
+ *
+ * The hook:
  * - Accumulates partial JSON data from streaming responses.
  * - Extracts complete JSON objects and processes them via onChunk.
+ * - Automatically detects new format and converts it to legacy format for compatibility.
+ * - Parses stringified data field if it's a string (supports both JSON and Python dict syntax).
+ * - Removes redundant event field from data object during conversion.
  * - Handles errors via onError and signals completion with onComplete.
  *
  * @returns An object containing the streamResponse function.
@@ -100,7 +182,7 @@ export default function useAIResponseStream() {
       apiUrl: string
       headers?: Record<string, string>
       requestBody: FormData | Record<string, unknown>
-      onChunk: (chunk: RunResponse) => void
+      onChunk: (chunk: RunResponseContent) => void
       onError: (error: Error) => void
       onComplete: () => void
     }): Promise<void> => {
@@ -136,7 +218,6 @@ export default function useAIResponseStream() {
           const errorData = await response.json()
           throw errorData
         }
-
         if (!response.body) {
           throw new Error('No response body')
         }
