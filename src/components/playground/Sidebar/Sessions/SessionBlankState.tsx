@@ -87,8 +87,7 @@ const HistoryBlankStateIcon = () => (
 )
 
 const SessionBlankState = () => {
-  const { selectedEndpoint, isEndpointActive } =
-    usePlaygroundStore()
+  const { selectedEndpoint, isEndpointActive } = usePlaygroundStore()
   const [agentId] = useQueryState('agent')
 
   const errorMessage = (() => {

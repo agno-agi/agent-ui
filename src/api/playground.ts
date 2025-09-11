@@ -21,8 +21,6 @@ export const getPlaygroundAgentsAPI = async (
       return []
     }
     const data = await response.json()
-
-    console.log('Fetched agents:', data) // Debug log
     return data
   } catch {
     toast.error('Error fetching playground agents')
@@ -39,49 +37,46 @@ export const getPlaygroundStatusAPI = async (base: string): Promise<number> => {
 
 export const getAllPlaygroundSessionsAPI = async (
   base: string,
-  type: "agent" | "team",
+  type: 'agent' | 'team',
   componentId: string,
   dbId: string
-): Promise<Sessions> => {
+): Promise<Sessions | { data: [] }> => {
   try {
     const url = new URL(APIRoutes.GetPlaygroundSessions(base))
-
-    // add queries
-    url.searchParams.set("type", type)
-    url.searchParams.set("component_id", componentId)
-    url.searchParams.set("db_id", dbId)
+    url.searchParams.set('type', type)
+    url.searchParams.set('component_id', componentId)
+    url.searchParams.set('db_id', dbId)
 
     const response = await fetch(url.toString(), {
-      method: "GET",
+      method: 'GET'
     })
 
     if (!response.ok) {
       if (response.status === 404) {
-        return null
+        return { data: [] }
       }
       throw new Error(`Failed to fetch sessions: ${response.statusText}`)
     }
     return response.json()
   } catch {
-    return null
+    return { data: [] }
   }
 }
 
-
 export const getPlaygroundSessionAPI = async (
   base: string,
-  type: "agent" | "team",
+  type: 'agent' | 'team',
   sessionId: string,
   dbId?: string
 ) => {
   // build query string
   const queryParams = new URLSearchParams({ type })
-  if (dbId) queryParams.append("db_id", dbId)
+  if (dbId) queryParams.append('db_id', dbId)
 
   const response = await fetch(
     `${APIRoutes.GetPlaygroundSession(base, sessionId)}?${queryParams.toString()}`,
     {
-      method: "GET",
+      method: 'GET'
     }
   )
 
@@ -92,14 +87,15 @@ export const getPlaygroundSessionAPI = async (
   return response.json()
 }
 
-
 export const deletePlaygroundSessionAPI = async (
   base: string,
-  agentId: string,
+  dbId: string,
   sessionId: string
 ) => {
+  const queryParams = new URLSearchParams()
+  if (dbId) queryParams.append('db_id', dbId)
   const response = await fetch(
-    APIRoutes.DeletePlaygroundSession(base, agentId, sessionId),
+    `${APIRoutes.DeletePlaygroundSession(base, sessionId)}?${queryParams.toString()}`,
     {
       method: 'DELETE'
     }

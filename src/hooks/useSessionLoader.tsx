@@ -50,8 +50,12 @@ const useSessionLoader = () => {
       try {
         setIsSessionsLoading(true)
 
-        const sessions =
-            await getAllPlaygroundSessionsAPI(selectedEndpoint, entityType, selectedId, dbId)
+        const sessions = await getAllPlaygroundSessionsAPI(
+          selectedEndpoint,
+          entityType,
+          selectedId,
+          dbId
+        )
         console.log('Fetched sessions:', sessions)
         setSessionsData(sessions.data ?? [])
       } catch {
@@ -65,23 +69,30 @@ const useSessionLoader = () => {
   )
 
   const getSession = useCallback(
-    async ({ entityType, agentId, teamId, dbId }: LoaderArgs, sessionId: string) => {
+    async (
+      { entityType, agentId, teamId, dbId }: LoaderArgs,
+      sessionId: string
+    ) => {
       const selectedId = entityType === 'agent' ? agentId : teamId
-      if (!selectedEndpoint || !sessionId || !entityType || !selectedId || !dbId) return
+      if (
+        !selectedEndpoint ||
+        !sessionId ||
+        !entityType ||
+        !selectedId ||
+        !dbId
+      )
+        return
       console.log(entityType)
 
       try {
-        const response: SessionResponse =
-         
-           await getPlaygroundSessionAPI(
-                selectedEndpoint,
-                entityType,
-                sessionId,
-                dbId
-              )
-            console.log('Fetched session:', response) 
+        const response: SessionResponse = await getPlaygroundSessionAPI(
+          selectedEndpoint,
+          entityType,
+          sessionId,
+          dbId
+        )
+        console.log('Fetched session:', response)
         if (response) {
-
           if (Array.isArray(response)) {
             const messagesForPlayground = response.flatMap((run) => {
               const filteredMessages: PlaygroundChatMessage[] = []
@@ -132,7 +143,6 @@ const useSessionLoader = () => {
               }
               return filteredMessages
             })
-
 
             const processedMessages = messagesForPlayground.map(
               (message: PlaygroundChatMessage) => {

@@ -1,7 +1,6 @@
 import { RunResponseContent } from '@/types/playground'
 import { useCallback } from 'react'
 
-
 /**
  * Processes a single JSON chunk by passing it to the provided callback.
  * @param chunk - A parsed JSON object of type RunResponseContent.

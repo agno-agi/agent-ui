@@ -15,14 +15,9 @@ import { useEffect } from 'react'
 import useChatActions from '@/hooks/useChatActions'
 
 export function EntitySelector() {
-  const {
-    mode,
-    agents,
-    teams,
-    setMessages,
-    setSelectedModel,
-  } = usePlaygroundStore()
-  
+  const { mode, agents, teams, setMessages, setSelectedModel } =
+    usePlaygroundStore()
+
   const { focusChatInput } = useChatActions()
   const [agentId, setAgentId] = useQueryState('agent', {
     parse: (value) => value || undefined,
@@ -56,9 +51,7 @@ export function EntitySelector() {
 
   const handleOnValueChange = (value: string) => {
     const newValue = value === currentValue ? null : value
-    const selectedEntity = currentEntities.find(
-      (item) => item.id === newValue
-    )
+    const selectedEntity = currentEntities.find((item) => item.id === newValue)
 
     setSelectedModel(selectedEntity?.model?.provider || '')
 

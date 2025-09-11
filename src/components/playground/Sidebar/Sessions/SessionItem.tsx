@@ -1,5 +1,5 @@
 import { useQueryState } from 'nuqs'
-import { Sessions } from '@/types/playground'
+import { SessionEntry, Sessions } from '@/types/playground'
 import { Button } from '../../../ui/button'
 import useSessionLoader from '@/hooks/useSessionLoader'
 import {
@@ -14,13 +14,13 @@ import DeleteSessionModal from './DeleteSessionModal'
 import useChatActions from '@/hooks/useChatActions'
 import { truncateText, cn } from '@/lib/utils'
 
-type SessionItemProps = Sessions & {
+type SessionItemProps = SessionEntry & {
   isSelected: boolean
   currentSessionId: string | null
   onSessionClick: () => void
 }
 const SessionItem = ({
-  session_name: title ,
+  session_name: title,
   session_id,
   isSelected,
   currentSessionId,
@@ -38,7 +38,7 @@ const SessionItem = ({
   const { clearChat } = useChatActions()
 
   const handleGetSession = async () => {
-    if (!(agentId || teamId)) return
+    if (!(agentId || teamId || dbId)) return
 
     onSessionClick()
     await getSession(
@@ -46,7 +46,7 @@ const SessionItem = ({
         entityType: mode,
         agentId,
         teamId,
-        dbId
+        dbId: dbId ?? ''
       },
       session_id
     )
@@ -54,25 +54,14 @@ const SessionItem = ({
   }
 
   const handleDeleteSession = async () => {
-    if (!(agentId || teamId)) return
+    if (!(agentId || teamId || dbId)) return
     setIsDeleting(true)
     try {
-      let response
-      if (mode === 'team' && teamId) {
-        response = await deletePlaygroundTeamSessionAPI(
-          selectedEndpoint,
-          teamId,
-          session_id
-        )
-      } else if (mode === 'agent' && agentId) {
-        response = await deletePlaygroundSessionAPI(
-          selectedEndpoint,
-          agentId,
-          session_id
-        )
-      } else {
-        throw new Error('No valid agent or team context for deletion')
-      }
+      const response = await deletePlaygroundSessionAPI(
+        selectedEndpoint,
+        dbId ?? '',
+        session_id
+      )
 
       if (response?.ok && sessionsData) {
         setSessionsData(sessionsData.filter((s) => s.session_id !== session_id))

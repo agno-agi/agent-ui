@@ -4,7 +4,6 @@ import { persist, createJSONStorage } from 'zustand/middleware'
 import {
   AgentDetails,
   SessionEntry,
-  Sessions,
   TeamDetails,
   type PlaygroundChatMessage
 } from '@/types/playground'

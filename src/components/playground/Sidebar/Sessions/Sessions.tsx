@@ -158,18 +158,18 @@ const Sessions = () => {
         onMouseLeave={handleScroll}
       >
         {!isEndpointActive ||
-        (!isSessionsLoading && (!sessionsData || sessionsData?.length === 0)) ? (
+        (!isSessionsLoading &&
+          (!sessionsData || sessionsData?.length === 0)) ? (
           <SessionBlankState />
         ) : (
           <div className="flex flex-col gap-y-1 pr-1">
             {sessionsData?.map((entry, idx) => (
               <SessionItem
                 key={`${entry?.session_id}-${idx}`}
-                {...entry}
                 currentSessionId={selectedSessionId}
                 isSelected={selectedSessionId === entry?.session_id}
                 onSessionClick={handleSessionClick(entry?.session_id)}
-                session_name={entry?.session_name ?? "-"}
+                session_name={entry?.session_name ?? '-'}
                 session_id={entry?.session_id}
                 created_at={entry?.created_at}
               />

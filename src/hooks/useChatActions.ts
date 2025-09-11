@@ -90,7 +90,6 @@ const useChatActions = () => {
       let agents: AgentDetails[] = []
       let teams: TeamDetails[] = []
       if (status === 200) {
-        
         setIsEndpointActive(true)
         teams = await getTeams()
         agents = await getAgents()
