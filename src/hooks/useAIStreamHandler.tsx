@@ -3,31 +3,27 @@ import { useCallback } from 'react'
 import { APIRoutes } from '@/api/routes'
 
 import useChatActions from '@/hooks/useChatActions'
-import { usePlaygroundStore } from '../store'
-import {
-  RunEvent,
-  RunResponseContent,
-  type RunResponse
-} from '@/types/playground'
+import { useStore } from '../store'
+import { RunEvent, RunResponseContent, type RunResponse } from '@/types/os'
 import { constructEndpointUrl } from '@/lib/constructEndpointUrl'
 import useAIResponseStream from './useAIResponseStream'
-import { ToolCall } from '@/types/playground'
+import { ToolCall } from '@/types/os'
 import { useQueryState } from 'nuqs'
 import { getJsonMarkdown } from '@/lib/utils'
 
 const useAIChatStreamHandler = () => {
-  const setMessages = usePlaygroundStore((state) => state.setMessages)
+  const setMessages = useStore((state) => state.setMessages)
   const { addMessage, focusChatInput } = useChatActions()
   const [agentId] = useQueryState('agent')
   const [teamId] = useQueryState('team')
   const [sessionId, setSessionId] = useQueryState('session')
-  const selectedEndpoint = usePlaygroundStore((state) => state.selectedEndpoint)
-  const mode = usePlaygroundStore((state) => state.mode)
-  const setStreamingErrorMessage = usePlaygroundStore(
+  const selectedEndpoint = useStore((state) => state.selectedEndpoint)
+  const mode = useStore((state) => state.mode)
+  const setStreamingErrorMessage = useStore(
     (state) => state.setStreamingErrorMessage
   )
-  const setIsStreaming = usePlaygroundStore((state) => state.setIsStreaming)
-  const setSessionsData = usePlaygroundStore((state) => state.setSessionsData)
+  const setIsStreaming = useStore((state) => state.setIsStreaming)
+  const setSessionsData = useStore((state) => state.setSessionsData)
   const { streamResponse } = useAIResponseStream()
 
   const updateMessagesWithErrorState = useCallback(() => {
@@ -145,18 +141,18 @@ const useAIChatStreamHandler = () => {
       try {
         const endpointUrl = constructEndpointUrl(selectedEndpoint)
 
-        let playgroundRunUrl: string | null = null
+        let RunUrl: string | null = null
 
         if (mode === 'team' && teamId) {
-          playgroundRunUrl = APIRoutes.TeamRun(endpointUrl, teamId)
+          RunUrl = APIRoutes.TeamRun(endpointUrl, teamId)
         } else if (mode === 'agent' && agentId) {
-          playgroundRunUrl = APIRoutes.AgentRun(endpointUrl).replace(
+          RunUrl = APIRoutes.AgentRun(endpointUrl).replace(
             '{agent_id}',
             agentId
           )
         }
 
-        if (!playgroundRunUrl) {
+        if (!RunUrl) {
           updateMessagesWithErrorState()
           setStreamingErrorMessage('Please select an agent or team first.')
           setIsStreaming(false)
@@ -167,7 +163,7 @@ const useAIChatStreamHandler = () => {
         formData.append('session_id', sessionId ?? '')
 
         await streamResponse({
-          apiUrl: playgroundRunUrl,
+          apiUrl: RunUrl,
           requestBody: formData,
           onChunk: (chunk: RunResponse) => {
             if (

@@ -4,7 +4,7 @@ import { memo } from 'react'
 
 import { toast } from 'sonner'
 
-import { type VideoData } from '@/types/playground'
+import { type VideoData } from '@/types/os'
 import Icon from '@/components/ui/icon'
 
 const VideoItem = memo(({ video }: { video: VideoData }) => {

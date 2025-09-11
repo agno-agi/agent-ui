@@ -1,4 +1,4 @@
-import type { PlaygroundChatMessage } from '@/types/playground'
+import type { ChatMessage } from '@/types/os'
 
 import { AgentMessage, UserMessage } from './MessageItem'
 import Tooltip from '@/components/ui/tooltip'
@@ -9,17 +9,18 @@ import {
   ReasoningProps,
   ReferenceData,
   Reference
-} from '@/types/playground'
+} from '@/types/os'
 import React, { type FC } from 'react'
-import ChatBlankState from './ChatBlankState'
+
 import Icon from '@/components/ui/icon'
+import ChatBlankState from './ChatBlankState'
 
 interface MessageListProps {
-  messages: PlaygroundChatMessage[]
+  messages: ChatMessage[]
 }
 
 interface MessageWrapperProps {
-  message: PlaygroundChatMessage
+  message: ChatMessage
   isLastMessage: boolean
 }
 

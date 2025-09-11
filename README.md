@@ -18,7 +18,7 @@ A modern chat interface for AI agents built with Next.js, Tailwind CSS, and Type
 
 ### Prerequisites
 
-Before setting up Agent UI, you may want to have an Agno Playground running. If you haven't set up the Agno Playground yet, follow the [official guide](https://agno.link/agent-ui#connect-to-local-agents) to run the Playground locally.
+Before setting up Agent UI, you may want to have an Agno  running. If you haven't set up the Agno  yet, follow the [official guide](https://agno.link/agent-ui#connect-to-local-agents) to run the  locally.
 
 ### Installation
 
@@ -55,7 +55,7 @@ pnpm dev
 
 By default Agent UI connects to `http://localhost:7777`. You can easily change this by hovering over the endpoint URL and clicking the edit option.
 
-The default endpoint works with the standard Agno Playground setup described in the [official documentation](https://agno.link/agent-ui#connect-to-local-agents).
+The default endpoint works with the standard Agno  setup described in the [official documentation](https://agno.link/agent-ui#connect-to-local-agents).
 
 ## Contributing
 

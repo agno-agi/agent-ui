@@ -1,31 +1,17 @@
 export const APIRoutes = {
-  GetPlaygroundAgents: (PlaygroundApiUrl: string) =>
-    `${PlaygroundApiUrl}/agents`,
-  AgentRun: (PlaygroundApiUrl: string) =>
-    `${PlaygroundApiUrl}/agents/{agent_id}/runs`,
-  PlaygroundStatus: (PlaygroundApiUrl: string) => `${PlaygroundApiUrl}/health`,
-  GetPlaygroundSessions: (PlaygroundApiUrl: string) =>
-    `${PlaygroundApiUrl}/sessions`,
-  GetPlaygroundSession: (PlaygroundApiUrl: string, sessionId: string) =>
-    `${PlaygroundApiUrl}/sessions/${sessionId}/runs`,
+  GetAgents: (agentOSUrl: string) => `${agentOSUrl}/agents`,
+  AgentRun: (agentOSUrl: string) => `${agentOSUrl}/agents/{agent_id}/runs`,
+  Status: (agentOSUrl: string) => `${agentOSUrl}/health`,
+  GetSessions: (agentOSUrl: string) => `${agentOSUrl}/sessions`,
+  GetSession: (agentOSUrl: string, sessionId: string) =>
+    `${agentOSUrl}/sessions/${sessionId}/runs`,
 
-  DeletePlaygroundSession: (PlaygroundApiUrl: string, sessionId: string) =>
-    `${PlaygroundApiUrl}/sessions/${sessionId}`,
+  DeleteSession: (agentOSUrl: string, sessionId: string) =>
+    `${agentOSUrl}/sessions/${sessionId}`,
 
-  GetPlayGroundTeams: (PlaygroundApiUrl: string) => `${PlaygroundApiUrl}/teams`,
-  TeamRun: (PlaygroundApiUrl: string, teamId: string) =>
-    `${PlaygroundApiUrl}/teams/${teamId}/runs`,
-  GetPlaygroundTeamSessions: (PlaygroundApiUrl: string, teamId: string) =>
-    `${PlaygroundApiUrl}/v1/playground/teams/${teamId}/sessions`,
-  GetPlaygroundTeamSession: (
-    PlaygroundApiUrl: string,
-    teamId: string,
-    sessionId: string
-  ) =>
-    `${PlaygroundApiUrl}/v1/playground/teams/${teamId}/sessions/${sessionId}`,
-  DeletePlaygroundTeamSession: (
-    PlaygroundApiUrl: string,
-    teamId: string,
-    sessionId: string
-  ) => `${PlaygroundApiUrl}/v1/playground/teams/${teamId}/sessions/${sessionId}`
+  GetTeams: (agentOSUrl: string) => `${agentOSUrl}/teams`,
+  TeamRun: (agentOSUrl: string, teamId: string) =>
+    `${agentOSUrl}/teams/${teamId}/runs`,
+  DeleteTeamSession: (agentOSUrl: string, teamId: string, sessionId: string) =>
+    `${agentOSUrl}/v1//teams/${teamId}/sessions/${sessionId}`
 }

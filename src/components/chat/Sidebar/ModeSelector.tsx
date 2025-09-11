@@ -8,13 +8,12 @@ import {
   SelectContent,
   SelectItem
 } from '@/components/ui/select'
-import { usePlaygroundStore } from '@/store'
+import { useStore } from '@/store'
 import { useQueryState } from 'nuqs'
 import useChatActions from '@/hooks/useChatActions'
 
 export function ModeSelector() {
-  const { mode, setMode, teams, agents, setMessages, setSelectedModel } =
-    usePlaygroundStore()
+  const { mode, setMode, setMessages, setSelectedModel } = useStore()
   const { clearChat } = useChatActions()
   const [, setAgentId] = useQueryState('agent')
   const [, setTeamId] = useQueryState('team')

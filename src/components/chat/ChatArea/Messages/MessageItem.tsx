@@ -1,7 +1,7 @@
 import Icon from '@/components/ui/icon'
 import MarkdownRenderer from '@/components/ui/typography/MarkdownRenderer'
-import { usePlaygroundStore } from '@/store'
-import type { PlaygroundChatMessage } from '@/types/playground'
+import { useStore } from '@/store'
+import type { ChatMessage } from '@/types/os'
 import Videos from './Multimedia/Videos'
 import Images from './Multimedia/Images'
 import Audios from './Multimedia/Audios'
@@ -9,11 +9,11 @@ import { memo } from 'react'
 import AgentThinkingLoader from './AgentThinkingLoader'
 
 interface MessageProps {
-  message: PlaygroundChatMessage
+  message: ChatMessage
 }
 
 const AgentMessage = ({ message }: MessageProps) => {
-  const { streamingErrorMessage } = usePlaygroundStore()
+  const { streamingErrorMessage } = useStore()
   let messageContent
   if (message.streamingError) {
     messageContent = (

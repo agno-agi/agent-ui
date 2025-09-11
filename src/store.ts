@@ -5,22 +5,22 @@ import {
   AgentDetails,
   SessionEntry,
   TeamDetails,
-  type PlaygroundChatMessage
-} from '@/types/playground'
+  type ChatMessage
+} from '@/types/os'
 
-interface PlaygroundStore {
+interface Store {
   hydrated: boolean
   setHydrated: () => void
   streamingErrorMessage: string
   setStreamingErrorMessage: (streamingErrorMessage: string) => void
   endpoints: {
     endpoint: string
-    id_playground_endpoint: string
+    id__endpoint: string
   }[]
   setEndpoints: (
     endpoints: {
       endpoint: string
-      id_playground_endpoint: string
+      id__endpoint: string
     }[]
   ) => void
   isStreaming: boolean
@@ -29,11 +29,9 @@ interface PlaygroundStore {
   setIsEndpointActive: (isActive: boolean) => void
   isEndpointLoading: boolean
   setIsEndpointLoading: (isLoading: boolean) => void
-  messages: PlaygroundChatMessage[]
+  messages: ChatMessage[]
   setMessages: (
-    messages:
-      | PlaygroundChatMessage[]
-      | ((prevMessages: PlaygroundChatMessage[]) => PlaygroundChatMessage[])
+    messages: ChatMessage[] | ((prevMessages: ChatMessage[]) => ChatMessage[])
   ) => void
   chatInputRef: React.RefObject<HTMLTextAreaElement | null>
   selectedEndpoint: string
@@ -56,7 +54,7 @@ interface PlaygroundStore {
   setIsSessionsLoading: (isSessionsLoading: boolean) => void
 }
 
-export const usePlaygroundStore = create<PlaygroundStore>()(
+export const useStore = create<Store>()(
   persist(
     (set) => ({
       hydrated: false,

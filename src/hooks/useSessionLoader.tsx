@@ -1,18 +1,8 @@
 import { useCallback } from 'react'
-import {
-  getPlaygroundSessionAPI,
-  getAllPlaygroundSessionsAPI,
-  getPlaygroundTeamSessionsAPI,
-  getPlaygroundTeamSessionAPI
-} from '@/api/playground'
-import { usePlaygroundStore } from '../store'
+import { getSessionAPI, getAllSessionsAPI } from '@/api/os'
+import { useStore } from '../store'
 import { toast } from 'sonner'
-import {
-  PlaygroundChatMessage,
-  ToolCall,
-  ReasoningMessage,
-  ChatEntry
-} from '@/types/playground'
+import { ChatMessage, ToolCall, ReasoningMessage, ChatEntry } from '@/types/os'
 import { getJsonMarkdown } from '@/lib/utils'
 
 interface SessionResponse {
@@ -35,12 +25,10 @@ interface LoaderArgs {
 }
 
 const useSessionLoader = () => {
-  const setMessages = usePlaygroundStore((state) => state.setMessages)
-  const selectedEndpoint = usePlaygroundStore((state) => state.selectedEndpoint)
-  const setIsSessionsLoading = usePlaygroundStore(
-    (state) => state.setIsSessionsLoading
-  )
-  const setSessionsData = usePlaygroundStore((state) => state.setSessionsData)
+  const setMessages = useStore((state) => state.setMessages)
+  const selectedEndpoint = useStore((state) => state.selectedEndpoint)
+  const setIsSessionsLoading = useStore((state) => state.setIsSessionsLoading)
+  const setSessionsData = useStore((state) => state.setSessionsData)
 
   const getSessions = useCallback(
     async ({ entityType, agentId, teamId, dbId }: LoaderArgs) => {
@@ -50,7 +38,7 @@ const useSessionLoader = () => {
       try {
         setIsSessionsLoading(true)
 
-        const sessions = await getAllPlaygroundSessionsAPI(
+        const sessions = await getAllSessionsAPI(
           selectedEndpoint,
           entityType,
           selectedId,
@@ -85,7 +73,7 @@ const useSessionLoader = () => {
       console.log(entityType)
 
       try {
-        const response: SessionResponse = await getPlaygroundSessionAPI(
+        const response: SessionResponse = await getSessionAPI(
           selectedEndpoint,
           entityType,
           sessionId,
@@ -94,8 +82,8 @@ const useSessionLoader = () => {
         console.log('Fetched session:', response)
         if (response) {
           if (Array.isArray(response)) {
-            const messagesForPlayground = response.flatMap((run) => {
-              const filteredMessages: PlaygroundChatMessage[] = []
+            const messagesFor = response.flatMap((run) => {
+              const filteredMessages: ChatMessage[] = []
 
               if (run) {
                 filteredMessages.push({
@@ -144,8 +132,8 @@ const useSessionLoader = () => {
               return filteredMessages
             })
 
-            const processedMessages = messagesForPlayground.map(
-              (message: PlaygroundChatMessage) => {
+            const processedMessages = messagesFor.map(
+              (message: ChatMessage) => {
                 if (Array.isArray(message.content)) {
                   const textContent = message.content
                     .filter((item: { type: string }) => item.type === 'text')

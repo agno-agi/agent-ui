@@ -1,26 +1,15 @@
 'use client'
 
 import { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import dayjs from 'dayjs'
-import utc from 'dayjs/plugin/utc'
 import { useQueryState } from 'nuqs'
 
-import { usePlaygroundStore } from '@/store'
+import { useStore } from '@/store'
 import useSessionLoader from '@/hooks/useSessionLoader'
 
 import SessionItem from './SessionItem'
 import SessionBlankState from './SessionBlankState'
 import { Skeleton } from '@/components/ui/skeleton'
 import { cn } from '@/lib/utils'
-
-dayjs.extend(utc)
-
-const formatDate = (ts: number, style: 'natural' | 'full' = 'full'): string => {
-  const d = dayjs.unix(ts).utc()
-  return style === 'natural'
-    ? d.format('HH:mm')
-    : d.format('YYYY-MM-DD HH:mm:ss')
-}
 
 interface SkeletonListProps {
   skeletonCount: number
@@ -60,7 +49,7 @@ const Sessions = () => {
     sessionsData,
     setSessionsData,
     isSessionsLoading
-  } = usePlaygroundStore()
+  } = useStore()
 
   console.log({ sessionsData })
 
@@ -103,17 +92,18 @@ const Sessions = () => {
 
   useEffect(() => {
     if (!selectedEndpoint || isEndpointLoading) return
-    if (!(agentId || teamId)) {
-      setSessionsData(() => null)
+    if (!(agentId || teamId || dbId)) {
+      setSessionsData([])
       return
     }
-    setSessionsData(() => null)
+    setSessionsData([])
     getSessions({
       entityType: mode,
       agentId,
       teamId,
       dbId
     })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     selectedEndpoint,
     agentId,
@@ -121,7 +111,7 @@ const Sessions = () => {
     mode,
     isEndpointLoading,
     getSessions,
-    setSessionsData
+    dbId
   ])
 
   useEffect(() => {

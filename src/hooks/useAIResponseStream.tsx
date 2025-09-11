@@ -1,4 +1,4 @@
-import { RunResponseContent } from '@/types/playground'
+import { RunResponseContent } from '@/types/os'
 import { useCallback } from 'react'
 
 /**

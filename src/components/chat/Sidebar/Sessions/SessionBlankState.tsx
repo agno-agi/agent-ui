@@ -1,7 +1,6 @@
 import React from 'react'
-import { usePlaygroundStore } from '@/store'
+import { useStore } from '@/store'
 import { useQueryState } from 'nuqs'
-import Link from 'next/link'
 
 const HistoryBlankStateIcon = () => (
   <svg
@@ -87,7 +86,7 @@ const HistoryBlankStateIcon = () => (
 )
 
 const SessionBlankState = () => {
-  const { selectedEndpoint, isEndpointActive } = usePlaygroundStore()
+  const { selectedEndpoint, isEndpointActive } = useStore()
   const [agentId] = useQueryState('agent')
 
   const errorMessage = (() => {

@@ -8,15 +8,14 @@ import {
   SelectContent,
   SelectItem
 } from '@/components/ui/select'
-import { usePlaygroundStore } from '@/store'
+import { useStore } from '@/store'
 import { useQueryState } from 'nuqs'
 import Icon from '@/components/ui/icon'
 import { useEffect } from 'react'
 import useChatActions from '@/hooks/useChatActions'
 
 export function EntitySelector() {
-  const { mode, agents, teams, setMessages, setSelectedModel } =
-    usePlaygroundStore()
+  const { mode, agents, teams, setMessages, setSelectedModel } = useStore()
 
   const { focusChatInput } = useChatActions()
   const [agentId, setAgentId] = useQueryState('agent', {

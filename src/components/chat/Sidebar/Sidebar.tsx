@@ -1,9 +1,9 @@
 'use client'
 import { Button } from '@/components/ui/button'
-import { ModeSelector } from '@/components/playground/Sidebar/ModeSelector'
-import { EntitySelector } from '@/components/playground/Sidebar/EntitySelector'
+import { ModeSelector } from '@/components/chat/Sidebar/ModeSelector'
+import { EntitySelector } from '@/components/chat/Sidebar/EntitySelector'
 import useChatActions from '@/hooks/useChatActions'
-import { usePlaygroundStore } from '@/store'
+import { useStore } from '@/store'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useState, useEffect } from 'react'
 import Icon from '@/components/ui/icon'
@@ -59,8 +59,8 @@ const Endpoint = () => {
     setAgents,
     setSessionsData,
     setMessages
-  } = usePlaygroundStore()
-  const { initializePlayground } = useChatActions()
+  } = useStore()
+  const { initialize } = useChatActions()
   const [isEditing, setIsEditing] = useState(false)
   const [endpointValue, setEndpointValue] = useState('')
   const [isMounted, setIsMounted] = useState(false)
@@ -109,7 +109,7 @@ const Endpoint = () => {
 
   const handleRefresh = async () => {
     setIsRotating(true)
-    await initializePlayground()
+    await initialize()
     setTimeout(() => setIsRotating(false), 500)
   }
 
@@ -202,7 +202,7 @@ const Endpoint = () => {
 
 const Sidebar = () => {
   const [isCollapsed, setIsCollapsed] = useState(false)
-  const { clearChat, focusChatInput, initializePlayground } = useChatActions()
+  const { clearChat, focusChatInput, initialize } = useChatActions()
   const {
     messages,
     selectedEndpoint,
@@ -211,7 +211,7 @@ const Sidebar = () => {
     hydrated,
     isEndpointLoading,
     mode
-  } = usePlaygroundStore()
+  } = useStore()
   const [isMounted, setIsMounted] = useState(false)
   const [agentId] = useQueryState('agent')
   const [teamId] = useQueryState('team')
@@ -219,8 +219,8 @@ const Sidebar = () => {
   useEffect(() => {
     setIsMounted(true)
 
-    if (hydrated) initializePlayground()
-  }, [selectedEndpoint, initializePlayground, hydrated, mode])
+    if (hydrated) initialize()
+  }, [selectedEndpoint, initialize, hydrated, mode])
 
   const handleNewChat = () => {
     clearChat()

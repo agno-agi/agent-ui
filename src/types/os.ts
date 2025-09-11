@@ -142,7 +142,7 @@ export interface RunResponseContent {
   tool?: ToolCall
   tools?: Array<ToolCall>
   created_at: number
-  extra_data?: PlaygroundAgentExtraData
+  extra_data?: AgentExtraData
   images?: ImageData[]
   videos?: VideoData[]
   audio?: AudioData[]
@@ -164,7 +164,7 @@ export interface RunResponse {
   tool?: ToolCall
   tools?: Array<ToolCall>
   created_at: number
-  extra_data?: PlaygroundAgentExtraData
+  extra_data?: AgentExtraData
   images?: ImageData[]
   videos?: VideoData[]
   audio?: AudioData[]
@@ -177,7 +177,7 @@ export interface AgentExtraData {
   references?: ReferenceData[]
 }
 
-export interface PlaygroundAgentExtraData extends AgentExtraData {
+export interface AgentExtraData {
   reasoning_messages?: ReasoningMessage[]
   references?: ReferenceData[]
 }
@@ -194,7 +194,7 @@ export interface ReasoningMessage {
   }
   created_at?: number
 }
-export interface PlaygroundChatMessage {
+export interface ChatMessage {
   role: 'user' | 'agent' | 'system' | 'tool'
   content: string
   streamingError?: boolean
