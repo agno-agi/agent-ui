@@ -115,7 +115,7 @@ const Endpoint = () => {
 
   return (
     <div className="flex flex-col items-start gap-2">
-      <div className="text-xs font-medium uppercase text-primary">Endpoint</div>
+      <div className="text-xs font-medium uppercase text-primary">AgentOS</div>
       {isEditing ? (
         <div className="flex w-full items-center gap-1">
           <input
@@ -155,7 +155,7 @@ const Endpoint = () => {
                   transition={{ duration: 0.2 }}
                 >
                   <p className="flex items-center gap-2 whitespace-nowrap text-xs font-medium text-primary">
-                    <Icon type="edit" size="xxs" /> EDIT ENDPOINT
+                    <Icon type="edit" size="xxs" /> EDIT AGENTOS
                   </p>
                 </motion.div>
               ) : (
