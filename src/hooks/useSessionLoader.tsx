@@ -88,7 +88,7 @@ const useSessionLoader = () => {
               if (run) {
                 filteredMessages.push({
                   role: 'user',
-                  content: run.content ?? '',
+                  content: run.run_input ?? '',
                   created_at: run.created_at
                 })
               }
