@@ -1,6 +1,6 @@
 import { memo } from 'react'
 
-import { type ImageData } from '@/types/playground'
+import { type ImageData } from '@/types/os'
 import { cn } from '@/lib/utils'
 
 const Images = ({ images }: { images: ImageData[] }) => (

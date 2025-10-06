@@ -1,12 +1,12 @@
 'use client'
 
-import { usePlaygroundStore } from '@/store'
+import { useStore } from '@/store'
 import Messages from './Messages'
-import ScrollToBottom from '@/components/playground/ChatArea/ScrollToBottom'
+import ScrollToBottom from '@/components/chat/ChatArea/ScrollToBottom'
 import { StickToBottom } from 'use-stick-to-bottom'
 
 const MessageArea = () => {
-  const { messages } = usePlaygroundStore()
+  const { messages } = useStore()
 
   return (
     <StickToBottom

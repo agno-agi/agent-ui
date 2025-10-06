@@ -1,9 +1,9 @@
 'use client'
 import { Button } from '@/components/ui/button'
-import { ModeSelector } from '@/components/playground/Sidebar/ModeSelector'
-import { EntitySelector } from '@/components/playground/Sidebar/EntitySelector'
+import { ModeSelector } from '@/components/chat/Sidebar/ModeSelector'
+import { EntitySelector } from '@/components/chat/Sidebar/EntitySelector'
 import useChatActions from '@/hooks/useChatActions'
-import { usePlaygroundStore } from '@/store'
+import { useStore } from '@/store'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useState, useEffect } from 'react'
 import Icon from '@/components/ui/icon'
@@ -59,8 +59,8 @@ const Endpoint = () => {
     setAgents,
     setSessionsData,
     setMessages
-  } = usePlaygroundStore()
-  const { initializePlayground } = useChatActions()
+  } = useStore()
+  const { initialize } = useChatActions()
   const [isEditing, setIsEditing] = useState(false)
   const [endpointValue, setEndpointValue] = useState('')
   const [isMounted, setIsMounted] = useState(false)
@@ -109,13 +109,13 @@ const Endpoint = () => {
 
   const handleRefresh = async () => {
     setIsRotating(true)
-    await initializePlayground()
+    await initialize()
     setTimeout(() => setIsRotating(false), 500)
   }
 
   return (
     <div className="flex flex-col items-start gap-2">
-      <div className="text-xs font-medium uppercase text-primary">Endpoint</div>
+      <div className="text-xs font-medium uppercase text-primary">AgentOS</div>
       {isEditing ? (
         <div className="flex w-full items-center gap-1">
           <input
@@ -155,7 +155,7 @@ const Endpoint = () => {
                   transition={{ duration: 0.2 }}
                 >
                   <p className="flex items-center gap-2 whitespace-nowrap text-xs font-medium text-primary">
-                    <Icon type="edit" size="xxs" /> EDIT ENDPOINT
+                    <Icon type="edit" size="xxs" /> EDIT AGENTOS
                   </p>
                 </motion.div>
               ) : (
@@ -202,23 +202,25 @@ const Endpoint = () => {
 
 const Sidebar = () => {
   const [isCollapsed, setIsCollapsed] = useState(false)
-  const { clearChat, focusChatInput, initializePlayground } = useChatActions()
+  const { clearChat, focusChatInput, initialize } = useChatActions()
   const {
     messages,
     selectedEndpoint,
     isEndpointActive,
     selectedModel,
     hydrated,
-    isEndpointLoading
-  } = usePlaygroundStore()
+    isEndpointLoading,
+    mode
+  } = useStore()
   const [isMounted, setIsMounted] = useState(false)
   const [agentId] = useQueryState('agent')
   const [teamId] = useQueryState('team')
 
   useEffect(() => {
     setIsMounted(true)
-    if (hydrated) initializePlayground()
-  }, [selectedEndpoint, initializePlayground, hydrated])
+
+    if (hydrated) initialize()
+  }, [selectedEndpoint, initialize, hydrated, mode])
 
   const handleNewChat = () => {
     clearChat()

@@ -1,7 +1,6 @@
 import React from 'react'
-import { usePlaygroundStore } from '@/store'
+import { useStore } from '@/store'
 import { useQueryState } from 'nuqs'
-import Link from 'next/link'
 
 const HistoryBlankStateIcon = () => (
   <svg
@@ -87,8 +86,7 @@ const HistoryBlankStateIcon = () => (
 )
 
 const SessionBlankState = () => {
-  const { selectedEndpoint, isEndpointActive, hasStorage } =
-    usePlaygroundStore()
+  const { selectedEndpoint, isEndpointActive } = useStore()
   const [agentId] = useQueryState('agent')
 
   const errorMessage = (() => {
@@ -99,20 +97,6 @@ const SessionBlankState = () => {
         return 'Select an endpoint to see the history.'
       case !agentId:
         return 'Select an agent to see the history.'
-      case !hasStorage:
-        return (
-          <>
-            Connect{' '}
-            <Link
-              className="underline"
-              href={'https://docs.agno.com/storage'}
-              target="_blank"
-            >
-              storage
-            </Link>{' '}
-            to your agent to see sessions.{' '}
-          </>
-        )
       default:
         return 'No session records yet. Start a conversation to create one.'
     }

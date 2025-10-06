@@ -1,12 +1,9 @@
 import { useQueryState } from 'nuqs'
-import { SessionEntry } from '@/types/playground'
+import { SessionEntry } from '@/types/os'
 import { Button } from '../../../ui/button'
 import useSessionLoader from '@/hooks/useSessionLoader'
-import {
-  deletePlaygroundSessionAPI,
-  deletePlaygroundTeamSessionAPI
-} from '@/api/playground'
-import { usePlaygroundStore } from '@/store'
+import { deleteSessionAPI } from '@/api/os'
+import { useStore } from '@/store'
 import { toast } from 'sonner'
 import Icon from '@/components/ui/icon'
 import { useState } from 'react'
@@ -20,7 +17,7 @@ type SessionItemProps = SessionEntry & {
   onSessionClick: () => void
 }
 const SessionItem = ({
-  title,
+  session_name: title,
   session_id,
   isSelected,
   currentSessionId,
@@ -28,23 +25,24 @@ const SessionItem = ({
 }: SessionItemProps) => {
   const [agentId] = useQueryState('agent')
   const [teamId] = useQueryState('team')
+  const [dbId] = useQueryState('db_id')
   const [, setSessionId] = useQueryState('session')
   const { getSession } = useSessionLoader()
-  const { selectedEndpoint, sessionsData, setSessionsData, mode } =
-    usePlaygroundStore()
+  const { selectedEndpoint, sessionsData, setSessionsData, mode } = useStore()
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
   const { clearChat } = useChatActions()
 
   const handleGetSession = async () => {
-    if (!(agentId || teamId)) return
+    if (!(agentId || teamId || dbId)) return
 
     onSessionClick()
     await getSession(
       {
         entityType: mode,
         agentId,
-        teamId
+        teamId,
+        dbId: dbId ?? ''
       },
       session_id
     )
@@ -52,25 +50,14 @@ const SessionItem = ({
   }
 
   const handleDeleteSession = async () => {
-    if (!(agentId || teamId)) return
+    if (!(agentId || teamId || dbId)) return
     setIsDeleting(true)
     try {
-      let response
-      if (mode === 'team' && teamId) {
-        response = await deletePlaygroundTeamSessionAPI(
-          selectedEndpoint,
-          teamId,
-          session_id
-        )
-      } else if (mode === 'agent' && agentId) {
-        response = await deletePlaygroundSessionAPI(
-          selectedEndpoint,
-          agentId,
-          session_id
-        )
-      } else {
-        throw new Error('No valid agent or team context for deletion')
-      }
+      const response = await deleteSessionAPI(
+        selectedEndpoint,
+        dbId ?? '',
+        session_id
+      )
 
       if (response?.ok && sessionsData) {
         setSessionsData(sessionsData.filter((s) => s.session_id !== session_id))

@@ -8,7 +8,7 @@ import React, { useState } from 'react'
 
 const EXTERNAL_LINKS = {
   documentation: 'https://agno.link/agent-ui',
-  playground: 'https://app.agno.com/playground/agents',
+  agenOS: 'https://os.agno.com',
   agno: 'https://agno.com'
 }
 
@@ -172,7 +172,7 @@ const ChatBlankState = () => {
               </div>
             </span>
           </div>
-          <p>For the full experience, visit the Agent Playground.</p>
+          <p>For the full experience, visit the AgentOS</p>
         </motion.h1>
         <motion.div
           initial={{ opacity: 0, y: 10 }}
@@ -185,10 +185,7 @@ const ChatBlankState = () => {
             variant="primary"
             text="GO TO DOCS"
           />
-          <ActionButton
-            href={EXTERNAL_LINKS.playground}
-            text="VISIT AGENT PLAYGROUND"
-          />
+          <ActionButton href={EXTERNAL_LINKS.agenOS} text="VISIT AGENTOS" />
         </motion.div>
       </div>
     </section>

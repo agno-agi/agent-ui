@@ -1,26 +1,15 @@
 'use client'
 
 import { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import dayjs from 'dayjs'
-import utc from 'dayjs/plugin/utc'
 import { useQueryState } from 'nuqs'
 
-import { usePlaygroundStore } from '@/store'
+import { useStore } from '@/store'
 import useSessionLoader from '@/hooks/useSessionLoader'
 
 import SessionItem from './SessionItem'
 import SessionBlankState from './SessionBlankState'
 import { Skeleton } from '@/components/ui/skeleton'
 import { cn } from '@/lib/utils'
-
-dayjs.extend(utc)
-
-const formatDate = (ts: number, style: 'natural' | 'full' = 'full'): string => {
-  const d = dayjs.unix(ts).utc()
-  return style === 'natural'
-    ? d.format('HH:mm')
-    : d.format('YYYY-MM-DD HH:mm:ss')
-}
 
 interface SkeletonListProps {
   skeletonCount: number
@@ -49,6 +38,7 @@ const Sessions = () => {
   })
   const [teamId] = useQueryState('team')
   const [sessionId] = useQueryState('session')
+  const [dbId] = useQueryState('db_id')
 
   const {
     selectedEndpoint,
@@ -56,11 +46,12 @@ const Sessions = () => {
     isEndpointActive,
     isEndpointLoading,
     hydrated,
-    hasStorage,
     sessionsData,
     setSessionsData,
     isSessionsLoading
-  } = usePlaygroundStore()
+  } = useStore()
+
+  console.log({ sessionsData })
 
   const [isScrolling, setIsScrolling] = useState(false)
   const [selectedSessionId, setSelectedSessionId] = useState<string | null>(
@@ -94,46 +85,38 @@ const Sessions = () => {
   useEffect(() => {
     if (hydrated && sessionId && selectedEndpoint && (agentId || teamId)) {
       const entityType = agentId ? 'agent' : 'team'
-      getSession({ entityType, agentId, teamId }, sessionId)
+      getSession({ entityType, agentId, teamId, dbId }, sessionId)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [hydrated])
+  }, [hydrated, sessionId, selectedEndpoint, agentId, teamId, dbId])
 
   useEffect(() => {
-    if (!selectedEndpoint || !hasStorage || isEndpointLoading) return
-    if (!(agentId || teamId)) {
-      setSessionsData(() => null)
+    if (!selectedEndpoint || isEndpointLoading) return
+    if (!(agentId || teamId || dbId)) {
+      setSessionsData([])
       return
     }
-
-    setSessionsData(() => null)
+    setSessionsData([])
     getSessions({
       entityType: mode,
       agentId,
-      teamId
+      teamId,
+      dbId
     })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     selectedEndpoint,
     agentId,
     teamId,
     mode,
     isEndpointLoading,
-    hasStorage,
     getSessions,
-    setSessionsData
+    dbId
   ])
 
   useEffect(() => {
     if (sessionId) setSelectedSessionId(sessionId)
   }, [sessionId])
-
-  const formattedSessions = useMemo(() => {
-    if (!Array.isArray(sessionsData)) return []
-    return sessionsData.map((e) => ({
-      ...e,
-      formatted_time: formatDate(e.created_at, 'natural')
-    }))
-  }, [sessionsData])
 
   const handleSessionClick = useCallback(
     (id: string) => () => setSelectedSessionId(id),
@@ -165,18 +148,20 @@ const Sessions = () => {
         onMouseLeave={handleScroll}
       >
         {!isEndpointActive ||
-        !hasStorage ||
-        (!isSessionsLoading && (!sessionsData || sessionsData.length === 0)) ? (
+        (!isSessionsLoading &&
+          (!sessionsData || sessionsData?.length === 0)) ? (
           <SessionBlankState />
         ) : (
           <div className="flex flex-col gap-y-1 pr-1">
-            {formattedSessions.map((entry, idx) => (
+            {sessionsData?.map((entry, idx) => (
               <SessionItem
-                key={`${entry.session_id}-${idx}`}
-                {...entry}
+                key={`${entry?.session_id}-${idx}`}
                 currentSessionId={selectedSessionId}
-                isSelected={selectedSessionId === entry.session_id}
-                onSessionClick={handleSessionClick(entry.session_id)}
+                isSelected={selectedSessionId === entry?.session_id}
+                onSessionClick={handleSessionClick(entry?.session_id)}
+                session_name={entry?.session_name ?? '-'}
+                session_id={entry?.session_id}
+                created_at={entry?.created_at}
               />
             ))}
           </div>

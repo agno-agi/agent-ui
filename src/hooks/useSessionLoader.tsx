@@ -1,18 +1,8 @@
 import { useCallback } from 'react'
-import {
-  getPlaygroundSessionAPI,
-  getAllPlaygroundSessionsAPI,
-  getPlaygroundTeamSessionsAPI,
-  getPlaygroundTeamSessionAPI
-} from '@/api/playground'
-import { usePlaygroundStore } from '../store'
+import { getSessionAPI, getAllSessionsAPI } from '@/api/os'
+import { useStore } from '../store'
 import { toast } from 'sonner'
-import {
-  PlaygroundChatMessage,
-  ToolCall,
-  ReasoningMessage,
-  ChatEntry
-} from '@/types/playground'
+import { ChatMessage, ToolCall, ReasoningMessage, ChatEntry } from '@/types/os'
 import { getJsonMarkdown } from '@/lib/utils'
 
 interface SessionResponse {
@@ -31,29 +21,31 @@ interface LoaderArgs {
   entityType: 'agent' | 'team' | null
   agentId?: string | null
   teamId?: string | null
+  dbId: string | null
 }
 
 const useSessionLoader = () => {
-  const setMessages = usePlaygroundStore((state) => state.setMessages)
-  const selectedEndpoint = usePlaygroundStore((state) => state.selectedEndpoint)
-  const setIsSessionsLoading = usePlaygroundStore(
-    (state) => state.setIsSessionsLoading
-  )
-  const setSessionsData = usePlaygroundStore((state) => state.setSessionsData)
+  const setMessages = useStore((state) => state.setMessages)
+  const selectedEndpoint = useStore((state) => state.selectedEndpoint)
+  const setIsSessionsLoading = useStore((state) => state.setIsSessionsLoading)
+  const setSessionsData = useStore((state) => state.setSessionsData)
 
   const getSessions = useCallback(
-    async ({ entityType, agentId, teamId }: LoaderArgs) => {
-      if (!selectedEndpoint) return
+    async ({ entityType, agentId, teamId, dbId }: LoaderArgs) => {
+      const selectedId = entityType === 'agent' ? agentId : teamId
+      if (!selectedEndpoint || !entityType || !selectedId || !dbId) return
 
       try {
         setIsSessionsLoading(true)
 
-        const sessions =
-          entityType === 'team'
-            ? await getPlaygroundTeamSessionsAPI(selectedEndpoint, teamId!)
-            : await getAllPlaygroundSessionsAPI(selectedEndpoint, agentId!)
-
-        setSessionsData(sessions)
+        const sessions = await getAllSessionsAPI(
+          selectedEndpoint,
+          entityType,
+          selectedId,
+          dbId
+        )
+        console.log('Fetched sessions:', sessions)
+        setSessionsData(sessions.data ?? [])
       } catch {
         toast.error('Error loading sessions')
         setSessionsData([])
@@ -65,44 +57,46 @@ const useSessionLoader = () => {
   )
 
   const getSession = useCallback(
-    async ({ entityType, agentId, teamId }: LoaderArgs, sessionId: string) => {
-      if (!selectedEndpoint || !sessionId) return
+    async (
+      { entityType, agentId, teamId, dbId }: LoaderArgs,
+      sessionId: string
+    ) => {
+      const selectedId = entityType === 'agent' ? agentId : teamId
+      if (
+        !selectedEndpoint ||
+        !sessionId ||
+        !entityType ||
+        !selectedId ||
+        !dbId
+      )
+        return
+      console.log(entityType)
 
       try {
-        const response: SessionResponse =
-          entityType === 'team'
-            ? await getPlaygroundTeamSessionAPI(
-                selectedEndpoint,
-                teamId!,
-                sessionId
-              )
-            : await getPlaygroundSessionAPI(
-                selectedEndpoint,
-                agentId!,
-                sessionId
-              )
-
+        const response: SessionResponse = await getSessionAPI(
+          selectedEndpoint,
+          entityType,
+          sessionId,
+          dbId
+        )
+        console.log('Fetched session:', response)
         if (response) {
-          const sessionHistory = response.runs
-            ? response.runs
-            : response.memory.runs
+          if (Array.isArray(response)) {
+            const messagesFor = response.flatMap((run) => {
+              const filteredMessages: ChatMessage[] = []
 
-          if (sessionHistory && Array.isArray(sessionHistory)) {
-            const messagesForPlayground = sessionHistory.flatMap((run) => {
-              const filteredMessages: PlaygroundChatMessage[] = []
-
-              if (run.message) {
+              if (run) {
                 filteredMessages.push({
                   role: 'user',
-                  content: run.message.content ?? '',
-                  created_at: run.message.created_at
+                  content: run.run_input ?? '',
+                  created_at: run.created_at
                 })
               }
 
-              if (run.response) {
+              if (run) {
                 const toolCalls = [
-                  ...(run.response.tools ?? []),
-                  ...(run.response.extra_data?.reasoning_messages ?? []).reduce(
+                  ...(run.tools ?? []),
+                  ...(run.extra_data?.reasoning_messages ?? []).reduce(
                     (acc: ToolCall[], msg: ReasoningMessage) => {
                       if (msg.role === 'tool') {
                         acc.push({
@@ -125,21 +119,21 @@ const useSessionLoader = () => {
 
                 filteredMessages.push({
                   role: 'agent',
-                  content: (run.response.content as string) ?? '',
+                  content: (run.content as string) ?? '',
                   tool_calls: toolCalls.length > 0 ? toolCalls : undefined,
-                  extra_data: run.response.extra_data,
-                  images: run.response.images,
-                  videos: run.response.videos,
-                  audio: run.response.audio,
-                  response_audio: run.response.response_audio,
-                  created_at: run.response.created_at
+                  extra_data: run.extra_data,
+                  images: run.images,
+                  videos: run.videos,
+                  audio: run.audio,
+                  response_audio: run.response_audio,
+                  created_at: run.created_at
                 })
               }
               return filteredMessages
             })
 
-            const processedMessages = messagesForPlayground.map(
-              (message: PlaygroundChatMessage) => {
+            const processedMessages = messagesFor.map(
+              (message: ChatMessage) => {
                 if (Array.isArray(message.content)) {
                   const textContent = message.content
                     .filter((item: { type: string }) => item.type === 'text')
