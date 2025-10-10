@@ -27,6 +27,7 @@ interface LoaderArgs {
 const useSessionLoader = () => {
   const setMessages = useStore((state) => state.setMessages)
   const selectedEndpoint = useStore((state) => state.selectedEndpoint)
+  const authToken = useStore((state) => state.authToken)
   const setIsSessionsLoading = useStore((state) => state.setIsSessionsLoading)
   const setSessionsData = useStore((state) => state.setSessionsData)
 
@@ -42,7 +43,8 @@ const useSessionLoader = () => {
           selectedEndpoint,
           entityType,
           selectedId,
-          dbId
+          dbId,
+          authToken
         )
         console.log('Fetched sessions:', sessions)
         setSessionsData(sessions.data ?? [])
@@ -53,7 +55,7 @@ const useSessionLoader = () => {
         setIsSessionsLoading(false)
       }
     },
-    [selectedEndpoint, setSessionsData, setIsSessionsLoading]
+    [selectedEndpoint, authToken, setSessionsData, setIsSessionsLoading]
   )
 
   const getSession = useCallback(
@@ -77,7 +79,8 @@ const useSessionLoader = () => {
           selectedEndpoint,
           entityType,
           sessionId,
-          dbId
+          dbId,
+          authToken
         )
         console.log('Fetched session:', response)
         if (response) {
@@ -163,7 +166,7 @@ const useSessionLoader = () => {
         return null
       }
     },
-    [selectedEndpoint, setMessages]
+    [selectedEndpoint, authToken, setMessages]
   )
 
   return { getSession, getSessions }

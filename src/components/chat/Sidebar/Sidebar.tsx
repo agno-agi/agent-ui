@@ -9,6 +9,7 @@ import { useState, useEffect } from 'react'
 import Icon from '@/components/ui/icon'
 import { getProviderIcon } from '@/lib/modelProvider'
 import Sessions from './Sessions'
+import AuthToken from './AuthToken'
 import { isValidUrl } from '@/lib/utils'
 import { toast } from 'sonner'
 import { useQueryState } from 'nuqs'
@@ -200,7 +201,7 @@ const Endpoint = () => {
   )
 }
 
-const Sidebar = () => {
+const Sidebar = ({ hasEnvToken, envToken }: { hasEnvToken?: boolean; envToken?: string }) => {
   const [isCollapsed, setIsCollapsed] = useState(false)
   const { clearChat, focusChatInput, initialize } = useChatActions()
   const {
@@ -264,6 +265,7 @@ const Sidebar = () => {
         {isMounted && (
           <>
             <Endpoint />
+            <AuthToken hasEnvToken={hasEnvToken} envToken={envToken} />
             {isEndpointActive && (
               <>
                 <motion.div

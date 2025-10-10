@@ -81,7 +81,29 @@ By default, Agent UI connects to `http://localhost:7777`. You can easily change 
 
 > **Warning**: Make sure your AgentOS is actually running on the specified endpoint before attempting to connect.
 
-### 3. Test the Connection
+### 3. Configure Authentication (Optional)
+
+If your AgentOS instance requires authentication, you can configure it in two ways:
+
+#### Option 1: Environment Variable (Recommended)
+Set the `OS_SECURITY_KEY` environment variable:
+
+```bash
+# In your .env.local file or shell environment
+OS_SECURITY_KEY=your_auth_token_here
+```
+
+> **Note**: This uses the same environment variable as AgentOS, so if you're running both on the same machine, you only need to set it once. The token will be automatically loaded when the application starts.
+
+#### Option 2: UI Configuration
+1. In the left sidebar, locate the "Auth Token" section
+2. Click on the token field to edit it
+3. Enter your authentication token
+4. The token will be securely stored and included in all API requests
+
+> **Security Note**: Authentication tokens are stored locally in your browser and are included as Bearer tokens in API requests to your AgentOS instance.
+
+### 4. Test the Connection
 
 Once you've configured the endpoint:
 

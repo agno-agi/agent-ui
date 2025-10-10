@@ -36,6 +36,8 @@ interface Store {
   chatInputRef: React.RefObject<HTMLTextAreaElement | null>
   selectedEndpoint: string
   setSelectedEndpoint: (selectedEndpoint: string) => void
+  authToken: string
+  setAuthToken: (authToken: string) => void
   agents: AgentDetails[]
   setAgents: (agents: AgentDetails[]) => void
   teams: TeamDetails[]
@@ -82,6 +84,8 @@ export const useStore = create<Store>()(
       selectedEndpoint: 'http://localhost:7777',
       setSelectedEndpoint: (selectedEndpoint) =>
         set(() => ({ selectedEndpoint })),
+      authToken: '',
+      setAuthToken: (authToken) => set(() => ({ authToken })),
       agents: [],
       setAgents: (agents) => set({ agents }),
       teams: [],
