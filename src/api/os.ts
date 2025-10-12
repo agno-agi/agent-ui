@@ -9,11 +9,11 @@ const createHeaders = (authToken?: string): HeadersInit => {
   const headers: HeadersInit = {
     'Content-Type': 'application/json'
   }
-  
+
   if (authToken) {
     headers['Authorization'] = `Bearer ${authToken}`
   }
-  
+
   return headers
 }
 
@@ -23,7 +23,7 @@ export const getAgentsAPI = async (
 ): Promise<AgentDetails[]> => {
   const url = APIRoutes.GetAgents(endpoint)
   try {
-    const response = await fetch(url, { 
+    const response = await fetch(url, {
       method: 'GET',
       headers: createHeaders(authToken)
     })
@@ -39,7 +39,10 @@ export const getAgentsAPI = async (
   }
 }
 
-export const getStatusAPI = async (base: string, authToken?: string): Promise<number> => {
+export const getStatusAPI = async (
+  base: string,
+  authToken?: string
+): Promise<number> => {
   const response = await fetch(APIRoutes.Status(base), {
     method: 'GET',
     headers: createHeaders(authToken)
@@ -121,10 +124,13 @@ export const deleteSessionAPI = async (
   return response
 }
 
-export const getTeamsAPI = async (endpoint: string, authToken?: string): Promise<TeamDetails[]> => {
+export const getTeamsAPI = async (
+  endpoint: string,
+  authToken?: string
+): Promise<TeamDetails[]> => {
   const url = APIRoutes.GetTeams(endpoint)
   try {
-    const response = await fetch(url, { 
+    const response = await fetch(url, {
       method: 'GET',
       headers: createHeaders(authToken)
     })

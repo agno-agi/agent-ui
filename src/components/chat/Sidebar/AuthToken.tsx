@@ -5,7 +5,13 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { useState, useEffect } from 'react'
 import Icon from '@/components/ui/icon'
 
-const AuthToken = ({ hasEnvToken, envToken }: { hasEnvToken?: boolean; envToken?: string }) => {
+const AuthToken = ({
+  hasEnvToken,
+  envToken
+}: {
+  hasEnvToken?: boolean
+  envToken?: string
+}) => {
   const { authToken, setAuthToken } = useStore()
   const [isEditing, setIsEditing] = useState(false)
   const [tokenValue, setTokenValue] = useState('')
@@ -49,13 +55,15 @@ const AuthToken = ({ hasEnvToken, envToken }: { hasEnvToken?: boolean; envToken?
     setTokenValue('')
   }
 
-  const displayValue = authToken 
+  const displayValue = authToken
     ? `${'*'.repeat(Math.min(authToken.length, 20))}${authToken.length > 20 ? '...' : ''}`
     : 'NO TOKEN SET'
 
   return (
     <div className="flex flex-col items-start gap-2">
-      <div className="text-xs font-medium uppercase text-primary">Auth Token</div>
+      <div className="text-xs font-medium uppercase text-primary">
+        Auth Token
+      </div>
       {isEditing ? (
         <div className="flex w-full items-center gap-1">
           <input

@@ -201,7 +201,13 @@ const Endpoint = () => {
   )
 }
 
-const Sidebar = ({ hasEnvToken, envToken }: { hasEnvToken?: boolean; envToken?: string }) => {
+const Sidebar = ({
+  hasEnvToken,
+  envToken
+}: {
+  hasEnvToken?: boolean
+  envToken?: string
+}) => {
   const [isCollapsed, setIsCollapsed] = useState(false)
   const { clearChat, focusChatInput, initialize } = useChatActions()
   const {
