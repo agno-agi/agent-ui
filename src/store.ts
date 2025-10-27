@@ -118,7 +118,22 @@ export const useStore = create<Store>()(
         set(() => ({ isSessionsLoading })),
       selectedReasoning: null,
       setSelectedReasoning: (reasoning) =>
-        set(() => ({ selectedReasoning: reasoning })),
+        set((state) => {
+          const current = state.selectedReasoning
+
+          if (
+            current &&
+            current.messageId === reasoning.messageId &&
+            current.reasoning === reasoning.reasoning &&
+            current.isComplete === reasoning.isComplete &&
+            current.badges.length === reasoning.badges.length &&
+            current.badges.every((badge, index) => badge === reasoning.badges[index])
+          ) {
+            return state
+          }
+
+          return { selectedReasoning: reasoning }
+        }),
       clearSelectedReasoning: () => set(() => ({ selectedReasoning: null }))
     }),
     {

@@ -2,9 +2,8 @@ import type { ChatMessage } from '@/types/os'
 
 import { AgentMessage, UserMessage } from './MessageItem'
 import Tooltip from '@/components/ui/tooltip'
-import { memo } from 'react'
+import React, { type FC, memo, useEffect, useMemo } from 'react'
 import { ToolCallProps, ReferenceData, Reference } from '@/types/os'
-import React, { type FC, useEffect, useMemo } from 'react'
 
 import Icon from '@/components/ui/icon'
 import ChatBlankState from './ChatBlankState'
