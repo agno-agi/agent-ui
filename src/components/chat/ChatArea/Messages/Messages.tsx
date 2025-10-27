@@ -59,12 +59,9 @@ const ReasoningSummary: FC<{
   message: ChatMessage
   messageId: string
 }> = ({ message, messageId }) => {
-  const { selectedReasoning, setSelectedReasoning, clearSelectedReasoning } =
-    useStore((state) => ({
-      selectedReasoning: state.selectedReasoning,
-      setSelectedReasoning: state.setSelectedReasoning,
-      clearSelectedReasoning: state.clearSelectedReasoning
-    }))
+  const selectedReasoning = useStore((state) => state.selectedReasoning)
+  const setSelectedReasoning = useStore((state) => state.setSelectedReasoning)
+  const clearSelectedReasoning = useStore((state) => state.clearSelectedReasoning)
 
   const reasoningTrace = message.extra_data?.reasoning_trace
   const reasoningSteps = message.extra_data?.reasoning_steps

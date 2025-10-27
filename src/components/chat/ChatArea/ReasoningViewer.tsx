@@ -50,10 +50,8 @@ const ReasoningPanelContent = ({ onClose }: { onClose: () => void }) => {
 }
 
 const ReasoningViewer = () => {
-  const { selectedReasoning, clearSelectedReasoning } = useStore((state) => ({
-    selectedReasoning: state.selectedReasoning,
-    clearSelectedReasoning: state.clearSelectedReasoning
-  }))
+  const selectedReasoning = useStore((state) => state.selectedReasoning)
+  const clearSelectedReasoning = useStore((state) => state.clearSelectedReasoning)
 
   return (
     <>
