@@ -10,6 +10,7 @@ import useAIResponseStream from './useAIResponseStream'
 import { ToolCall } from '@/types/os'
 import { useQueryState } from 'nuqs'
 import { getJsonMarkdown } from '@/lib/utils'
+import { parseReasoningContent } from '@/lib/reasoning'
 
 const useAIChatStreamHandler = () => {
   const setMessages = useStore((state) => state.setMessages)
@@ -136,7 +137,7 @@ const useAIChatStreamHandler = () => {
         created_at: Math.floor(Date.now() / 1000) + 1
       })
 
-      let lastContent = ''
+      let lastVisibleContent = ''
       let newSessionId = sessionId
       try {
         const endpointUrl = constructEndpointUrl(selectedEndpoint)
@@ -166,6 +167,9 @@ const useAIChatStreamHandler = () => {
           apiUrl: RunUrl,
           requestBody: formData,
           onChunk: (chunk: RunResponse) => {
+            if (mode === 'team' && !chunk.event.startsWith('Team')) {
+              return
+            }
             if (
               chunk.event === RunEvent.RunStarted ||
               chunk.event === RunEvent.TeamRunStarted ||
@@ -222,28 +226,55 @@ const useAIChatStreamHandler = () => {
                   lastMessage.role === 'agent' &&
                   typeof chunk.content === 'string'
                 ) {
-                  const uniqueContent = chunk.content.replace(lastContent, '')
-                  lastMessage.content += uniqueContent
-                  lastContent = chunk.content
+                  const parsedReasoning = parseReasoningContent(chunk.content)
+                  const uniqueVisibleContent = parsedReasoning.visibleContent.replace(
+                    lastVisibleContent,
+                    ''
+                  )
+
+                  lastMessage.content += uniqueVisibleContent
+                  lastVisibleContent = parsedReasoning.visibleContent
 
                   // Handle tool calls streaming
                   lastMessage.tool_calls = processChunkToolCalls(
                     chunk,
                     lastMessage.tool_calls
                   )
-                  if (chunk.extra_data?.reasoning_steps) {
-                    lastMessage.extra_data = {
-                      ...lastMessage.extra_data,
-                      reasoning_steps: chunk.extra_data.reasoning_steps
+
+                  const existingExtraData = {
+                    ...lastMessage.extra_data
+                  }
+
+                  if (parsedReasoning.reasoningText !== null) {
+                    existingExtraData.reasoning_trace = {
+                      raw: parsedReasoning.reasoningText,
+                      badges: parsedReasoning.badges,
+                      isComplete: parsedReasoning.isComplete
                     }
+                  } else if (existingExtraData.reasoning_trace) {
+                    delete existingExtraData.reasoning_trace
+                  }
+
+                  if (chunk.extra_data?.reasoning_steps) {
+                    existingExtraData.reasoning_steps =
+                      chunk.extra_data.reasoning_steps
                   }
 
                   if (chunk.extra_data?.references) {
-                    lastMessage.extra_data = {
-                      ...lastMessage.extra_data,
-                      references: chunk.extra_data.references
-                    }
+                    existingExtraData.references =
+                      chunk.extra_data.references
                   }
+
+                  const sanitizedExtraData = Object.fromEntries(
+                    Object.entries(existingExtraData).filter(
+                      ([, value]) => value !== undefined
+                    )
+                  ) as typeof existingExtraData
+
+                  lastMessage.extra_data =
+                    Object.keys(sanitizedExtraData).length > 0
+                      ? sanitizedExtraData
+                      : undefined
 
                   lastMessage.created_at =
                     chunk.created_at ?? lastMessage.created_at
@@ -265,7 +296,7 @@ const useAIChatStreamHandler = () => {
                   const jsonBlock = getJsonMarkdown(chunk?.content)
 
                   lastMessage.content += jsonBlock
-                  lastContent = jsonBlock
+                  lastVisibleContent += jsonBlock
                 } else if (
                   chunk.response_audio?.transcript &&
                   typeof chunk.response_audio?.transcript === 'string'
@@ -351,8 +382,21 @@ const useAIChatStreamHandler = () => {
                     message.role === 'agent'
                   ) {
                     let updatedContent: string
+                    const updatedExtraData = {
+                      ...message.extra_data
+                    }
                     if (typeof chunk.content === 'string') {
-                      updatedContent = chunk.content
+                      const parsedReasoning = parseReasoningContent(chunk.content)
+                      updatedContent = parsedReasoning.visibleContent
+                      if (parsedReasoning.reasoningText !== null) {
+                        updatedExtraData.reasoning_trace = {
+                          raw: parsedReasoning.reasoningText,
+                          badges: parsedReasoning.badges,
+                          isComplete: parsedReasoning.isComplete
+                        }
+                      } else if (updatedExtraData.reasoning_trace) {
+                        delete updatedExtraData.reasoning_trace
+                      }
                     } else {
                       try {
                         updatedContent = JSON.stringify(chunk.content)
@@ -360,6 +404,20 @@ const useAIChatStreamHandler = () => {
                         updatedContent = 'Error parsing response'
                       }
                     }
+                    if (chunk.extra_data?.reasoning_steps) {
+                      updatedExtraData.reasoning_steps =
+                        chunk.extra_data.reasoning_steps
+                    }
+                    if (chunk.extra_data?.references) {
+                      updatedExtraData.references =
+                        chunk.extra_data.references
+                    }
+                    const sanitizedExtraData = Object.fromEntries(
+                      Object.entries(updatedExtraData).filter(
+                        ([, value]) => value !== undefined
+                      )
+                    ) as typeof updatedExtraData
+
                     return {
                       ...message,
                       content: updatedContent,
@@ -371,14 +429,10 @@ const useAIChatStreamHandler = () => {
                       videos: chunk.videos ?? message.videos,
                       response_audio: chunk.response_audio,
                       created_at: chunk.created_at ?? message.created_at,
-                      extra_data: {
-                        reasoning_steps:
-                          chunk.extra_data?.reasoning_steps ??
-                          message.extra_data?.reasoning_steps,
-                        references:
-                          chunk.extra_data?.references ??
-                          message.extra_data?.references
-                      }
+                      extra_data:
+                        Object.keys(sanitizedExtraData).length > 0
+                          ? sanitizedExtraData
+                          : undefined
                     }
                   }
                   return message

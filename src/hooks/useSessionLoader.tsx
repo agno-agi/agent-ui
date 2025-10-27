@@ -4,6 +4,7 @@ import { useStore } from '../store'
 import { toast } from 'sonner'
 import { ChatMessage, ToolCall, ReasoningMessage, ChatEntry } from '@/types/os'
 import { getJsonMarkdown } from '@/lib/utils'
+import { parseReasoningContent } from '@/lib/reasoning'
 
 interface SessionResponse {
   session_id: string
@@ -151,7 +152,34 @@ const useSessionLoader = () => {
                     content: getJsonMarkdown(message.content)
                   }
                 }
-                return message
+
+                const parsedReasoning = parseReasoningContent(message.content)
+                const updatedExtraData = { ...message.extra_data }
+
+                if (parsedReasoning.reasoningText !== null) {
+                  updatedExtraData.reasoning_trace = {
+                    raw: parsedReasoning.reasoningText,
+                    badges: parsedReasoning.badges,
+                    isComplete: parsedReasoning.isComplete
+                  }
+                } else if (updatedExtraData.reasoning_trace) {
+                  delete updatedExtraData.reasoning_trace
+                }
+
+                const sanitizedExtraData = Object.fromEntries(
+                  Object.entries(updatedExtraData).filter(
+                    ([, value]) => value !== undefined
+                  )
+                ) as typeof updatedExtraData
+
+                return {
+                  ...message,
+                  content: parsedReasoning.visibleContent,
+                  extra_data:
+                    Object.keys(sanitizedExtraData).length > 0
+                      ? sanitizedExtraData
+                      : undefined
+                }
               }
             )
 

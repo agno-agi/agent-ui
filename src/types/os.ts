@@ -171,15 +171,17 @@ export interface RunResponse {
   response_audio?: ResponseAudio
 }
 
+export interface ReasoningTrace {
+  raw: string
+  badges: string[]
+  isComplete: boolean
+}
+
 export interface AgentExtraData {
   reasoning_steps?: ReasoningSteps[]
   reasoning_messages?: ReasoningMessage[]
   references?: ReferenceData[]
-}
-
-export interface AgentExtraData {
-  reasoning_messages?: ReasoningMessage[]
-  references?: ReferenceData[]
+  reasoning_trace?: ReasoningTrace
 }
 
 export interface ReasoningMessage {
@@ -204,6 +206,7 @@ export interface ChatMessage {
     reasoning_steps?: ReasoningSteps[]
     reasoning_messages?: ReasoningMessage[]
     references?: ReferenceData[]
+    reasoning_trace?: ReasoningTrace
   }
   images?: ImageData[]
   videos?: VideoData[]

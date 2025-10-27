@@ -52,6 +52,21 @@ interface Store {
   ) => void
   isSessionsLoading: boolean
   setIsSessionsLoading: (isSessionsLoading: boolean) => void
+  selectedReasoning: {
+    messageId: string
+    reasoning: string
+    badges: string[]
+    isComplete: boolean
+  } | null
+  setSelectedReasoning: (
+    reasoning: {
+      messageId: string
+      reasoning: string
+      badges: string[]
+      isComplete: boolean
+    }
+  ) => void
+  clearSelectedReasoning: () => void
 }
 
 export const useStore = create<Store>()(
@@ -100,7 +115,11 @@ export const useStore = create<Store>()(
         })),
       isSessionsLoading: false,
       setIsSessionsLoading: (isSessionsLoading) =>
-        set(() => ({ isSessionsLoading }))
+        set(() => ({ isSessionsLoading })),
+      selectedReasoning: null,
+      setSelectedReasoning: (reasoning) =>
+        set(() => ({ selectedReasoning: reasoning })),
+      clearSelectedReasoning: () => set(() => ({ selectedReasoning: null }))
     }),
     {
       name: 'endpoint-storage',
