@@ -9,7 +9,7 @@ export default function Home() {
   const envToken = process.env.NEXT_PUBLIC_OS_SECURITY_KEY || ''
   return (
     <Suspense fallback={<div>Loading...</div>}>
-      <div className="bg-background/80 flex h-screen">
+      <div className="flex h-screen bg-background/80">
         <Sidebar hasEnvToken={hasEnvToken} envToken={envToken} />
         <ChatArea />
       </div>

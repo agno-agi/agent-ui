@@ -33,7 +33,7 @@ const SkeletonList: FC<SkeletonListProps> = ({ skeletonCount }) => {
 
 const Sessions = () => {
   const [agentId] = useQueryState('agent', {
-    parse: (v) => v || undefined,
+    parse: (v: string | null) => v || undefined,
     history: 'push'
   })
   const [teamId] = useQueryState('team')

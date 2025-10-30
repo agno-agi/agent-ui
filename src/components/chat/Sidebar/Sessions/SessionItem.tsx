@@ -90,8 +90,8 @@ const SessionItem = ({
         className={cn(
           'group flex h-11 w-full items-center justify-between rounded-lg px-3 py-2 transition-colors duration-200',
           isSelected
-            ? 'bg-primary/10 cursor-default'
-            : 'bg-background-secondary hover:bg-background-secondary/80 cursor-pointer'
+            ? 'cursor-default bg-primary/10'
+            : 'cursor-pointer bg-background-secondary hover:bg-background-secondary/80'
         )}
         onClick={handleGetSession}
       >
