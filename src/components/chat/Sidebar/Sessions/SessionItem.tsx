@@ -27,6 +27,7 @@ const SessionItem = ({
   const [teamId] = useQueryState('team')
   const [dbId] = useQueryState('db_id')
   const [, setSessionId] = useQueryState('session')
+  const authToken = useStore((state) => state.authToken)
   const { getSession } = useSessionLoader()
   const { selectedEndpoint, sessionsData, setSessionsData, mode } = useStore()
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
@@ -56,7 +57,8 @@ const SessionItem = ({
       const response = await deleteSessionAPI(
         selectedEndpoint,
         dbId ?? '',
-        session_id
+        session_id,
+        authToken
       )
 
       if (response?.ok && sessionsData) {
@@ -88,8 +90,8 @@ const SessionItem = ({
         className={cn(
           'group flex h-11 w-full items-center justify-between rounded-lg px-3 py-2 transition-colors duration-200',
           isSelected
-            ? 'cursor-default bg-primary/10'
-            : 'cursor-pointer bg-background-secondary hover:bg-background-secondary/80'
+            ? 'bg-primary/10 cursor-default'
+            : 'bg-background-secondary hover:bg-background-secondary/80 cursor-pointer'
         )}
         onClick={handleGetSession}
       >

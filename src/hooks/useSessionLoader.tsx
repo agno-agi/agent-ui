@@ -46,7 +46,6 @@ const useSessionLoader = () => {
           dbId,
           authToken
         )
-        console.log('Fetched sessions:', sessions)
         setSessionsData(sessions.data ?? [])
       } catch {
         toast.error('Error loading sessions')
@@ -72,7 +71,6 @@ const useSessionLoader = () => {
         !dbId
       )
         return
-      console.log(entityType)
 
       try {
         const response: SessionResponse = await getSessionAPI(
@@ -82,7 +80,6 @@ const useSessionLoader = () => {
           dbId,
           authToken
         )
-        console.log('Fetched session:', response)
         if (response) {
           if (Array.isArray(response)) {
             const messagesFor = response.flatMap((run) => {

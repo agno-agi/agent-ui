@@ -82,11 +82,9 @@ const useChatActions = () => {
         setIsEndpointActive(true)
         teams = await getTeams()
         agents = await getAgents()
-        console.log(' is active', teams, agents)
 
         if (!agentId && !teamId) {
           const currentMode = useStore.getState().mode
-          console.log('Current mode:', currentMode)
 
           if (currentMode === 'team' && teams.length > 0) {
             const firstTeam = teams[0]
