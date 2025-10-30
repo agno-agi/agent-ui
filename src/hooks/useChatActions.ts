@@ -1,49 +1,57 @@
 import { useCallback } from 'react'
 import { toast } from 'sonner'
 
-import { usePlaygroundStore } from '../store'
+import { useStore } from '../store'
 
-import { ComboboxAgent, type PlaygroundChatMessage } from '@/types/playground'
-import {
-  getPlaygroundAgentsAPI,
-  getPlaygroundStatusAPI
-} from '@/api/playground'
+import { AgentDetails, TeamDetails, type ChatMessage } from '@/types/os'
+import { getAgentsAPI, getStatusAPI, getTeamsAPI } from '@/api/os'
 import { useQueryState } from 'nuqs'
 
 const useChatActions = () => {
-  const { chatInputRef } = usePlaygroundStore()
-  const selectedEndpoint = usePlaygroundStore((state) => state.selectedEndpoint)
+  const { chatInputRef } = useStore()
+  const selectedEndpoint = useStore((state) => state.selectedEndpoint)
+  const authToken = useStore((state) => state.authToken)
   const [, setSessionId] = useQueryState('session')
-  const setMessages = usePlaygroundStore((state) => state.setMessages)
-  const setIsEndpointActive = usePlaygroundStore(
-    (state) => state.setIsEndpointActive
-  )
-  const setIsEndpointLoading = usePlaygroundStore(
-    (state) => state.setIsEndpointLoading
-  )
-  const setAgents = usePlaygroundStore((state) => state.setAgents)
-  const setSelectedModel = usePlaygroundStore((state) => state.setSelectedModel)
+  const setMessages = useStore((state) => state.setMessages)
+  const setIsEndpointActive = useStore((state) => state.setIsEndpointActive)
+  const setIsEndpointLoading = useStore((state) => state.setIsEndpointLoading)
+  const setAgents = useStore((state) => state.setAgents)
+  const setTeams = useStore((state) => state.setTeams)
+  const setSelectedModel = useStore((state) => state.setSelectedModel)
+  const setMode = useStore((state) => state.setMode)
   const [agentId, setAgentId] = useQueryState('agent')
+  const [teamId, setTeamId] = useQueryState('team')
+  const [, setDbId] = useQueryState('db_id')
 
   const getStatus = useCallback(async () => {
     try {
-      const status = await getPlaygroundStatusAPI(selectedEndpoint)
+      const status = await getStatusAPI(selectedEndpoint, authToken)
       return status
     } catch {
       return 503
     }
-  }, [selectedEndpoint])
+  }, [selectedEndpoint, authToken])
 
   const getAgents = useCallback(async () => {
     try {
-      const agents = await getPlaygroundAgentsAPI(selectedEndpoint)
+      const agents = await getAgentsAPI(selectedEndpoint, authToken)
       return agents
     } catch(error) {
       console.error(error)
       toast.error('Error fetching agents')
       return []
     }
-  }, [selectedEndpoint])
+  }, [selectedEndpoint, authToken])
+
+  const getTeams = useCallback(async () => {
+    try {
+      const teams = await getTeamsAPI(selectedEndpoint, authToken)
+      return teams
+    } catch {
+      toast.error('Error fetching teams')
+      return []
+    }
+  }, [selectedEndpoint, authToken])
 
   const clearChat = useCallback(() => {
     setMessages([])
@@ -59,44 +67,111 @@ const useChatActions = () => {
   }, [])
 
   const addMessage = useCallback(
-    (message: PlaygroundChatMessage) => {
+    (message: ChatMessage) => {
       setMessages((prevMessages) => [...prevMessages, message])
     },
     [setMessages]
   )
 
-  const initializePlayground = useCallback(async () => {
+  const initialize = useCallback(async () => {
     setIsEndpointLoading(true)
     try {
       const status = await getStatus()
-      let agents: ComboboxAgent[] = []
+      let agents: AgentDetails[] = []
+      let teams: TeamDetails[] = []
       if (status === 200) {
         setIsEndpointActive(true)
+        teams = await getTeams()
         agents = await getAgents()
-        if (agents.length > 0 && !agentId) {
-          const firstAgent = agents[0]
-          setAgentId(firstAgent.value)
-          setSelectedModel(firstAgent.model.provider || '')
+
+        if (!agentId && !teamId) {
+          const currentMode = useStore.getState().mode
+
+          if (currentMode === 'team' && teams.length > 0) {
+            const firstTeam = teams[0]
+            setTeamId(firstTeam.id)
+            setSelectedModel(firstTeam.model?.provider || '')
+            setDbId(firstTeam.db_id || '')
+            setAgentId(null)
+            setTeams(teams)
+          } else if (currentMode === 'agent' && agents.length > 0) {
+            const firstAgent = agents[0]
+            setMode('agent')
+            setAgentId(firstAgent.id)
+            setSelectedModel(firstAgent.model?.model || '')
+            setDbId(firstAgent.db_id || '')
+            setAgents(agents)
+          }
+        } else {
+          setAgents(agents)
+          setTeams(teams)
+          if (agentId) {
+            const agent = agents.find((a) => a.id === agentId)
+            if (agent) {
+              setMode('agent')
+              setSelectedModel(agent.model?.model || '')
+              setDbId(agent.db_id || '')
+              setTeamId(null)
+            } else if (agents.length > 0) {
+              const firstAgent = agents[0]
+              setMode('agent')
+              setAgentId(firstAgent.id)
+              setSelectedModel(firstAgent.model?.model || '')
+              setDbId(firstAgent.db_id || '')
+              setTeamId(null)
+            }
+          } else if (teamId) {
+            const team = teams.find((t) => t.id === teamId)
+            if (team) {
+              setMode('team')
+              setSelectedModel(team.model?.provider || '')
+              setDbId(team.db_id || '')
+              setAgentId(null)
+            } else if (teams.length > 0) {
+              const firstTeam = teams[0]
+              setMode('team')
+              setTeamId(firstTeam.id)
+              setSelectedModel(firstTeam.model?.provider || '')
+              setDbId(firstTeam.db_id || '')
+              setAgentId(null)
+            }
+          }
         }
       } else {
         setIsEndpointActive(false)
+        setMode('agent')
+        setSelectedModel('')
+        setAgentId(null)
+        setTeamId(null)
       }
-      setAgents(agents)
-      return agents
-    } catch {
-      setIsEndpointLoading(false)
+      return { agents, teams }
+    } catch (error) {
+      console.error('Error initializing :', error)
+      setIsEndpointActive(false)
+      setMode('agent')
+      setSelectedModel('')
+      setAgentId(null)
+      setTeamId(null)
+      setAgents([])
+      setTeams([])
     } finally {
       setIsEndpointLoading(false)
     }
   }, [
     getStatus,
     getAgents,
+    getTeams,
     setIsEndpointActive,
     setIsEndpointLoading,
     setAgents,
+    setTeams,
     setAgentId,
     setSelectedModel,
-    agentId
+    setMode,
+    setTeamId,
+    setDbId,
+    agentId,
+    teamId
   ])
 
   return {
@@ -104,7 +179,8 @@ const useChatActions = () => {
     addMessage,
     getAgents,
     focusChatInput,
-    initializePlayground
+    getTeams,
+    initialize
   }
 }
 

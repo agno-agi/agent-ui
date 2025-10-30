@@ -2,32 +2,25 @@ import { create } from 'zustand'
 import { persist, createJSONStorage } from 'zustand/middleware'
 
 import {
-  type PlaygroundChatMessage,
-  type SessionEntry
-} from '@/types/playground'
+  AgentDetails,
+  SessionEntry,
+  TeamDetails,
+  type ChatMessage
+} from '@/types/os'
 
-interface Agent {
-  value: string
-  label: string
-  model: {
-    provider: string
-  }
-  storage?: boolean
-}
-
-interface PlaygroundStore {
+interface Store {
   hydrated: boolean
   setHydrated: () => void
   streamingErrorMessage: string
   setStreamingErrorMessage: (streamingErrorMessage: string) => void
   endpoints: {
     endpoint: string
-    id_playground_endpoint: string
+    id__endpoint: string
   }[]
   setEndpoints: (
     endpoints: {
       endpoint: string
-      id_playground_endpoint: string
+      id__endpoint: string
     }[]
   ) => void
   isStreaming: boolean
@@ -36,21 +29,23 @@ interface PlaygroundStore {
   setIsEndpointActive: (isActive: boolean) => void
   isEndpointLoading: boolean
   setIsEndpointLoading: (isLoading: boolean) => void
-  messages: PlaygroundChatMessage[]
+  messages: ChatMessage[]
   setMessages: (
-    messages:
-      | PlaygroundChatMessage[]
-      | ((prevMessages: PlaygroundChatMessage[]) => PlaygroundChatMessage[])
+    messages: ChatMessage[] | ((prevMessages: ChatMessage[]) => ChatMessage[])
   ) => void
-  hasStorage: boolean
-  setHasStorage: (hasStorage: boolean) => void
   chatInputRef: React.RefObject<HTMLTextAreaElement | null>
   selectedEndpoint: string
   setSelectedEndpoint: (selectedEndpoint: string) => void
-  agents: Agent[]
-  setAgents: (agents: Agent[]) => void
+  authToken: string
+  setAuthToken: (authToken: string) => void
+  agents: AgentDetails[]
+  setAgents: (agents: AgentDetails[]) => void
+  teams: TeamDetails[]
+  setTeams: (teams: TeamDetails[]) => void
   selectedModel: string
   setSelectedModel: (model: string) => void
+  mode: 'agent' | 'team'
+  setMode: (mode: 'agent' | 'team') => void
   sessionsData: SessionEntry[] | null
   setSessionsData: (
     sessionsData:
@@ -61,7 +56,7 @@ interface PlaygroundStore {
   setIsSessionsLoading: (isSessionsLoading: boolean) => void
 }
 
-export const usePlaygroundStore = create<PlaygroundStore>()(
+export const useStore = create<Store>()(
   persist(
     (set) => ({
       hydrated: false,
@@ -85,16 +80,20 @@ export const usePlaygroundStore = create<PlaygroundStore>()(
           messages:
             typeof messages === 'function' ? messages(state.messages) : messages
         })),
-      hasStorage: false,
-      setHasStorage: (hasStorage) => set(() => ({ hasStorage })),
       chatInputRef: { current: null },
       selectedEndpoint: `${process.env.NEXT_PUBLIC_AGENT_URL}`,
       setSelectedEndpoint: (selectedEndpoint) =>
         set(() => ({ selectedEndpoint })),
+      authToken: '',
+      setAuthToken: (authToken) => set(() => ({ authToken })),
       agents: [],
       setAgents: (agents) => set({ agents }),
+      teams: [],
+      setTeams: (teams) => set({ teams }),
       selectedModel: '',
       setSelectedModel: (selectedModel) => set(() => ({ selectedModel })),
+      mode: 'agent',
+      setMode: (mode) => set(() => ({ mode })),
       sessionsData: null,
       setSessionsData: (sessionsData) =>
         set((state) => ({

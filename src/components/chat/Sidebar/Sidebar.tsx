@@ -1,18 +1,21 @@
 'use client'
 import { Button } from '@/components/ui/button'
-import { AgentSelector } from '@/components/playground/Sidebar/AgentSelector'
+import { ModeSelector } from '@/components/chat/Sidebar/ModeSelector'
+import { EntitySelector } from '@/components/chat/Sidebar/EntitySelector'
 import useChatActions from '@/hooks/useChatActions'
-import { usePlaygroundStore } from '@/store'
+import { useStore } from '@/store'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useState, useEffect } from 'react'
 import Icon from '@/components/ui/icon'
 import { getProviderIcon } from '@/lib/modelProvider'
 import Sessions from './Sessions'
+import AuthToken from './AuthToken'
 import { isValidUrl } from '@/lib/utils'
 import { toast } from 'sonner'
 import { useQueryState } from 'nuqs'
 import { truncateText } from '@/lib/utils'
 import { Skeleton } from '@/components/ui/skeleton'
+
 const ENDPOINT_PLACEHOLDER = 'NO ENDPOINT ADDED'
 const SidebarHeader = () => (
   <div className="flex items-center gap-2">
@@ -57,8 +60,8 @@ const Endpoint = () => {
     setAgents,
     setSessionsData,
     setMessages
-  } = usePlaygroundStore()
-  const { initializePlayground } = useChatActions()
+  } = useStore()
+  const { initialize } = useChatActions()
   const [isEditing, setIsEditing] = useState(false)
   const [endpointValue, setEndpointValue] = useState('')
   const [isMounted, setIsMounted] = useState(false)
@@ -107,7 +110,7 @@ const Endpoint = () => {
 
   const handleRefresh = async () => {
     setIsRotating(true)
-    await initializePlayground()
+    await initialize()
     setTimeout(() => setIsRotating(false), 500)
   }
 
@@ -117,27 +120,39 @@ const Endpoint = () => {
   )
 }
 
-const Sidebar = () => {
+const Sidebar = ({
+  hasEnvToken,
+  envToken
+}: {
+  hasEnvToken?: boolean
+  envToken?: string
+}) => {
   const [isCollapsed, setIsCollapsed] = useState(false)
-  const { clearChat, focusChatInput, initializePlayground } = useChatActions()
+  const { clearChat, focusChatInput, initialize } = useChatActions()
   const {
     messages,
     selectedEndpoint,
     isEndpointActive,
     selectedModel,
     hydrated,
-    isEndpointLoading
-  } = usePlaygroundStore()
+    isEndpointLoading,
+    mode
+  } = useStore()
   const [isMounted, setIsMounted] = useState(false)
   const [agentId] = useQueryState('agent')
+  const [teamId] = useQueryState('team')
+
   useEffect(() => {
     setIsMounted(true)
-    if (hydrated) initializePlayground()
-  }, [selectedEndpoint, initializePlayground, hydrated])
+
+    if (hydrated) initialize()
+  }, [selectedEndpoint, initialize, hydrated, mode])
+
   const handleNewChat = () => {
     clearChat()
     focusChatInput()
   }
+
   return (
     <motion.aside
       className="relative flex h-screen shrink-0 grow-0 flex-col overflow-hidden px-2 py-3 font-dmmono"
@@ -175,6 +190,7 @@ const Sidebar = () => {
         {isMounted && (
           <>
             <Endpoint />
+            <AuthToken hasEnvToken={hasEnvToken} envToken={envToken} />
             {isEndpointActive && (
               <>
                 <motion.div
@@ -185,7 +201,7 @@ const Sidebar = () => {
                 >
                   {isEndpointLoading ? (
                     <div className="flex w-full flex-col gap-2">
-                      {Array.from({ length: 2 }).map((_, index) => (
+                      {Array.from({ length: 3 }).map((_, index) => (
                         <Skeleton
                           key={index}
                           className="h-9 w-full rounded-xl"
@@ -194,7 +210,11 @@ const Sidebar = () => {
                     </div>
                   ) : (
                     <>
-                      <AgentSelector />
+                      <ModeSelector />
+                      <EntitySelector />
+                      {selectedModel && (agentId || teamId) && (
+                        <ModelDisplay model={selectedModel} />
+                      )}
                     </>
                   )}
                 </motion.div>

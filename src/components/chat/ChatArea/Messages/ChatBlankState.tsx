@@ -8,7 +8,7 @@ import React, { useState } from 'react'
 
 const EXTERNAL_LINKS = {
   documentation: 'https://agno.link/agent-ui',
-  playground: 'https://app.agno.com/playground/agents',
+  agenOS: 'https://os.agno.com',
   agno: 'https://agno.com'
 }
 

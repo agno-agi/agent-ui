@@ -69,6 +69,14 @@ export interface Agent {
   storage?: boolean
 }
 
+export interface Team {
+  team_id: string
+  name: string
+  description: string
+  model: Model
+  storage?: boolean
+}
+
 interface MessageContext {
   query: string
   docs?: Array<Record<string, object>>
@@ -77,16 +85,34 @@ interface MessageContext {
 
 export enum RunEvent {
   RunStarted = 'RunStarted',
-  RunResponse = 'RunResponse',
-  RunResponseContent = 'RunResponseContent',
+  RunContent = 'RunContent',
   RunCompleted = 'RunCompleted',
   RunError = 'RunError',
+  RunOutput = 'RunOutput',
+  UpdatingMemory = 'UpdatingMemory',
   ToolCallStarted = 'ToolCallStarted',
   ToolCallCompleted = 'ToolCallCompleted',
-  UpdatingMemory = 'UpdatingMemory',
+  MemoryUpdateStarted = 'MemoryUpdateStarted',
+  MemoryUpdateCompleted = 'MemoryUpdateCompleted',
   ReasoningStarted = 'ReasoningStarted',
   ReasoningStep = 'ReasoningStep',
-  ReasoningCompleted = 'ReasoningCompleted'
+  ReasoningCompleted = 'ReasoningCompleted',
+  RunCancelled = 'RunCancelled',
+  RunPaused = 'RunPaused',
+  RunContinued = 'RunContinued',
+  // Team Events
+  TeamRunStarted = 'TeamRunStarted',
+  TeamRunContent = 'TeamRunContent',
+  TeamRunCompleted = 'TeamRunCompleted',
+  TeamRunError = 'TeamRunError',
+  TeamRunCancelled = 'TeamRunCancelled',
+  TeamToolCallStarted = 'TeamToolCallStarted',
+  TeamToolCallCompleted = 'TeamToolCallCompleted',
+  TeamReasoningStarted = 'TeamReasoningStarted',
+  TeamReasoningStep = 'TeamReasoningStep',
+  TeamReasoningCompleted = 'TeamReasoningCompleted',
+  TeamMemoryUpdateStarted = 'TeamMemoryUpdateStarted',
+  TeamMemoryUpdateCompleted = 'TeamMemoryUpdateCompleted'
 }
 
 export interface ResponseAudio {
@@ -116,7 +142,7 @@ export interface RunResponseContent {
   tool?: ToolCall
   tools?: Array<ToolCall>
   created_at: number
-  extra_data?: PlaygroundAgentExtraData
+  extra_data?: AgentExtraData
   images?: ImageData[]
   videos?: VideoData[]
   audio?: AudioData[]
@@ -138,7 +164,7 @@ export interface RunResponse {
   tool?: ToolCall
   tools?: Array<ToolCall>
   created_at: number
-  extra_data?: PlaygroundAgentExtraData
+  extra_data?: AgentExtraData
   images?: ImageData[]
   videos?: VideoData[]
   audio?: AudioData[]
@@ -151,7 +177,7 @@ export interface AgentExtraData {
   references?: ReferenceData[]
 }
 
-export interface PlaygroundAgentExtraData extends AgentExtraData {
+export interface AgentExtraData {
   reasoning_messages?: ReasoningMessage[]
   references?: ReferenceData[]
 }
@@ -168,7 +194,7 @@ export interface ReasoningMessage {
   }
   created_at?: number
 }
-export interface PlaygroundChatMessage {
+export interface ChatMessage {
   role: 'user' | 'agent' | 'system' | 'tool'
   content: string
   streamingError?: boolean
@@ -185,14 +211,23 @@ export interface PlaygroundChatMessage {
   response_audio?: ResponseAudio
 }
 
-export interface ComboboxAgent {
-  value: string
-  label: string
-  model: {
-    provider: string
-  }
-  storage?: boolean
+export interface AgentDetails {
+  id: string
+  name?: string
+  db_id?: string
+  // Model
+  model?: Model
 }
+
+export interface TeamDetails {
+  id: string
+  name?: string
+  db_id?: string
+
+  // Model
+  model?: Model
+}
+
 export interface ImageData {
   revised_prompt: string
   url: string
@@ -231,8 +266,21 @@ export interface Reference {
 
 export interface SessionEntry {
   session_id: string
-  title: string
+  session_name: string
   created_at: number
+  updated_at?: number
+}
+
+export interface Pagination {
+  page: number
+  limit: number
+  total_pages: number
+  total_count: number
+}
+
+export interface Sessions extends SessionEntry {
+  data: SessionEntry[]
+  meta: Pagination
 }
 
 export interface ChatEntry {

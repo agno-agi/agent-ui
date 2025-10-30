@@ -3,18 +3,19 @@ import { useState } from 'react'
 import { toast } from 'sonner'
 import { TextArea } from '@/components/ui/textarea'
 import { Button } from '@/components/ui/button'
-import { usePlaygroundStore } from '@/store'
+import { useStore } from '@/store'
 import useAIChatStreamHandler from '@/hooks/useAIStreamHandler'
 import { useQueryState } from 'nuqs'
 import Icon from '@/components/ui/icon'
 
 const ChatInput = () => {
-  const { chatInputRef } = usePlaygroundStore()
+  const { chatInputRef } = useStore()
 
   const { handleStreamResponse } = useAIChatStreamHandler()
   const [selectedAgent] = useQueryState('agent')
+  const [teamId] = useQueryState('team')
   const [inputMessage, setInputMessage] = useState('')
-  const isStreaming = usePlaygroundStore((state) => state.isStreaming)
+  const isStreaming = useStore((state) => state.isStreaming)
   const handleSubmit = async () => {
     if (!inputMessage.trim()) return
 
@@ -50,12 +51,14 @@ const ChatInput = () => {
           }
         }}
         className="w-full border border-accent bg-primaryAccent px-4 text-sm text-primary focus:border-accent"
-        disabled={!selectedAgent}
+        disabled={!(selectedAgent || teamId)}
         ref={chatInputRef}
       />
       <Button
         onClick={handleSubmit}
-        disabled={!selectedAgent || !inputMessage.trim() || isStreaming}
+        disabled={
+          !(selectedAgent || teamId) || !inputMessage.trim() || isStreaming
+        }
         size="icon"
         className="rounded-xl bg-primary p-5 text-primaryAccent"
       >
