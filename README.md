@@ -90,7 +90,7 @@ Set the `OS_SECURITY_KEY` environment variable:
 
 ```bash
 # In your .env.local file or shell environment
-OS_SECURITY_KEY=your_auth_token_here
+NEXT_PUBLIC_OS_SECURITY_KEY=your_auth_token_here
 ```
 
 > **Note**: This uses the same environment variable as AgentOS, so if you're running both on the same machine, you only need to set it once. The token will be automatically loaded when the application starts.
