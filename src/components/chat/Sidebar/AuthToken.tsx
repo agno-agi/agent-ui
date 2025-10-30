@@ -119,9 +119,6 @@ const AuthToken = ({
                   <p className="text-xs font-medium text-muted">
                     {isMounted ? displayValue : 'NO TOKEN SET'}
                   </p>
-                  {authToken && (
-                    <div className="size-2 shrink-0 rounded-full bg-positive" />
-                  )}
                 </motion.div>
               )}
             </AnimatePresence>
