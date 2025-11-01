@@ -141,6 +141,7 @@ const Sidebar = ({
   const [isMounted, setIsMounted] = useState(false)
   const [agentId] = useQueryState('agent')
   const [teamId] = useQueryState('team')
+  const [userId] = useQueryState('user_id')
 
   useEffect(() => {
     setIsMounted(true)
@@ -184,40 +185,44 @@ const Sidebar = ({
       >
         <SidebarHeader />
         <NewChatButton
-          disabled={messages.length === 0}
+          disabled={!userId && messages.length === 0}
           onClick={handleNewChat}
         />
         {isMounted && (
           <>
             <Endpoint />
-            <AuthToken hasEnvToken={hasEnvToken} envToken={envToken} />
-            {isEndpointActive && (
+            {!userId && (
+              <AuthToken hasEnvToken={hasEnvToken} envToken={envToken} />
+            )}
+            {(isEndpointActive || userId) && (
               <>
-                <motion.div
-                  className="flex w-full flex-col items-start gap-2"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ duration: 0.5, ease: 'easeInOut' }}
-                >
-                  {isEndpointLoading ? (
-                    <div className="flex w-full flex-col gap-2">
-                      {Array.from({ length: 3 }).map((_, index) => (
-                        <Skeleton
-                          key={index}
-                          className="h-9 w-full rounded-xl"
-                        />
-                      ))}
-                    </div>
-                  ) : (
-                    <>
-                      <ModeSelector />
-                      <EntitySelector />
-                      {selectedModel && (agentId || teamId) && (
-                        <ModelDisplay model={selectedModel} />
-                      )}
-                    </>
-                  )}
-                </motion.div>
+                {isEndpointActive && !userId && (
+                  <motion.div
+                    className="flex w-full flex-col items-start gap-2"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ duration: 0.5, ease: 'easeInOut' }}
+                  >
+                    {isEndpointLoading ? (
+                      <div className="flex w-full flex-col gap-2">
+                        {Array.from({ length: 3 }).map((_, index) => (
+                          <Skeleton
+                            key={index}
+                            className="h-9 w-full rounded-xl"
+                          />
+                        ))}
+                      </div>
+                    ) : (
+                      <>
+                        <ModeSelector />
+                        <EntitySelector />
+                        {selectedModel && (agentId || teamId) && (
+                          <ModelDisplay model={selectedModel} />
+                        )}
+                      </>
+                    )}
+                  </motion.div>
+                )}
                 <Sessions />
               </>
             )}

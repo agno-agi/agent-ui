@@ -10,22 +10,29 @@ import useAIResponseStream from './useAIResponseStream'
 import { ToolCall } from '@/types/os'
 import { useQueryState } from 'nuqs'
 import { getJsonMarkdown } from '@/lib/utils'
+import { getAgentsAPI } from '@/api/os'
+import useSessionLoader from './useSessionLoader'
 
 const useAIChatStreamHandler = () => {
   const setMessages = useStore((state) => state.setMessages)
   const { addMessage, focusChatInput } = useChatActions()
   const [agentId] = useQueryState('agent')
   const [teamId] = useQueryState('team')
+  const [userId] = useQueryState('user_id')
   const [sessionId, setSessionId] = useQueryState('session')
+  const [dbId] = useQueryState('db_id')
   const selectedEndpoint = useStore((state) => state.selectedEndpoint)
   const authToken = useStore((state) => state.authToken)
   const mode = useStore((state) => state.mode)
+  const agents = useStore((state) => state.agents)
+  const setAgents = useStore((state) => state.setAgents)
   const setStreamingErrorMessage = useStore(
     (state) => state.setStreamingErrorMessage
   )
   const setIsStreaming = useStore((state) => state.setIsStreaming)
   const setSessionsData = useStore((state) => state.setSessionsData)
   const { streamResponse } = useAIResponseStream()
+  const { getSessions } = useSessionLoader()
 
   const updateMessagesWithErrorState = useCallback(() => {
     setMessages((prevMessages) => {
@@ -143,14 +150,43 @@ const useAIChatStreamHandler = () => {
         const endpointUrl = constructEndpointUrl(selectedEndpoint)
 
         let RunUrl: string | null = null
+        let effectiveAgentId = agentId
+
+        // When user_id is present but no explicit agent selected:
+        // 1. Try to use first agent from list if available
+        // 2. Otherwise fetch agents on-demand (backend will return user's agent)
+        if (!effectiveAgentId && userId) {
+          if (agents.length > 0) {
+            effectiveAgentId = agents[0].id || (agents[0] as any).agent_id
+          } else {
+            // Fetch agents on-demand when user_id is present
+            try {
+              const fetchedAgents = await getAgentsAPI(selectedEndpoint, authToken)
+              if (fetchedAgents && fetchedAgents.length > 0) {
+                effectiveAgentId = fetchedAgents[0].id || (fetchedAgents[0] as any).agent_id
+                setAgents(fetchedAgents)
+              }
+            } catch (error) {
+              console.error('Error fetching agents:', error)
+            }
+          }
+        }
+        
+        // Store effectiveAgentId for use in onComplete callback
+        const finalAgentId = effectiveAgentId
 
         if (mode === 'team' && teamId) {
           RunUrl = APIRoutes.TeamRun(endpointUrl, teamId)
-        } else if (mode === 'agent' && agentId) {
-          RunUrl = APIRoutes.AgentRun(endpointUrl).replace(
-            '{agent_id}',
-            agentId
-          )
+        } else if (mode === 'agent' && effectiveAgentId) {
+          // Use playground route when user_id is present
+          if (userId) {
+            RunUrl = `${endpointUrl}/v1/playground/agents/${effectiveAgentId}/runs`
+          } else {
+            RunUrl = APIRoutes.AgentRun(endpointUrl).replace(
+              '{agent_id}',
+              effectiveAgentId
+            )
+          }
         }
 
         if (!RunUrl) {
@@ -407,7 +443,21 @@ const useAIChatStreamHandler = () => {
               )
             }
           },
-          onComplete: () => {}
+          onComplete: async () => {
+            // Refresh sessions list after a message completes to ensure history is up to date
+            if (userId && finalAgentId) {
+              try {
+                await getSessions({
+                  entityType: 'agent',
+                  agentId: finalAgentId,
+                  teamId: null,
+                  dbId: dbId || ''
+                })
+              } catch (error) {
+                console.error('Error refreshing sessions after message:', error)
+              }
+            }
+          }
         })
       } catch (error) {
         updateMessagesWithErrorState()
@@ -436,6 +486,9 @@ const useAIChatStreamHandler = () => {
       streamResponse,
       agentId,
       teamId,
+      userId,
+      agents,
+      setAgents,
       mode,
       setStreamingErrorMessage,
       setIsStreaming,
@@ -443,7 +496,10 @@ const useAIChatStreamHandler = () => {
       setSessionsData,
       sessionId,
       setSessionId,
-      processChunkToolCalls
+      processChunkToolCalls,
+      userId,
+      dbId,
+      getSessions
     ]
   )
 

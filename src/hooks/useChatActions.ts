@@ -6,6 +6,7 @@ import { useStore } from '../store'
 import { AgentDetails, TeamDetails, type ChatMessage } from '@/types/os'
 import { getAgentsAPI, getStatusAPI, getTeamsAPI } from '@/api/os'
 import { useQueryState } from 'nuqs'
+import { getUserId } from '@/utils/user'
 
 const useChatActions = () => {
   const { chatInputRef } = useStore()
@@ -56,6 +57,7 @@ const useChatActions = () => {
   const clearChat = useCallback(() => {
     setMessages([])
     setSessionId(null)
+    // Note: Don't clear sessionsData - keep history visible
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
@@ -76,11 +78,23 @@ const useChatActions = () => {
   const initialize = useCallback(async () => {
     setIsEndpointLoading(true)
     try {
+      const userId = getUserId()
       const status = await getStatus()
       let agents: AgentDetails[] = []
       let teams: TeamDetails[] = []
-      if (status === 200) {
-        setIsEndpointActive(true)
+      
+      // When user_id is present, try loading agents even if status check fails
+      // (playground backend might not respond to standard status endpoint)
+      const shouldLoadAgents = status === 200 || userId
+      
+      if (shouldLoadAgents) {
+        if (status === 200) {
+          setIsEndpointActive(true)
+        } else if (userId) {
+          // For playground backend with user_id, assume active if we can load agents
+          setIsEndpointActive(true)
+        }
+        
         teams = await getTeams()
         agents = await getAgents()
 
@@ -97,7 +111,15 @@ const useChatActions = () => {
           } else if (currentMode === 'agent' && agents.length > 0) {
             const firstAgent = agents[0]
             setMode('agent')
-            setAgentId(firstAgent.id)
+            setAgentId(firstAgent.id || (firstAgent as any).agent_id)
+            setSelectedModel(firstAgent.model?.model || '')
+            setDbId(firstAgent.db_id || '')
+            setAgents(agents)
+          } else if (userId && agents.length > 0) {
+            // When user_id is present, default to first agent
+            const firstAgent = agents[0]
+            setMode('agent')
+            setAgentId(firstAgent.id || (firstAgent as any).agent_id)
             setSelectedModel(firstAgent.model?.model || '')
             setDbId(firstAgent.db_id || '')
             setAgents(agents)
@@ -106,7 +128,7 @@ const useChatActions = () => {
           setAgents(agents)
           setTeams(teams)
           if (agentId) {
-            const agent = agents.find((a) => a.id === agentId)
+            const agent = agents.find((a) => a.id === agentId || (a as any).agent_id === agentId)
             if (agent) {
               setMode('agent')
               setSelectedModel(agent.model?.model || '')
@@ -115,7 +137,7 @@ const useChatActions = () => {
             } else if (agents.length > 0) {
               const firstAgent = agents[0]
               setMode('agent')
-              setAgentId(firstAgent.id)
+              setAgentId(firstAgent.id || (firstAgent as any).agent_id)
               setSelectedModel(firstAgent.model?.model || '')
               setDbId(firstAgent.db_id || '')
               setTeamId(null)

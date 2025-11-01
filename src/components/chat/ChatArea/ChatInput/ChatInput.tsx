@@ -14,8 +14,18 @@ const ChatInput = () => {
   const { handleStreamResponse } = useAIChatStreamHandler()
   const [selectedAgent] = useQueryState('agent')
   const [teamId] = useQueryState('team')
+  const [userId] = useQueryState('user_id')
   const [inputMessage, setInputMessage] = useState('')
   const isStreaming = useStore((state) => state.isStreaming)
+  const isEndpointActive = useStore((state) => state.isEndpointActive)
+  const selectedEndpoint = useStore((state) => state.selectedEndpoint)
+  
+  // Enable input when:
+  // 1. user_id is present AND endpoint is set (backend handles everything) OR
+  // 2. endpoint is active AND agent/team is selected (standard flow)
+  const isInputEnabled = 
+    (!!userId && !!selectedEndpoint) || 
+    (isEndpointActive && !!(selectedAgent || teamId))
   const handleSubmit = async () => {
     if (!inputMessage.trim()) return
 
@@ -51,13 +61,13 @@ const ChatInput = () => {
           }
         }}
         className="w-full border border-accent bg-primaryAccent px-4 text-sm text-primary focus:border-accent"
-        disabled={!(selectedAgent || teamId)}
+        disabled={!isInputEnabled}
         ref={chatInputRef}
       />
       <Button
         onClick={handleSubmit}
         disabled={
-          !(selectedAgent || teamId) || !inputMessage.trim() || isStreaming
+          !isInputEnabled || !inputMessage.trim() || isStreaming
         }
         size="icon"
         className="rounded-xl bg-primary p-5 text-primaryAccent"
