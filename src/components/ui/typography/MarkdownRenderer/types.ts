@@ -107,6 +107,10 @@ type TableCellProps = DetailedHTMLProps<
   HTMLTableCellElement
 >
 
+type PreProps = {
+  children?: React.ReactNode
+}
+
 export type {
   MarkdownRendererProps,
   UnorderedListProps,
@@ -129,5 +133,6 @@ export type {
   TableHeaderCellProps,
   TableBodyProps,
   TableRowProps,
-  TableCellProps
+  TableCellProps,
+  PreProps
 }
