@@ -126,6 +126,7 @@ const useSessionLoader = () => {
                   videos: run.videos,
                   audio: run.audio,
                   response_audio: run.response_audio,
+                  chart: run.chart,
                   created_at: run.created_at
                 })
               }
