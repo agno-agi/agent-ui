@@ -4,7 +4,12 @@ import { APIRoutes } from '@/api/routes'
 
 import useChatActions from '@/hooks/useChatActions'
 import { useStore } from '../store'
-import { RunEvent, RunResponseContent, type RunResponse } from '@/types/os'
+import {
+  RunEvent,
+  RunResponseContent,
+  type RunResponse,
+  type ChartData
+} from '@/types/os'
 import { constructEndpointUrl } from '@/lib/constructEndpointUrl'
 import useAIResponseStream from './useAIResponseStream'
 import { ToolCall } from '@/types/os'
@@ -267,6 +272,17 @@ const useAIChatStreamHandler = () => {
                 } else if (
                   lastMessage &&
                   lastMessage.role === 'agent' &&
+                  chunk.content_type === 'chart' &&
+                  chunk.content &&
+                  typeof chunk.content === 'object'
+                ) {
+                  // Handle chart content - overwrite pattern like multimedia
+                  lastMessage.chart = chunk.content as ChartData
+                  lastMessage.created_at =
+                    chunk.created_at ?? lastMessage.created_at
+                } else if (
+                  lastMessage &&
+                  lastMessage.role === 'agent' &&
                   typeof chunk?.content !== 'string' &&
                   chunk.content !== null
                 ) {
@@ -358,8 +374,12 @@ const useAIChatStreamHandler = () => {
                     index === prevMessages.length - 1 &&
                     message.role === 'agent'
                   ) {
+                    // Determine content - preserve existing for chart type, otherwise update
                     let updatedContent: string
-                    if (typeof chunk.content === 'string') {
+                    if (chunk.content_type === 'chart') {
+                      // Chart content goes to chart field, not content
+                      updatedContent = message.content
+                    } else if (typeof chunk.content === 'string') {
                       updatedContent = chunk.content
                     } else {
                       try {
@@ -378,6 +398,12 @@ const useAIChatStreamHandler = () => {
                       images: chunk.images ?? message.images,
                       videos: chunk.videos ?? message.videos,
                       response_audio: chunk.response_audio,
+                      chart:
+                        chunk.content_type === 'chart' &&
+                        chunk.content &&
+                        typeof chunk.content === 'object'
+                          ? (chunk.content as ChartData)
+                          : message.chart,
                       created_at: chunk.created_at ?? message.created_at,
                       extra_data: {
                         reasoning_steps:

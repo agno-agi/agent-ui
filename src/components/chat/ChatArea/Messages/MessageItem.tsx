@@ -5,6 +5,7 @@ import type { ChatMessage } from '@/types/os'
 import Videos from './Multimedia/Videos'
 import Images from './Multimedia/Images'
 import Audios from './Multimedia/Audios'
+import Charts from './Charts'
 import { memo } from 'react'
 import AgentThinkingLoader from './AgentThinkingLoader'
 
@@ -26,10 +27,13 @@ const AgentMessage = ({ message }: MessageProps) => {
         )}
       </p>
     )
-  } else if (message.content) {
+  } else if (message.content || message.chart) {
     messageContent = (
       <div className="flex w-full flex-col gap-4">
-        <MarkdownRenderer>{message.content}</MarkdownRenderer>
+        {message.content && (
+          <MarkdownRenderer>{message.content}</MarkdownRenderer>
+        )}
+        {message.chart && <Charts chart={message.chart} />}
         {message.videos && message.videos.length > 0 && (
           <Videos videos={message.videos} />
         )}

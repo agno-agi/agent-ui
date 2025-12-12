@@ -147,6 +147,7 @@ export interface RunResponseContent {
   videos?: VideoData[]
   audio?: AudioData[]
   response_audio?: ResponseAudio
+  chart?: ChartData
 }
 
 export interface RunResponse {
@@ -169,15 +170,11 @@ export interface RunResponse {
   videos?: VideoData[]
   audio?: AudioData[]
   response_audio?: ResponseAudio
+  chart?: ChartData
 }
 
 export interface AgentExtraData {
   reasoning_steps?: ReasoningSteps[]
-  reasoning_messages?: ReasoningMessage[]
-  references?: ReferenceData[]
-}
-
-export interface AgentExtraData {
   reasoning_messages?: ReasoningMessage[]
   references?: ReferenceData[]
 }
@@ -209,6 +206,7 @@ export interface ChatMessage {
   videos?: VideoData[]
   audio?: AudioData[]
   response_audio?: ResponseAudio
+  chart?: ChartData
 }
 
 export interface AgentDetails {
@@ -247,6 +245,28 @@ export interface AudioData {
   content?: string
   channels?: number
   sample_rate?: number
+}
+
+// Chart visualization types
+export type ChartType = 'line' | 'bar' | 'pie' | 'area' | 'funnel'
+
+export interface ChartSeries {
+  key: string
+  label?: string
+  color?: string
+}
+
+export interface ChartConfig {
+  type: ChartType
+  title?: string
+  xKey?: string
+  series?: ChartSeries[]
+  height?: number
+}
+
+export interface ChartData {
+  config: ChartConfig
+  data: Array<Record<string, string | number | null>>
 }
 
 export interface ReferenceData {
@@ -303,6 +323,7 @@ export interface ChatEntry {
     response_audio?: {
       transcript?: string
     }
+    chart?: ChartData
     created_at: number
   }
 }
