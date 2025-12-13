@@ -1,6 +1,6 @@
 'use client'
 
-import { FC, useState } from 'react'
+import { FC, useState, useEffect } from 'react'
 
 import Image from 'next/image'
 import Link from 'next/link'
@@ -176,9 +176,25 @@ const Heading6 = ({ className, ...props }: HeadingProps) => (
 )
 
 const Img = ({ src, alt }: ImgProps) => {
-  const [error, setError] = useState(false)
+  const [error, setError] = useState(false);
+  const [objectUrl, setObjectUrl] = useState<string | undefined>();
 
-  if (!src) return null
+  // Convert Blob to object URL if needed
+  // Only run when src changes
+  useEffect(() => {
+    if (src instanceof Blob) {
+      const url = URL.createObjectURL(src);
+      setObjectUrl(url);
+      return () => URL.revokeObjectURL(url);
+    } else {
+      setObjectUrl(undefined);
+    }
+  }, [src]);
+
+  if (!src) return null;
+
+  // Use objectUrl if src is a Blob, otherwise use src directly
+  const imageSrc = src instanceof Blob ? objectUrl : src;
 
   return (
     <div className="w-full max-w-xl">
@@ -186,26 +202,28 @@ const Img = ({ src, alt }: ImgProps) => {
         <div className="flex h-40 flex-col items-center justify-center gap-2 rounded-md bg-secondary/50 text-muted">
           <Paragraph className="text-primary">Image unavailable</Paragraph>
           <Link
-            href={src}
+            href={typeof src === "string" ? src : ""}
             target="_blank"
             className="max-w-md truncate underline"
           >
-            {src}
+            {typeof src === "string" ? src : "Blob"}
           </Link>
         </div>
       ) : (
-        <Image
-          src={src}
-          width={1280}
-          height={720}
-          alt={alt ?? 'Rendered image'}
-          className="size-full rounded-md object-cover"
-          onError={() => setError(true)}
-          unoptimized
-        />
+        imageSrc && (
+          <Image
+            src={imageSrc}
+            width={1280}
+            height={720}
+            alt={alt ?? "Rendered image"}
+            className="size-full rounded-md object-cover"
+            onError={() => setError(true)}
+            unoptimized
+          />
+        )
       )}
     </div>
-  )
+  );
 }
 
 const Table = ({ className, ...props }: TableProps) => (
