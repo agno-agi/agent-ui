@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { DM_Mono, Geist } from 'next/font/google'
 import { NuqsAdapter } from 'nuqs/adapters/next/app'
+import { SessionProvider } from 'next-auth/react'
 import { Toaster } from '@/components/ui/sonner'
 import './globals.css'
 const geistSans = Geist({
@@ -29,8 +30,10 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${geistSans.variable} ${dmMono.variable} antialiased`}>
-        <NuqsAdapter>{children}</NuqsAdapter>
-        <Toaster />
+        <SessionProvider>
+          <NuqsAdapter>{children}</NuqsAdapter>
+          <Toaster />
+        </SessionProvider>
       </body>
     </html>
   )

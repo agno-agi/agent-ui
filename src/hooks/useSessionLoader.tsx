@@ -1,5 +1,6 @@
 import { useCallback } from 'react'
-import { getSessionAPI, getAllSessionsAPI } from '@/api/os'
+import { useSession } from 'next-auth/react'
+import { getSessionAction, getAllSessionsAction } from '@/actions/agent-os'
 import { useStore } from '../store'
 import { toast } from 'sonner'
 import { ChatMessage, ToolCall, ReasoningMessage, ChatEntry } from '@/types/os'
@@ -18,33 +19,38 @@ interface SessionResponse {
 }
 
 interface LoaderArgs {
-  entityType: 'agent' | 'team' | null
+  entityType: 'agent' | 'team' | 'workflow' | null
   agentId?: string | null
   teamId?: string | null
+  workflowId?: string | null
   dbId: string | null
 }
 
 const useSessionLoader = () => {
   const setMessages = useStore((state) => state.setMessages)
-  const selectedEndpoint = useStore((state) => state.selectedEndpoint)
-  const authToken = useStore((state) => state.authToken)
   const setIsSessionsLoading = useStore((state) => state.setIsSessionsLoading)
   const setSessionsData = useStore((state) => state.setSessionsData)
+  const { data: authSession } = useSession()
 
   const getSessions = useCallback(
-    async ({ entityType, agentId, teamId, dbId }: LoaderArgs) => {
-      const selectedId = entityType === 'agent' ? agentId : teamId
-      if (!selectedEndpoint || !entityType || !selectedId || !dbId) return
+    async ({ entityType, agentId, teamId, workflowId, dbId }: LoaderArgs) => {
+      const selectedId =
+        entityType === 'agent'
+          ? agentId
+          : entityType === 'team'
+            ? teamId
+            : workflowId
+      if (!entityType || !selectedId || !dbId) return
 
       try {
         setIsSessionsLoading(true)
 
-        const sessions = await getAllSessionsAPI(
-          selectedEndpoint,
+        const userId = authSession?.user?.email || undefined
+        const sessions = await getAllSessionsAction(
           entityType,
           selectedId,
           dbId,
-          authToken
+          userId
         )
         setSessionsData(sessions.data ?? [])
       } catch {
@@ -54,31 +60,27 @@ const useSessionLoader = () => {
         setIsSessionsLoading(false)
       }
     },
-    [selectedEndpoint, authToken, setSessionsData, setIsSessionsLoading]
+    [authSession, setSessionsData, setIsSessionsLoading]
   )
 
   const getSession = useCallback(
     async (
-      { entityType, agentId, teamId, dbId }: LoaderArgs,
+      { entityType, agentId, teamId, workflowId, dbId }: LoaderArgs,
       sessionId: string
     ) => {
-      const selectedId = entityType === 'agent' ? agentId : teamId
-      if (
-        !selectedEndpoint ||
-        !sessionId ||
-        !entityType ||
-        !selectedId ||
-        !dbId
-      )
-        return
+      const selectedId =
+        entityType === 'agent'
+          ? agentId
+          : entityType === 'team'
+            ? teamId
+            : workflowId
+      if (!sessionId || !entityType || !selectedId || !dbId) return
 
       try {
-        const response: SessionResponse = await getSessionAPI(
-          selectedEndpoint,
+        const response: SessionResponse = await getSessionAction(
           entityType,
           sessionId,
-          dbId,
-          authToken
+          dbId
         )
         if (response) {
           if (Array.isArray(response)) {
@@ -163,7 +165,7 @@ const useSessionLoader = () => {
         return null
       }
     },
-    [selectedEndpoint, authToken, setMessages]
+    [setMessages]
   )
 
   return { getSession, getSessions }

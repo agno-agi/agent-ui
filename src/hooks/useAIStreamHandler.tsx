@@ -1,11 +1,10 @@
 import { useCallback } from 'react'
 
-import { APIRoutes } from '@/api/routes'
+
 
 import useChatActions from '@/hooks/useChatActions'
 import { useStore } from '../store'
 import { RunEvent, RunResponseContent, type RunResponse } from '@/types/os'
-import { constructEndpointUrl } from '@/lib/constructEndpointUrl'
 import useAIResponseStream from './useAIResponseStream'
 import { ToolCall } from '@/types/os'
 import { useQueryState } from 'nuqs'
@@ -16,9 +15,8 @@ const useAIChatStreamHandler = () => {
   const { addMessage, focusChatInput } = useChatActions()
   const [agentId] = useQueryState('agent')
   const [teamId] = useQueryState('team')
+  const [workflowId] = useQueryState('workflow')
   const [sessionId, setSessionId] = useQueryState('session')
-  const selectedEndpoint = useStore((state) => state.selectedEndpoint)
-  const authToken = useStore((state) => state.authToken)
   const mode = useStore((state) => state.mode)
   const setStreamingErrorMessage = useStore(
     (state) => state.setStreamingErrorMessage
@@ -140,38 +138,40 @@ const useAIChatStreamHandler = () => {
       let lastContent = ''
       let newSessionId = sessionId
       try {
-        const endpointUrl = constructEndpointUrl(selectedEndpoint)
-
-        let RunUrl: string | null = null
-
-        if (mode === 'team' && teamId) {
-          RunUrl = APIRoutes.TeamRun(endpointUrl, teamId)
+        // Construct relative path for the proxy
+        let relativePath = ''
+        if (mode === 'workflow' && workflowId) {
+          relativePath = `/workflows/${workflowId}/runs`
+        } else if (mode === 'team' && teamId) {
+          relativePath = `/teams/${teamId}/runs`
         } else if (mode === 'agent' && agentId) {
-          RunUrl = APIRoutes.AgentRun(endpointUrl).replace(
-            '{agent_id}',
-            agentId
-          )
+          relativePath = `/agents/${agentId}/runs`
         }
 
-        if (!RunUrl) {
+        if (!relativePath) {
           updateMessagesWithErrorState()
-          setStreamingErrorMessage('Please select an agent or team first.')
+          setStreamingErrorMessage('Please select an agent, team, or workflow first.')
+          setIsStreaming(false)
+          return
+        }
+
+        // Ensure session exists before running
+        if (!sessionId) {
+          updateMessagesWithErrorState()
+          setStreamingErrorMessage('No active session. Please start a new chat.')
           setIsStreaming(false)
           return
         }
 
         formData.append('stream', 'true')
-        formData.append('session_id', sessionId ?? '')
+        formData.append('session_id', sessionId)
 
-        // Create headers with auth token if available
-        const headers: Record<string, string> = {}
-        if (authToken) {
-          headers['Authorization'] = `Bearer ${authToken}`
-        }
-
+        // Call the Next.js proxy route
         await streamResponse({
-          apiUrl: RunUrl,
-          headers,
+          apiUrl: '/api/proxy/runs',
+          headers: {
+            'x-run-url': relativePath
+          },
           requestBody: formData,
           onChunk: (chunk: RunResponse) => {
             if (
@@ -407,7 +407,7 @@ const useAIChatStreamHandler = () => {
               )
             }
           },
-          onComplete: () => {}
+          onComplete: () => { }
         })
       } catch (error) {
         updateMessagesWithErrorState()
@@ -431,8 +431,6 @@ const useAIChatStreamHandler = () => {
       setMessages,
       addMessage,
       updateMessagesWithErrorState,
-      selectedEndpoint,
-      authToken,
       streamResponse,
       agentId,
       teamId,
@@ -443,7 +441,8 @@ const useAIChatStreamHandler = () => {
       setSessionsData,
       sessionId,
       setSessionId,
-      processChunkToolCalls
+      processChunkToolCalls,
+      workflowId
     ]
   )
 

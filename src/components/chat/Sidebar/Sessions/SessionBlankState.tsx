@@ -86,8 +86,14 @@ const HistoryBlankStateIcon = () => (
 )
 
 const SessionBlankState = () => {
-  const { selectedEndpoint, isEndpointActive } = useStore()
+  const { selectedEndpoint, isEndpointActive, mode } = useStore()
   const [agentId] = useQueryState('agent')
+  const [teamId] = useQueryState('team')
+  const [workflowId] = useQueryState('workflow')
+
+  const hasEntitySelected = !!(agentId || teamId || workflowId)
+  const entityLabel =
+    mode === 'workflow' ? 'workflow' : mode === 'team' ? 'team' : 'agent'
 
   const errorMessage = (() => {
     switch (true) {
@@ -95,8 +101,8 @@ const SessionBlankState = () => {
         return 'Endpoint is not connected. Please connect the endpoint to see the history.'
       case !selectedEndpoint:
         return 'Select an endpoint to see the history.'
-      case !agentId:
-        return 'Select an agent to see the history.'
+      case !hasEntitySelected:
+        return `Select an ${entityLabel} to see the history.`
       default:
         return 'No session records yet. Start a conversation to create one.'
     }

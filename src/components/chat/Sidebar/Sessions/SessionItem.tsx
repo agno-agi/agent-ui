@@ -2,7 +2,7 @@ import { useQueryState } from 'nuqs'
 import { SessionEntry } from '@/types/os'
 import { Button } from '../../../ui/button'
 import useSessionLoader from '@/hooks/useSessionLoader'
-import { deleteSessionAPI } from '@/api/os'
+import { deleteSessionAction } from '@/actions/agent-os'
 import { useStore } from '@/store'
 import { toast } from 'sonner'
 import Icon from '@/components/ui/icon'
@@ -27,9 +27,8 @@ const SessionItem = ({
   const [teamId] = useQueryState('team')
   const [dbId] = useQueryState('db_id')
   const [, setSessionId] = useQueryState('session')
-  const authToken = useStore((state) => state.authToken)
   const { getSession } = useSessionLoader()
-  const { selectedEndpoint, sessionsData, setSessionsData, mode } = useStore()
+  const { sessionsData, setSessionsData, mode } = useStore()
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
   const { clearChat } = useChatActions()
@@ -54,11 +53,9 @@ const SessionItem = ({
     if (!(agentId || teamId || dbId)) return
     setIsDeleting(true)
     try {
-      const response = await deleteSessionAPI(
-        selectedEndpoint,
+      const response = await deleteSessionAction(
         dbId ?? '',
-        session_id,
-        authToken
+        session_id
       )
 
       if (response?.ok && sessionsData) {

@@ -7,6 +7,8 @@ import { useStore } from '@/store'
 import useAIChatStreamHandler from '@/hooks/useAIStreamHandler'
 import { useQueryState } from 'nuqs'
 import Icon from '@/components/ui/icon'
+import { useRequiresSessionState } from '@/hooks/useRequiresSessionState'
+import useChatActions from '@/hooks/useChatActions'
 
 const ChatInput = () => {
   const { chatInputRef } = useStore()
@@ -14,10 +16,30 @@ const ChatInput = () => {
   const { handleStreamResponse } = useAIChatStreamHandler()
   const [selectedAgent] = useQueryState('agent')
   const [teamId] = useQueryState('team')
+  const [workflowId] = useQueryState('workflow')
+  const [sessionId] = useQueryState('session')
   const [inputMessage, setInputMessage] = useState('')
   const isStreaming = useStore((state) => state.isStreaming)
+  const { requiresSessionState } = useRequiresSessionState()
+  const { createNewSession } = useChatActions()
+
   const handleSubmit = async () => {
     if (!inputMessage.trim()) return
+
+    // If no session exists
+    if (!sessionId) {
+      if (requiresSessionState) {
+        // Should not reach here since input is disabled, but safety check
+        toast.error('Please configure session state first')
+        return
+      }
+      // Auto-create session with empty state for entities without schema
+      const newSession = await createNewSession({})
+      if (!newSession) {
+        toast.error('Failed to create session')
+        return
+      }
+    }
 
     const currentMessage = inputMessage
     setInputMessage('')
@@ -51,13 +73,19 @@ const ChatInput = () => {
           }
         }}
         className="w-full border border-accent bg-primaryAccent px-4 text-sm text-primary focus:border-accent"
-        disabled={!(selectedAgent || teamId)}
+        disabled={
+          !(selectedAgent || teamId || workflowId) ||
+          (requiresSessionState && !sessionId)
+        }
         ref={chatInputRef}
       />
       <Button
         onClick={handleSubmit}
         disabled={
-          !(selectedAgent || teamId) || !inputMessage.trim() || isStreaming
+          !(selectedAgent || teamId || workflowId) ||
+          (requiresSessionState && !sessionId) ||
+          !inputMessage.trim() ||
+          isStreaming
         }
         size="icon"
         className="rounded-xl bg-primary p-5 text-primaryAccent"

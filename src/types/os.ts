@@ -228,6 +228,13 @@ export interface TeamDetails {
   model?: Model
 }
 
+export interface WorkflowDetails {
+  id: string
+  name?: string
+  description?: string
+  db_id?: string
+}
+
 export interface ImageData {
   revised_prompt: string
   url: string

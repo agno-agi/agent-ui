@@ -23,7 +23,8 @@ export default {
         accent: '#27272A',
         muted: '#A1A1AA',
         destructive: '#E53935',
-        positive: '#22C55E'
+        positive: '#22C55E',
+        warning: '#F59E0B'
       },
       fontFamily: {
         geist: 'var(--font-geist-sans)',
