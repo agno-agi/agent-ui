@@ -15,7 +15,7 @@ import { useEffect } from 'react'
 import useChatActions from '@/hooks/useChatActions'
 
 export function EntitySelector() {
-  const { mode, agents, teams, setMessages, setSelectedModel } = useStore()
+  const { mode, agents, teams, workflows, setMessages, setSelectedModel } = useStore()
 
   const { focusChatInput } = useChatActions()
   const [agentId, setAgentId] = useQueryState('agent', {
@@ -26,21 +26,31 @@ export function EntitySelector() {
     parse: (value) => value || undefined,
     history: 'push'
   })
+  const [workflowId, setWorkflowId] = useQueryState('workflow', {
+    parse: (value) => value || undefined,
+    history: 'push'
+  })
   const [, setSessionId] = useQueryState('session')
 
-  const currentEntities = mode === 'team' ? teams : agents
-  const currentValue = mode === 'team' ? teamId : agentId
-  const placeholder = mode === 'team' ? 'Select Team' : 'Select Agent'
+  const currentEntities = mode === 'workflow' ? workflows : mode === 'team' ? teams : agents
+  const currentValue = mode === 'workflow' ? workflowId : mode === 'team' ? teamId : agentId
+  const placeholder = mode === 'workflow' ? 'Select Workflow' : mode === 'team' ? 'Select Team' : 'Select Agent'
 
   useEffect(() => {
     if (currentValue && currentEntities.length > 0) {
       const entity = currentEntities.find((item) => item.id === currentValue)
       if (entity) {
-        setSelectedModel(entity.model?.model || '')
+        // Workflows don't have models, so only set model for agents/teams
+        if ('model' in entity) {
+          setSelectedModel(entity.model?.model || '')
+        }
         if (mode === 'team') {
           setTeamId(entity.id)
+        } else if (mode === 'workflow') {
+          setWorkflowId(entity.id)
         }
-        if (entity.model?.model) {
+        // For workflows, always focus; for agents/teams, only if they have a model
+        if (mode === 'workflow' || ('model' in entity && entity.model?.model)) {
           focusChatInput()
         }
       }
@@ -52,20 +62,32 @@ export function EntitySelector() {
     const newValue = value === currentValue ? null : value
     const selectedEntity = currentEntities.find((item) => item.id === newValue)
 
-    setSelectedModel(selectedEntity?.model?.provider || '')
+    // Only set model for agents/teams
+    if (selectedEntity && 'model' in selectedEntity) {
+      setSelectedModel(selectedEntity.model?.provider || '')
+    }
 
-    if (mode === 'team') {
+    if (mode === 'workflow') {
+      setWorkflowId(newValue)
+      setAgentId(null)
+      setTeamId(null)
+    } else if (mode === 'team') {
       setTeamId(newValue)
       setAgentId(null)
+      setWorkflowId(null)
     } else {
       setAgentId(newValue)
       setTeamId(null)
+      setWorkflowId(null)
     }
 
     setMessages([])
     setSessionId(null)
 
-    if (selectedEntity?.model?.provider) {
+    // Note: Session will be created when user clicks "New Chat" button
+
+    // For workflows, always focus; for agents/teams, only if they have a model
+    if (mode === 'workflow' || (selectedEntity && 'model' in selectedEntity && selectedEntity.model?.provider)) {
       focusChatInput()
     }
   }

@@ -4,19 +4,16 @@ import { ModeSelector } from '@/components/chat/Sidebar/ModeSelector'
 import { EntitySelector } from '@/components/chat/Sidebar/EntitySelector'
 import useChatActions from '@/hooks/useChatActions'
 import { useStore } from '@/store'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion } from 'framer-motion'
 import { useState, useEffect } from 'react'
 import Icon from '@/components/ui/icon'
 import { getProviderIcon } from '@/lib/modelProvider'
 import Sessions from './Sessions'
-import AuthToken from './AuthToken'
-import { isValidUrl } from '@/lib/utils'
-import { toast } from 'sonner'
-import { useQueryState } from 'nuqs'
-import { truncateText } from '@/lib/utils'
 import { Skeleton } from '@/components/ui/skeleton'
+import { useQueryState } from 'nuqs'
+import SessionStateModal from './SessionStateModal'
+import { useRequiresSessionState } from '@/hooks/useRequiresSessionState'
 
-const ENDPOINT_PLACEHOLDER = 'NO ENDPOINT ADDED'
 const SidebarHeader = () => (
   <div className="flex items-center gap-2">
     <Icon type="agno" size="xs" />
@@ -26,19 +23,21 @@ const SidebarHeader = () => (
 
 const NewChatButton = ({
   disabled,
-  onClick
+  onClick,
+  isLoading
 }: {
   disabled: boolean
   onClick: () => void
+  isLoading?: boolean
 }) => (
   <Button
     onClick={onClick}
-    disabled={disabled}
+    disabled={disabled || isLoading}
     size="lg"
     className="h-9 w-full rounded-xl bg-primary text-xs font-medium text-background hover:bg-primary/80"
   >
     <Icon type="plus-icon" size="xs" className="text-background" />
-    <span className="uppercase">New Chat</span>
+    <span className="uppercase">{isLoading ? 'Creating...' : 'New Chat'}</span>
   </Button>
 )
 
@@ -53,60 +52,9 @@ const ModelDisplay = ({ model }: { model: string }) => (
 )
 
 const Endpoint = () => {
-  const {
-    selectedEndpoint,
-    isEndpointActive,
-    setSelectedEndpoint,
-    setAgents,
-    setSessionsData,
-    setMessages
-  } = useStore()
+  const { isEndpointActive } = useStore()
   const { initialize } = useChatActions()
-  const [isEditing, setIsEditing] = useState(false)
-  const [endpointValue, setEndpointValue] = useState('')
-  const [isMounted, setIsMounted] = useState(false)
-  const [isHovering, setIsHovering] = useState(false)
   const [isRotating, setIsRotating] = useState(false)
-  const [, setAgentId] = useQueryState('agent')
-  const [, setSessionId] = useQueryState('session')
-
-  useEffect(() => {
-    setEndpointValue(selectedEndpoint)
-    setIsMounted(true)
-  }, [selectedEndpoint])
-
-  const getStatusColor = (isActive: boolean) =>
-    isActive ? 'bg-positive' : 'bg-destructive'
-
-  const handleSave = async () => {
-    if (!isValidUrl(endpointValue)) {
-      toast.error('Please enter a valid URL')
-      return
-    }
-    const cleanEndpoint = endpointValue.replace(/\/$/, '').trim()
-    setSelectedEndpoint(cleanEndpoint)
-    setAgentId(null)
-    setSessionId(null)
-    setIsEditing(false)
-    setIsHovering(false)
-    setAgents([])
-    setSessionsData([])
-    setMessages([])
-  }
-
-  const handleCancel = () => {
-    setEndpointValue(selectedEndpoint)
-    setIsEditing(false)
-    setIsHovering(false)
-  }
-
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') {
-      handleSave()
-    } else if (e.key === 'Escape') {
-      handleCancel()
-    }
-  }
 
   const handleRefresh = async () => {
     setIsRotating(true)
@@ -115,101 +63,38 @@ const Endpoint = () => {
   }
 
   return (
-    <div className="flex flex-col items-start gap-2">
-      <div className="text-xs font-medium uppercase text-primary">AgentOS</div>
-      {isEditing ? (
-        <div className="flex w-full items-center gap-1">
-          <input
-            type="text"
-            value={endpointValue}
-            onChange={(e) => setEndpointValue(e.target.value)}
-            onKeyDown={handleKeyDown}
-            className="flex h-9 w-full items-center text-ellipsis rounded-xl border border-primary/15 bg-accent p-3 text-xs font-medium text-muted"
-            autoFocus
-          />
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={handleSave}
-            className="hover:cursor-pointer hover:bg-transparent"
-          >
-            <Icon type="save" size="xs" />
-          </Button>
-        </div>
-      ) : (
-        <div className="flex w-full items-center gap-1">
-          <motion.div
-            className="relative flex h-9 w-full cursor-pointer items-center justify-between rounded-xl border border-primary/15 bg-accent p-3 uppercase"
-            onMouseEnter={() => setIsHovering(true)}
-            onMouseLeave={() => setIsHovering(false)}
-            onClick={() => setIsEditing(true)}
-            transition={{ type: 'spring', stiffness: 400, damping: 10 }}
-          >
-            <AnimatePresence mode="wait">
-              {isHovering ? (
-                <motion.div
-                  key="endpoint-display-hover"
-                  className="absolute inset-0 flex items-center justify-center"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.2 }}
-                >
-                  <p className="flex items-center gap-2 whitespace-nowrap text-xs font-medium text-primary">
-                    <Icon type="edit" size="xxs" /> EDIT AGENTOS
-                  </p>
-                </motion.div>
-              ) : (
-                <motion.div
-                  key="endpoint-display"
-                  className="absolute inset-0 flex items-center justify-between px-3"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.2 }}
-                >
-                  <p className="text-xs font-medium text-muted">
-                    {isMounted
-                      ? truncateText(selectedEndpoint, 21) ||
-                        ENDPOINT_PLACEHOLDER
-                      : 'http://localhost:7777'}
-                  </p>
-                  <div
-                    className={`size-2 shrink-0 rounded-full ${getStatusColor(isEndpointActive)}`}
-                  />
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </motion.div>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={handleRefresh}
-            className="hover:cursor-pointer hover:bg-transparent"
-          >
-            <motion.div
-              key={isRotating ? 'rotating' : 'idle'}
-              animate={{ rotate: isRotating ? 360 : 0 }}
-              transition={{ duration: 0.5, ease: 'easeInOut' }}
-            >
-              <Icon type="refresh" size="xs" />
-            </motion.div>
-          </Button>
-        </div>
-      )}
+    <div className="flex items-center justify-between">
+      <div className="flex items-center gap-2">
+        <span className="text-xs font-medium uppercase text-primary">
+          AgentOS Status
+        </span>
+        <div
+          className={`size-2 rounded-full ${isEndpointActive ? 'bg-positive' : 'bg-destructive'}`}
+        />
+      </div>
+      <Button
+        variant="ghost"
+        size="icon"
+        onClick={handleRefresh}
+        className="h-6 w-6 hover:cursor-pointer hover:bg-transparent"
+      >
+        <motion.div
+          key={isRotating ? 'rotating' : 'idle'}
+          animate={{ rotate: isRotating ? 360 : 0 }}
+          transition={{ duration: 0.5, ease: 'easeInOut' }}
+        >
+          <Icon type="refresh" size="xs" />
+        </motion.div>
+      </Button>
     </div>
   )
 }
 
-const Sidebar = ({
-  hasEnvToken,
-  envToken
-}: {
-  hasEnvToken?: boolean
-  envToken?: string
-}) => {
+const Sidebar = () => {
   const [isCollapsed, setIsCollapsed] = useState(false)
-  const { clearChat, focusChatInput, initialize } = useChatActions()
+  const [isCreatingSession, setIsCreatingSession] = useState(false)
+  const { clearChat, focusChatInput, initialize, createNewSession } = useChatActions()
+  const { schema } = useRequiresSessionState()
   const {
     messages,
     selectedEndpoint,
@@ -217,7 +102,9 @@ const Sidebar = ({
     selectedModel,
     hydrated,
     isEndpointLoading,
-    mode
+    mode,
+    showSessionModal,
+    setShowSessionModal
   } = useStore()
   const [isMounted, setIsMounted] = useState(false)
   const [agentId] = useQueryState('agent')
@@ -231,6 +118,14 @@ const Sidebar = ({
 
   const handleNewChat = () => {
     clearChat()
+    setShowSessionModal(true)
+  }
+
+  const handleCreateSession = async (sessionState: Record<string, string>) => {
+    setIsCreatingSession(true)
+    setShowSessionModal(false)
+    await createNewSession(sessionState)
+    setIsCreatingSession(false)
     focusChatInput()
   }
 
@@ -267,11 +162,11 @@ const Sidebar = ({
         <NewChatButton
           disabled={messages.length === 0}
           onClick={handleNewChat}
+          isLoading={isCreatingSession}
         />
         {isMounted && (
           <>
             <Endpoint />
-            <AuthToken hasEnvToken={hasEnvToken} envToken={envToken} />
             {isEndpointActive && (
               <>
                 <motion.div
@@ -308,6 +203,13 @@ const Sidebar = ({
           </>
         )}
       </motion.div>
+      <SessionStateModal
+        open={showSessionModal}
+        onOpenChange={setShowSessionModal}
+        onCreateSession={handleCreateSession}
+        isCreating={isCreatingSession}
+        schema={schema}
+      />
     </motion.aside>
   )
 }
