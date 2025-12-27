@@ -33,6 +33,10 @@ export const isValidUrl = (url: string): boolean => {
 }
 
 export const getJsonMarkdown = (content: object = {}) => {
+  if (Object.keys(content).length === 0) {
+    return ''
+  }
+
   let jsonBlock = ''
   try {
     jsonBlock = `\`\`\`json\n${JSON.stringify(content, null, 2)}\n\`\`\``
