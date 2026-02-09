@@ -201,6 +201,71 @@ const Endpoint = () => {
   )
 }
 
+const ProjectIdInput = () => {
+  const { projectId, setProjectId } = useStore()
+  const [isEditing, setIsEditing] = useState(false)
+  const [projectIdValue, setProjectIdValue] = useState(projectId)
+
+  useEffect(() => {
+    setProjectIdValue(projectId)
+  }, [projectId])
+
+  const handleSave = () => {
+    setProjectId(projectIdValue.trim())
+    setIsEditing(false)
+  }
+
+  const handleCancel = () => {
+    setProjectIdValue(projectId)
+    setIsEditing(false)
+  }
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      handleSave()
+    } else if (e.key === 'Escape') {
+      handleCancel()
+    }
+  }
+
+  return (
+    <div className="flex flex-col items-start gap-2">
+      <div className="text-xs font-medium uppercase text-primary">Project ID</div>
+      {isEditing ? (
+        <div className="flex w-full items-center gap-1">
+          <input
+            type="text"
+            value={projectIdValue}
+            onChange={(e) => setProjectIdValue(e.target.value)}
+            onKeyDown={handleKeyDown}
+            placeholder="Enter project ID (UUID)"
+            className="flex h-9 w-full items-center text-ellipsis rounded-xl border border-primary/15 bg-accent p-3 text-xs font-medium text-muted placeholder:text-muted/50"
+            autoFocus
+          />
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={handleSave}
+            className="hover:cursor-pointer hover:bg-transparent"
+          >
+            <Icon type="save" size="xs" />
+          </Button>
+        </div>
+      ) : (
+        <div
+          className="flex h-9 w-full cursor-pointer items-center justify-between rounded-xl border border-primary/15 bg-accent p-3 text-xs font-medium text-muted hover:border-primary/30"
+          onClick={() => setIsEditing(true)}
+        >
+          <p className="truncate">
+            {projectId || 'Click to set project ID'}
+          </p>
+          <Icon type="edit" size="xxs" />
+        </div>
+      )}
+    </div>
+  )
+}
+
 const Sidebar = ({
   hasEnvToken,
   envToken
@@ -271,6 +336,7 @@ const Sidebar = ({
         {isMounted && (
           <>
             <Endpoint />
+            <ProjectIdInput />
             <AuthToken hasEnvToken={hasEnvToken} envToken={envToken} />
             {isEndpointActive && (
               <>

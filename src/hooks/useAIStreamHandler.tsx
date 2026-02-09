@@ -19,12 +19,14 @@ const useAIChatStreamHandler = () => {
   const [sessionId, setSessionId] = useQueryState('session')
   const selectedEndpoint = useStore((state) => state.selectedEndpoint)
   const authToken = useStore((state) => state.authToken)
+  const projectId = useStore((state) => state.projectId)
   const mode = useStore((state) => state.mode)
   const setStreamingErrorMessage = useStore(
     (state) => state.setStreamingErrorMessage
   )
   const setIsStreaming = useStore((state) => state.setIsStreaming)
   const setSessionsData = useStore((state) => state.setSessionsData)
+  const setSessionProject = useStore((state) => state.setSessionProject)
   const { streamResponse } = useAIResponseStream()
 
   const updateMessagesWithErrorState = useCallback(() => {
@@ -163,6 +165,11 @@ const useAIChatStreamHandler = () => {
         formData.append('stream', 'true')
         formData.append('session_id', sessionId ?? '')
 
+        // Add project_id to the URL as a query parameter
+        if (projectId) {
+          RunUrl = `${RunUrl}${RunUrl.includes('?') ? '&' : '?'}project_id=${encodeURIComponent(projectId)}`
+        }
+
         // Create headers with auth token if available
         const headers: Record<string, string> = {}
         if (authToken) {
@@ -189,7 +196,12 @@ const useAIChatStreamHandler = () => {
                 const sessionData = {
                   session_id: chunk.session_id as string,
                   session_name: formData.get('message') as string,
-                  created_at: chunk.created_at
+                  created_at: chunk.created_at,
+                  project_id: projectId || undefined // Store the current project_id with the session
+                }
+                // Store the mapping of session_id -> project_id
+                if (projectId) {
+                  setSessionProject(chunk.session_id as string, projectId)
                 }
                 setSessionsData((prevSessionsData) => {
                   const sessionExists = prevSessionsData?.some(
@@ -443,6 +455,7 @@ const useAIChatStreamHandler = () => {
       setSessionsData,
       sessionId,
       setSessionId,
+      setSessionProject,
       processChunkToolCalls
     ]
   )

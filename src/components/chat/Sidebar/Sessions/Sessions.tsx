@@ -48,7 +48,8 @@ const Sessions = () => {
     hydrated,
     sessionsData,
     setSessionsData,
-    isSessionsLoading
+    isSessionsLoading,
+    projectId
   } = useStore()
 
   const [isScrolling, setIsScrolling] = useState(false)
@@ -109,7 +110,8 @@ const Sessions = () => {
     mode,
     isEndpointLoading,
     getSessions,
-    dbId
+    dbId,
+    projectId // Refetch sessions when projectId changes
   ])
 
   useEffect(() => {
@@ -132,9 +134,26 @@ const Sessions = () => {
     )
   }
 
+  // Filter sessions by project_id if set
+  // Sessions created with a project_id will have it stored in the session entry
+  const filteredSessions = projectId
+    ? sessionsData?.filter((session) => {
+        // If project_id is set, only show sessions that have the same project_id
+        // Sessions without a project_id are considered legacy and won't be shown when filtering
+        return session.project_id === projectId
+      }) ?? []
+    : sessionsData ?? []
+
   return (
     <div className="w-full">
-      <div className="mb-2 w-full text-xs font-medium uppercase">Sessions</div>
+      <div className="mb-2 flex w-full items-center justify-between">
+        <div className="text-xs font-medium uppercase">Sessions</div>
+        {projectId && (
+          <div className="text-[10px] text-muted" title={`Filtered by project: ${projectId}`}>
+            Project: {projectId.substring(0, 8)}...
+          </div>
+        )}
+      </div>
       <div
         className={`h-[calc(100vh-345px)] overflow-y-auto font-geist transition-all duration-300 [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar]:transition-opacity [&::-webkit-scrollbar]:duration-300 ${
           isScrolling
@@ -151,7 +170,7 @@ const Sessions = () => {
           <SessionBlankState />
         ) : (
           <div className="flex flex-col gap-y-1 pr-1">
-            {sessionsData?.map((entry, idx) => (
+            {filteredSessions.map((entry, idx) => (
               <SessionItem
                 key={`${entry?.session_id}-${idx}`}
                 currentSessionId={selectedSessionId}

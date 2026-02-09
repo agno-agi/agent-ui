@@ -269,6 +269,7 @@ export interface SessionEntry {
   session_name: string
   created_at: number
   updated_at?: number
+  project_id?: string // Track which project_id this session belongs to
 }
 
 export interface Pagination {

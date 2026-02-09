@@ -30,6 +30,7 @@ const useSessionLoader = () => {
   const authToken = useStore((state) => state.authToken)
   const setIsSessionsLoading = useStore((state) => state.setIsSessionsLoading)
   const setSessionsData = useStore((state) => state.setSessionsData)
+  const sessionProjectMap = useStore((state) => state.sessionProjectMap)
 
   const getSessions = useCallback(
     async ({ entityType, agentId, teamId, dbId }: LoaderArgs) => {
@@ -39,14 +40,23 @@ const useSessionLoader = () => {
       try {
         setIsSessionsLoading(true)
 
+        // Get projectId from store to pass to API
+        const projectId = useStore.getState().projectId
+
         const sessions = await getAllSessionsAPI(
           selectedEndpoint,
           entityType,
           selectedId,
           dbId,
-          authToken
+          authToken,
+          projectId
         )
-        setSessionsData(sessions.data ?? [])
+        // Merge project_id from our local mapping into sessions fetched from backend
+        const sessionsWithProjectId = (sessions.data ?? []).map((session) => ({
+          ...session,
+          project_id: sessionProjectMap[session.session_id] || session.project_id
+        }))
+        setSessionsData(sessionsWithProjectId)
       } catch {
         toast.error('Error loading sessions')
         setSessionsData([])

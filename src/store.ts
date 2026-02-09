@@ -54,6 +54,10 @@ interface Store {
   ) => void
   isSessionsLoading: boolean
   setIsSessionsLoading: (isSessionsLoading: boolean) => void
+  projectId: string
+  setProjectId: (projectId: string) => void
+  sessionProjectMap: Record<string, string> // Map of session_id -> project_id
+  setSessionProject: (sessionId: string, projectId: string) => void
 }
 
 export const useStore = create<Store>()(
@@ -104,13 +108,25 @@ export const useStore = create<Store>()(
         })),
       isSessionsLoading: false,
       setIsSessionsLoading: (isSessionsLoading) =>
-        set(() => ({ isSessionsLoading }))
+        set(() => ({ isSessionsLoading })),
+      projectId: '',
+      setProjectId: (projectId) => set(() => ({ projectId })),
+      sessionProjectMap: {},
+      setSessionProject: (sessionId, projectId) =>
+        set((state) => ({
+          sessionProjectMap: {
+            ...state.sessionProjectMap,
+            [sessionId]: projectId
+          }
+        }))
     }),
     {
       name: 'endpoint-storage',
       storage: createJSONStorage(() => localStorage),
       partialize: (state) => ({
-        selectedEndpoint: state.selectedEndpoint
+        selectedEndpoint: state.selectedEndpoint,
+        projectId: state.projectId,
+        sessionProjectMap: state.sessionProjectMap
       }),
       onRehydrateStorage: () => (state) => {
         state?.setHydrated?.()
