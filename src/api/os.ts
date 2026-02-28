@@ -2,7 +2,12 @@ import { toast } from 'sonner'
 
 import { APIRoutes } from './routes'
 
-import { AgentDetails, Sessions, TeamDetails } from '@/types/os'
+import {
+  AgentDetails,
+  Sessions,
+  TeamDetails,
+  WorkflowDetails
+} from '@/types/os'
 
 // Helper function to create headers with optional auth token
 const createHeaders = (authToken?: string): HeadersInit => {
@@ -52,7 +57,7 @@ export const getStatusAPI = async (
 
 export const getAllSessionsAPI = async (
   base: string,
-  type: 'agent' | 'team',
+  type: 'agent' | 'team' | 'workflow',
   componentId: string,
   dbId: string,
   authToken?: string
@@ -82,7 +87,7 @@ export const getAllSessionsAPI = async (
 
 export const getSessionAPI = async (
   base: string,
-  type: 'agent' | 'team',
+  type: 'agent' | 'team' | 'workflow',
   sessionId: string,
   dbId?: string,
   authToken?: string
@@ -165,4 +170,31 @@ export const deleteTeamSessionAPI = async (
     throw new Error(`Failed to delete team session: ${response.statusText}`)
   }
   return response
+}
+
+export const getWorkflowsAPI = async (
+  endpoint: string,
+  authToken?: string
+): Promise<WorkflowDetails[]> => {
+  const url = APIRoutes.GetWorkflows(endpoint)
+  try {
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: createHeaders(authToken)
+    })
+    if (!response.ok) {
+      toast.error(`Failed to fetch workflows: ${response.statusText}`)
+      return []
+    }
+    const data = await response.json()
+    return (Array.isArray(data) ? data : []).map((w: { id: string; name?: string; description?: string; db_id?: string }) => ({
+      id: w.id,
+      name: w.name ?? w.id,
+      description: w.description,
+      db_id: w.db_id
+    }))
+  } catch {
+    toast.error('Error fetching workflows')
+    return []
+  }
 }

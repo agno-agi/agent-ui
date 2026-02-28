@@ -16,6 +16,7 @@ const useAIChatStreamHandler = () => {
   const { addMessage, focusChatInput } = useChatActions()
   const [agentId] = useQueryState('agent')
   const [teamId] = useQueryState('team')
+  const [workflowId] = useQueryState('workflow')
   const [sessionId, setSessionId] = useQueryState('session')
   const selectedEndpoint = useStore((state) => state.selectedEndpoint)
   const authToken = useStore((state) => state.authToken)
@@ -146,6 +147,8 @@ const useAIChatStreamHandler = () => {
 
         if (mode === 'team' && teamId) {
           RunUrl = APIRoutes.TeamRun(endpointUrl, teamId)
+        } else if (mode === 'workflow' && workflowId) {
+          RunUrl = APIRoutes.WorkflowRun(endpointUrl, workflowId)
         } else if (mode === 'agent' && agentId) {
           RunUrl = APIRoutes.AgentRun(endpointUrl).replace(
             '{agent_id}',
@@ -155,7 +158,9 @@ const useAIChatStreamHandler = () => {
 
         if (!RunUrl) {
           updateMessagesWithErrorState()
-          setStreamingErrorMessage('Please select an agent or team first.')
+          setStreamingErrorMessage(
+            'Please select an agent, team or workflow first.'
+          )
           setIsStreaming(false)
           return
         }
@@ -436,6 +441,7 @@ const useAIChatStreamHandler = () => {
       streamResponse,
       agentId,
       teamId,
+      workflowId,
       mode,
       setStreamingErrorMessage,
       setIsStreaming,
