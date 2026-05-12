@@ -13,5 +13,9 @@ export const APIRoutes = {
   TeamRun: (agentOSUrl: string, teamId: string) =>
     `${agentOSUrl}/teams/${teamId}/runs`,
   DeleteTeamSession: (agentOSUrl: string, teamId: string, sessionId: string) =>
-    `${agentOSUrl}/v1//teams/${teamId}/sessions/${sessionId}`
+    `${agentOSUrl}/v1//teams/${teamId}/sessions/${sessionId}`,
+
+  GetWorkflows: (agentOSUrl: string) => `${agentOSUrl}/workflows`,
+  WorkflowRun: (agentOSUrl: string, workflowId: string) =>
+    `${agentOSUrl}/workflows/${workflowId}/runs`
 }

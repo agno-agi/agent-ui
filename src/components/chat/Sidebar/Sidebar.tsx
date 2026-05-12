@@ -222,6 +222,7 @@ const Sidebar = ({
   const [isMounted, setIsMounted] = useState(false)
   const [agentId] = useQueryState('agent')
   const [teamId] = useQueryState('team')
+  const [workflowId] = useQueryState('workflow')
 
   useEffect(() => {
     setIsMounted(true)
@@ -296,7 +297,7 @@ const Sidebar = ({
                     <>
                       <ModeSelector />
                       <EntitySelector />
-                      {selectedModel && (agentId || teamId) && (
+                      {selectedModel && (agentId || teamId || workflowId) && (
                         <ModelDisplay model={selectedModel} />
                       )}
                     </>

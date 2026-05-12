@@ -25,6 +25,7 @@ const SessionItem = ({
 }: SessionItemProps) => {
   const [agentId] = useQueryState('agent')
   const [teamId] = useQueryState('team')
+  const [workflowId] = useQueryState('workflow')
   const [dbId] = useQueryState('db_id')
   const [, setSessionId] = useQueryState('session')
   const authToken = useStore((state) => state.authToken)
@@ -35,7 +36,7 @@ const SessionItem = ({
   const { clearChat } = useChatActions()
 
   const handleGetSession = async () => {
-    if (!(agentId || teamId || dbId)) return
+    if (!(agentId || teamId || workflowId || dbId)) return
 
     onSessionClick()
     await getSession(
@@ -43,6 +44,7 @@ const SessionItem = ({
         entityType: mode,
         agentId,
         teamId,
+        workflowId,
         dbId: dbId ?? ''
       },
       session_id
@@ -51,7 +53,7 @@ const SessionItem = ({
   }
 
   const handleDeleteSession = async () => {
-    if (!(agentId || teamId || dbId)) return
+    if (!(agentId || teamId || workflowId || dbId)) return
     setIsDeleting(true)
     try {
       const response = await deleteSessionAPI(

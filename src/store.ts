@@ -5,6 +5,7 @@ import {
   AgentDetails,
   SessionEntry,
   TeamDetails,
+  WorkflowDetails,
   type ChatMessage
 } from '@/types/os'
 
@@ -42,10 +43,12 @@ interface Store {
   setAgents: (agents: AgentDetails[]) => void
   teams: TeamDetails[]
   setTeams: (teams: TeamDetails[]) => void
+  workflows: WorkflowDetails[]
+  setWorkflows: (workflows: WorkflowDetails[]) => void
   selectedModel: string
   setSelectedModel: (model: string) => void
-  mode: 'agent' | 'team'
-  setMode: (mode: 'agent' | 'team') => void
+  mode: 'agent' | 'team' | 'workflow'
+  setMode: (mode: 'agent' | 'team' | 'workflow') => void
   sessionsData: SessionEntry[] | null
   setSessionsData: (
     sessionsData:
@@ -90,6 +93,8 @@ export const useStore = create<Store>()(
       setAgents: (agents) => set({ agents }),
       teams: [],
       setTeams: (teams) => set({ teams }),
+      workflows: [],
+      setWorkflows: (workflows) => set({ workflows }),
       selectedModel: '',
       setSelectedModel: (selectedModel) => set(() => ({ selectedModel })),
       mode: 'agent',
