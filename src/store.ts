@@ -5,7 +5,8 @@ import {
   AgentDetails,
   SessionEntry,
   TeamDetails,
-  type ChatMessage
+  type ChatMessage,
+  type UserInputField
 } from '@/types/os'
 
 interface Store {
@@ -54,6 +55,30 @@ interface Store {
   ) => void
   isSessionsLoading: boolean
   setIsSessionsLoading: (isSessionsLoading: boolean) => void
+
+  // User input pause state
+  isPausedForInput: boolean
+  setIsPausedForInput: (paused: boolean) => void
+  pendingUserInputFields: UserInputField[]
+  setPendingUserInputFields: (fields: UserInputField[]) => void
+  pausedRunId: string | null
+  setPausedRunId: (runId: string | null) => void
+  pausedSessionId: string | null
+  setPausedSessionId: (sessionId: string | null) => void
+  pausedToolName: string | null
+  setPausedToolName: (name: string | null) => void
+  pausedToolCallId: string | null
+  setPausedToolCallId: (id: string | null) => void
+
+  // User confirmation pause state
+  isPausedForConfirmation: boolean
+  setIsPausedForConfirmation: (paused: boolean) => void
+  pendingConfirmationToolName: string | null
+  setPendingConfirmationToolName: (name: string | null) => void
+  pendingConfirmationToolArgs: Record<string, string>
+  setPendingConfirmationToolArgs: (args: Record<string, string>) => void
+  pendingConfirmationToolCallId: string | null
+  setPendingConfirmationToolCallId: (id: string | null) => void
 }
 
 export const useStore = create<Store>()(
@@ -104,7 +129,38 @@ export const useStore = create<Store>()(
         })),
       isSessionsLoading: false,
       setIsSessionsLoading: (isSessionsLoading) =>
-        set(() => ({ isSessionsLoading }))
+        set(() => ({ isSessionsLoading })),
+
+      isPausedForInput: false,
+      setIsPausedForInput: (isPausedForInput) =>
+        set(() => ({ isPausedForInput })),
+      pendingUserInputFields: [],
+      setPendingUserInputFields: (pendingUserInputFields) =>
+        set(() => ({ pendingUserInputFields })),
+      pausedRunId: null,
+      setPausedRunId: (pausedRunId) => set(() => ({ pausedRunId })),
+      pausedSessionId: null,
+      setPausedSessionId: (pausedSessionId) =>
+        set(() => ({ pausedSessionId })),
+      pausedToolName: null,
+      setPausedToolName: (pausedToolName) =>
+        set(() => ({ pausedToolName })),
+      pausedToolCallId: null,
+      setPausedToolCallId: (pausedToolCallId) =>
+        set(() => ({ pausedToolCallId })),
+
+      isPausedForConfirmation: false,
+      setIsPausedForConfirmation: (isPausedForConfirmation) =>
+        set(() => ({ isPausedForConfirmation })),
+      pendingConfirmationToolName: null,
+      setPendingConfirmationToolName: (pendingConfirmationToolName) =>
+        set(() => ({ pendingConfirmationToolName })),
+      pendingConfirmationToolArgs: {},
+      setPendingConfirmationToolArgs: (pendingConfirmationToolArgs) =>
+        set(() => ({ pendingConfirmationToolArgs })),
+      pendingConfirmationToolCallId: null,
+      setPendingConfirmationToolCallId: (pendingConfirmationToolCallId) =>
+        set(() => ({ pendingConfirmationToolCallId }))
     }),
     {
       name: 'endpoint-storage',

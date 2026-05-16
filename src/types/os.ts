@@ -278,6 +278,32 @@ export interface Pagination {
   total_count: number
 }
 
+export interface UserInputField {
+  name: string
+  field_type: string
+  description: string | null
+  value: string | null
+}
+
+export interface ToolExecution {
+  tool_call_id: string
+  tool_name: string
+  tool_args: Record<string, string>
+  result?: string
+  confirmed?: boolean
+  user_input?: Record<string, string>
+  requires_confirmation?: boolean
+  requires_user_input?: boolean
+  user_input_schema?: UserInputField[]
+}
+
+export interface ActiveRequirement {
+  needs_user_input: boolean
+  needs_confirmation: boolean
+  user_input_schema?: UserInputField[]
+  tool_execution?: ToolExecution
+}
+
 export interface Sessions extends SessionEntry {
   data: SessionEntry[]
   meta: Pagination

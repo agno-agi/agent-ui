@@ -4,7 +4,12 @@ import { APIRoutes } from '@/api/routes'
 
 import useChatActions from '@/hooks/useChatActions'
 import { useStore } from '../store'
-import { RunEvent, RunResponseContent, type RunResponse } from '@/types/os'
+import {
+  RunEvent,
+  RunResponseContent,
+  type RunResponse,
+  type ActiveRequirement
+} from '@/types/os'
 import { constructEndpointUrl } from '@/lib/constructEndpointUrl'
 import useAIResponseStream from './useAIResponseStream'
 import { ToolCall } from '@/types/os'
@@ -25,6 +30,26 @@ const useAIChatStreamHandler = () => {
   )
   const setIsStreaming = useStore((state) => state.setIsStreaming)
   const setSessionsData = useStore((state) => state.setSessionsData)
+  const setIsPausedForInput = useStore((state) => state.setIsPausedForInput)
+  const setPendingUserInputFields = useStore(
+    (state) => state.setPendingUserInputFields
+  )
+  const setPausedRunId = useStore((state) => state.setPausedRunId)
+  const setPausedSessionId = useStore((state) => state.setPausedSessionId)
+  const setPausedToolName = useStore((state) => state.setPausedToolName)
+  const setPausedToolCallId = useStore((state) => state.setPausedToolCallId)
+  const setIsPausedForConfirmation = useStore(
+    (state) => state.setIsPausedForConfirmation
+  )
+  const setPendingConfirmationToolName = useStore(
+    (state) => state.setPendingConfirmationToolName
+  )
+  const setPendingConfirmationToolArgs = useStore(
+    (state) => state.setPendingConfirmationToolArgs
+  )
+  const setPendingConfirmationToolCallId = useStore(
+    (state) => state.setPendingConfirmationToolCallId
+  )
   const { streamResponse } = useAIResponseStream()
 
   const updateMessagesWithErrorState = useCallback(() => {
@@ -38,12 +63,6 @@ const useAIChatStreamHandler = () => {
     })
   }, [setMessages])
 
-  /**
-   * Processes a new tool call and adds it to the message
-   * @param toolCall - The tool call to add
-   * @param prevToolCalls - The previous tool calls array
-   * @returns Updated tool calls array
-   */
   const processToolCall = useCallback(
     (toolCall: ToolCall, prevToolCalls: ToolCall[] = []) => {
       const toolCallId =
@@ -71,23 +90,15 @@ const useAIChatStreamHandler = () => {
     []
   )
 
-  /**
-   * Processes tool calls from a chunk, handling both single tool object and tools array formats
-   * @param chunk - The chunk containing tool call data
-   * @param existingToolCalls - The existing tool calls array
-   * @returns Updated tool calls array
-   */
   const processChunkToolCalls = useCallback(
     (
       chunk: RunResponseContent | RunResponse,
       existingToolCalls: ToolCall[] = []
     ) => {
       let updatedToolCalls = [...existingToolCalls]
-      // Handle new single tool object format
       if (chunk.tool) {
         updatedToolCalls = processToolCall(chunk.tool, updatedToolCalls)
       }
-      // Handle legacy tools array format
       if (chunk.tools && chunk.tools.length > 0) {
         for (const toolCall of chunk.tools) {
           updatedToolCalls = processToolCall(toolCall, updatedToolCalls)
@@ -163,7 +174,6 @@ const useAIChatStreamHandler = () => {
         formData.append('stream', 'true')
         formData.append('session_id', sessionId ?? '')
 
-        // Create headers with auth token if available
         const headers: Record<string, string> = {}
         if (authToken) {
           headers['Authorization'] = `Bearer ${authToken}`
@@ -234,7 +244,6 @@ const useAIChatStreamHandler = () => {
                   lastMessage.content += uniqueContent
                   lastContent = chunk.content
 
-                  // Handle tool calls streaming
                   lastMessage.tool_calls = processChunkToolCalls(
                     chunk,
                     lastMessage.tool_calls
@@ -347,7 +356,51 @@ const useAIChatStreamHandler = () => {
               chunk.event === RunEvent.TeamMemoryUpdateStarted ||
               chunk.event === RunEvent.TeamMemoryUpdateCompleted
             ) {
-              // No-op for now; could surface a lightweight UI indicator in the future
+            } else if (
+              chunk.event === RunEvent.RunPaused
+            ) {
+              const chunkAny = chunk as unknown as Record<string, unknown>
+              const rawReqs = chunkAny.requirements ?? []
+              const requirements: ActiveRequirement[] = Array.isArray(rawReqs)
+                ? rawReqs as ActiveRequirement[]
+                : []
+
+              const confirmationReq = requirements.find(
+                (r) => r.needs_confirmation || r.tool_execution?.requires_confirmation
+              )
+
+              const userInputReq = requirements.find(
+                (r) => r.needs_user_input || r.tool_execution?.requires_user_input
+              )
+
+              const toolName =
+                userInputReq?.tool_execution?.tool_name ??
+                confirmationReq?.tool_execution?.tool_name ??
+                'Unknown Tool'
+
+              setPausedRunId(chunk.run_id ?? null)
+              setPausedSessionId(chunk.session_id ?? null)
+              setIsStreaming(false)
+
+              if (confirmationReq) {
+                const toolExec = confirmationReq.tool_execution
+                setPendingConfirmationToolName(toolName)
+                setPendingConfirmationToolArgs(
+                  (toolExec?.tool_args ?? {}) as Record<string, string>
+                )
+                setPendingConfirmationToolCallId(
+                  (toolExec?.tool_call_id ?? null) as string | null
+                )
+                setPausedToolName(toolName)
+                setPausedToolCallId((toolExec?.tool_call_id ?? null) as string | null)
+                setIsPausedForConfirmation(true)
+              } else if (userInputReq?.user_input_schema || userInputReq?.tool_execution?.user_input_schema) {
+                const schema = userInputReq.user_input_schema ?? userInputReq.tool_execution?.user_input_schema
+                setPendingUserInputFields(schema as any)
+                setPausedToolName(toolName)
+                setPausedToolCallId((userInputReq.tool_execution?.tool_call_id ?? null) as string | null)
+                setIsPausedForInput(true)
+              }
             } else if (
               chunk.event === RunEvent.RunCompleted ||
               chunk.event === RunEvent.TeamRunCompleted
