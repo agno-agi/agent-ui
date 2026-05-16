@@ -5,6 +5,7 @@ import useContinueRun from '@/hooks/useContinueRun'
 
 const UserInputDialog = () => {
   const [mounted, setMounted] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
   const isPausedForInput = useStore((state) => state.isPausedForInput)
   const pendingUserInputFields = useStore(
     (state) => state.pendingUserInputFields
@@ -17,9 +18,6 @@ const UserInputDialog = () => {
   const setPausedRunId = useStore((state) => state.setPausedRunId)
   const setPausedSessionId = useStore((state) => state.setPausedSessionId)
   const setPausedToolName = useStore((state) => state.setPausedToolName)
-  const setIsPausedForConfirmation = useStore(
-    (state) => state.setIsPausedForConfirmation
-  )
   const setPendingConfirmationToolName = useStore(
     (state) => state.setPendingConfirmationToolName
   )
@@ -29,33 +27,27 @@ const UserInputDialog = () => {
   const setPendingConfirmationToolCallId = useStore(
     (state) => state.setPendingConfirmationToolCallId
   )
+  const setPausedToolCallId = useStore((state) => state.setPausedToolCallId)
+  const setIsPausedForConfirmation = useStore(
+    (state) => state.setIsPausedForConfirmation
+  )
 
   useEffect(() => {
     setMounted(true)
-    console.log('[DEBUG] UserInputDialog mounted, isPausedForInput:', isPausedForInput, 'pendingFields:', pendingUserInputFields)
   }, [])
 
-  useEffect(() => {
-    console.log('[DEBUG] Dialog state changed - isPausedForInput:', isPausedForInput, 'pendingFields:', pendingUserInputFields)
-  }, [isPausedForInput, pendingUserInputFields])
-
-  const { continueRun } = useContinueRun()
+  const { continueRun, cancelRun } = useContinueRun()
   const [fieldValues, setFieldValues] = useState<Record<string, string>>({})
 
-  const handleCancel = () => {
-    setIsPausedForInput(false)
-    setPendingUserInputFields([])
-    setIsPausedForConfirmation(false)
-    setPendingConfirmationToolName(null)
-    setPendingConfirmationToolArgs({})
-    setPendingConfirmationToolCallId(null)
-    setPausedRunId(null)
-    setPausedSessionId(null)
-    setPausedToolName(null)
+  const handleCancel = async () => {
+    setIsSubmitting(true)
+    await cancelRun()
+    setIsSubmitting(false)
     setFieldValues({})
   }
 
   const handleSubmit = async () => {
+    setIsSubmitting(true)
     const values: Record<string, string> = {}
     for (const field of pendingUserInputFields) {
       if (field.value !== null) {
@@ -66,11 +58,10 @@ const UserInputDialog = () => {
     }
     setFieldValues({})
     await continueRun(values)
+    setIsSubmitting(false)
   }
 
   if (!mounted) return null
-
-  console.log('[DEBUG] Dialog render check - isPausedForInput:', isPausedForInput, 'fields:', pendingUserInputFields.length)
 
   if (!isPausedForInput || pendingUserInputFields.length === 0) return null
 
@@ -121,13 +112,14 @@ const UserInputDialog = () => {
                     }))
                   }
                   placeholder={`Enter ${field.name}`}
+                  disabled={isSubmitting}
                   autoFocus={
                     pendingUserInputFields.indexOf(field) === 0 &&
                     field.value === null
                   }
-                  className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-primary placeholder:text-muted-foreground focus:border-primary/50 focus:outline-none focus:ring-1 focus:ring-ring"
+                  className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-primary placeholder:text-muted-foreground focus:border-primary/50 focus:outline-none focus:ring-1 focus:ring-ring disabled:opacity-50"
                   onKeyDown={(e) => {
-                    if (e.key === 'Enter' && !e.shiftKey) {
+                    if (e.key === 'Enter' && !e.shiftKey && !isSubmitting) {
                       e.preventDefault()
                       handleSubmit()
                     }
@@ -140,17 +132,19 @@ const UserInputDialog = () => {
         <div className="flex justify-end gap-3">
           <button
             type="button"
-            className="px-4 py-2 border border-border rounded-md text-sm"
+            disabled={isSubmitting}
+            className="px-4 py-2 border border-border rounded-md text-sm disabled:opacity-50"
             onClick={handleCancel}
           >
             Cancel
           </button>
           <button
             type="button"
-            className="px-4 py-2 bg-primary text-primary-foreground rounded-md text-sm"
+            disabled={isSubmitting}
+            className="px-4 py-2 bg-primary text-primary-foreground rounded-md text-sm disabled:opacity-50"
             onClick={handleSubmit}
           >
-            Submit
+            {isSubmitting ? 'Submitting...' : 'Submit'}
           </button>
         </div>
       </div>

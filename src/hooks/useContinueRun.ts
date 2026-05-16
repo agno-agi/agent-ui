@@ -2,7 +2,7 @@ import { useCallback } from 'react'
 import { useStore } from '../store'
 import { constructEndpointUrl } from '@/lib/constructEndpointUrl'
 import { APIRoutes } from '@/api/routes'
-import { RunEvent, type RunResponse, type ActiveRequirement } from '@/types/os'
+import { RunEvent, type RunResponse, type ActiveRequirement, type UserInputField } from '@/types/os'
 import useChatActions from './useChatActions'
 import { useQueryState } from 'nuqs'
 import { getJsonMarkdown } from '@/lib/utils'
@@ -36,8 +36,10 @@ const useContinueRun = () => {
   const setPausedRunId = useStore((state) => state.setPausedRunId)
   const setPausedSessionId = useStore((state) => state.setPausedSessionId)
   const setPausedToolName = useStore((state) => state.setPausedToolName)
+  const setPausedToolCallId = useStore((state) => state.setPausedToolCallId)
   const pausedRunId = useStore((state) => state.pausedRunId)
   const pausedSessionId = useStore((state) => state.pausedSessionId)
+  const pausedToolCallId = useStore((state) => state.pausedToolCallId)
   const [agentId] = useQueryState('agent')
   const [teamId] = useQueryState('team')
   const [sessionId, setSessionId] = useQueryState('session')
@@ -65,6 +67,7 @@ const useContinueRun = () => {
     setPausedRunId(null)
     setPausedSessionId(null)
     setPausedToolName(null)
+    setPausedToolCallId(null)
   }, [
     setIsPausedForInput,
     setPendingUserInputFields,
@@ -74,7 +77,8 @@ const useContinueRun = () => {
     setPendingConfirmationToolCallId,
     setPausedRunId,
     setPausedSessionId,
-    setPausedToolName
+    setPausedToolName,
+    setPausedToolCallId
   ])
 
   const streamContinuation = useCallback(
@@ -205,33 +209,30 @@ const useContinueRun = () => {
             )
             if (newSessionId) {
               useStore.getState().setSessionsData(
-                (prevSessionsData) =>
+                (prevSessionsData: any) =>
                   prevSessionsData?.filter(
-                    (session) => session.session_id !== newSessionId
+                    (session: any) => session.session_id !== newSessionId
                   ) ?? null
               )
             }
           } else if (chunk.event === RunEvent.RunPaused) {
             const chunkAny = chunk as unknown as Record<string, unknown>
-            const rawReqs =
-              chunkAny.requirements ?? []
-            const activeRequirements: ActiveRequirement[] = Array.isArray(rawReqs)
+            const rawReqs = chunkAny.requirements ?? []
+            const requirements: ActiveRequirement[] = Array.isArray(rawReqs)
               ? rawReqs as ActiveRequirement[]
               : []
 
-            const confirmationReq = activeRequirements.find(
+            const confirmationReq = requirements.find(
               (r) => r.needs_confirmation || r.tool_execution?.requires_confirmation
             )
 
-            const userInputReq = activeRequirements.find(
+            const userInputReq = requirements.find(
               (r) => r.needs_user_input || r.tool_execution?.requires_user_input
             )
 
             const toolName =
               userInputReq?.tool_execution?.tool_name ??
               confirmationReq?.tool_execution?.tool_name ??
-              (chunkAny.tool_name as string) ??
-              (chunkAny.tools as Array<{ tool_name?: string }>)?.[0]?.tool_name ??
               'Unknown Tool'
 
             setPausedRunId(chunk.run_id ?? null)
@@ -239,22 +240,22 @@ const useContinueRun = () => {
             setIsStreaming(false)
 
             if (confirmationReq) {
-              const toolExec = confirmationReq.tool_execution || (chunkAny.tools as Array<Record<string, unknown>>)?.[0]
-              setPendingConfirmationToolName(
-                (toolExec?.tool_name as string) ?? toolName
-              )
+              const toolExec = confirmationReq.tool_execution
+              setPendingConfirmationToolName(toolName)
               setPendingConfirmationToolArgs(
-                (toolExec?.tool_args as Record<string, string>) ?? {}
+                (toolExec?.tool_args ?? {}) as Record<string, string>
               )
               setPendingConfirmationToolCallId(
-                (toolExec?.tool_call_id as string) ?? null
+                (toolExec?.tool_call_id ?? null) as string | null
               )
               setPausedToolName(toolName)
+              setPausedToolCallId((toolExec?.tool_call_id ?? null) as string | null)
               setIsPausedForConfirmation(true)
             } else if (userInputReq?.user_input_schema || userInputReq?.tool_execution?.user_input_schema) {
-              const schema = userInputReq.user_input_schema || userInputReq.tool_execution?.user_input_schema
-              setPendingUserInputFields(schema as any)
+              const schema = userInputReq.user_input_schema ?? userInputReq.tool_execution?.user_input_schema
+              setPendingUserInputFields(schema as UserInputField[])
               setPausedToolName(toolName)
+              setPausedToolCallId((userInputReq.tool_execution?.tool_call_id ?? null) as string | null)
               setIsPausedForInput(true)
             }
           }
@@ -289,9 +290,47 @@ const useContinueRun = () => {
       setPendingConfirmationToolArgs,
       setPendingConfirmationToolCallId,
       setPausedToolName,
+      setPausedToolCallId,
       setIsPausedForConfirmation,
       setPendingUserInputFields,
       setIsPausedForInput
+    ]
+  )
+
+  const doContinueRequest = useCallback(
+    async (
+      toolsPayload: Record<string, unknown>[]
+    ) => {
+      const endpointUrl = constructEndpointUrl(selectedEndpoint)
+
+      let ContinueUrl: string | null = null
+      if (mode === 'team' && teamId) {
+        ContinueUrl = APIRoutes.TeamContinueRun(endpointUrl, teamId, pausedRunId!)
+      } else if (mode === 'agent' && agentId) {
+        ContinueUrl = APIRoutes.AgentContinueRun(endpointUrl, agentId, pausedRunId!)
+      }
+
+      if (!ContinueUrl) {
+        setIsStreaming(false)
+        return
+      }
+
+      const formData = new FormData()
+      formData.append('tools', JSON.stringify(toolsPayload))
+      formData.append('session_id', pausedSessionId!)
+      formData.append('stream', 'true')
+
+      await streamContinuation(ContinueUrl, formData)
+    },
+    [
+      pausedRunId,
+      pausedSessionId,
+      selectedEndpoint,
+      authToken,
+      mode,
+      agentId,
+      teamId,
+      streamContinuation
     ]
   )
 
@@ -299,40 +338,24 @@ const useContinueRun = () => {
     async (userInputValues: Record<string, string>) => {
       if (!pausedRunId || !pausedSessionId) return
 
+      const toolCallId = useStore.getState().pausedToolCallId || pausedRunId
+      const toolName = useStore.getState().pausedToolName || ''
+
       clearPausedState()
       setStreamingErrorMessage('')
       setIsStreaming(true)
 
       const toolsPayload = [
         {
-          tool_call_id: pausedRunId,
-          tool_name: '',
+          tool_call_id: toolCallId,
+          tool_name: toolName,
           tool_args: {},
           user_input: userInputValues
         }
       ]
 
       try {
-        const endpointUrl = constructEndpointUrl(selectedEndpoint)
-
-        let ContinueUrl: string | null = null
-        if (mode === 'team' && teamId) {
-          ContinueUrl = APIRoutes.TeamContinueRun(endpointUrl, teamId, pausedRunId)
-        } else if (mode === 'agent' && agentId) {
-          ContinueUrl = APIRoutes.AgentContinueRun(endpointUrl, agentId, pausedRunId)
-        }
-
-        if (!ContinueUrl) {
-          setIsStreaming(false)
-          return
-        }
-
-        const formData = new FormData()
-        formData.append('tools', JSON.stringify(toolsPayload))
-        formData.append('session_id', pausedSessionId)
-        formData.append('stream', 'true')
-
-        await streamContinuation(ContinueUrl, formData)
+        await doContinueRequest(toolsPayload)
       } catch (error) {
         updateMessagesWithErrorState()
         setStreamingErrorMessage(
@@ -345,16 +368,11 @@ const useContinueRun = () => {
     [
       pausedRunId,
       pausedSessionId,
-      selectedEndpoint,
-      authToken,
-      mode,
-      agentId,
-      teamId,
       clearPausedState,
       setStreamingErrorMessage,
       setIsStreaming,
       updateMessagesWithErrorState,
-      streamContinuation
+      doContinueRequest
     ]
   )
 
@@ -380,26 +398,7 @@ const useContinueRun = () => {
       ]
 
       try {
-        const endpointUrl = constructEndpointUrl(selectedEndpoint)
-
-        let ContinueUrl: string | null = null
-        if (mode === 'team' && teamId) {
-          ContinueUrl = APIRoutes.TeamContinueRun(endpointUrl, teamId, pausedRunId)
-        } else if (mode === 'agent' && agentId) {
-          ContinueUrl = APIRoutes.AgentContinueRun(endpointUrl, agentId, pausedRunId)
-        }
-
-        if (!ContinueUrl) {
-          setIsStreaming(false)
-          return
-        }
-
-        const formData = new FormData()
-        formData.append('tools', JSON.stringify(toolsPayload))
-        formData.append('session_id', pausedSessionId)
-        formData.append('stream', 'true')
-
-        await streamContinuation(ContinueUrl, formData)
+        await doContinueRequest(toolsPayload)
       } catch (error) {
         updateMessagesWithErrorState()
         setStreamingErrorMessage(
@@ -412,20 +411,57 @@ const useContinueRun = () => {
     [
       pausedRunId,
       pausedSessionId,
-      selectedEndpoint,
-      authToken,
-      mode,
-      agentId,
-      teamId,
       clearPausedState,
       setStreamingErrorMessage,
       setIsStreaming,
       updateMessagesWithErrorState,
-      streamContinuation
+      doContinueRequest
     ]
   )
 
-  return { continueRun, confirmRun }
+  const cancelRun = useCallback(
+    async () => {
+      if (!pausedRunId || !pausedSessionId) return
+
+      const toolCallId = useStore.getState().pausedToolCallId || pausedRunId
+      const toolName = useStore.getState().pausedToolName || ''
+
+      clearPausedState()
+      setStreamingErrorMessage('')
+      setIsStreaming(true)
+
+      const toolsPayload = [
+        {
+          tool_call_id: toolCallId,
+          tool_name: toolName,
+          tool_args: {},
+          confirmed: false
+        }
+      ]
+
+      try {
+        await doContinueRequest(toolsPayload)
+      } catch (error) {
+        updateMessagesWithErrorState()
+        setStreamingErrorMessage(
+          error instanceof Error ? error.message : String(error)
+        )
+        setIsStreaming(false)
+        clearPausedState()
+      }
+    },
+    [
+      pausedRunId,
+      pausedSessionId,
+      clearPausedState,
+      setStreamingErrorMessage,
+      setIsStreaming,
+      updateMessagesWithErrorState,
+      doContinueRequest
+    ]
+  )
+
+  return { continueRun, confirmRun, cancelRun }
 }
 
 export default useContinueRun

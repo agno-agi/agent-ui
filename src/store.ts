@@ -67,6 +67,8 @@ interface Store {
   setPausedSessionId: (sessionId: string | null) => void
   pausedToolName: string | null
   setPausedToolName: (name: string | null) => void
+  pausedToolCallId: string | null
+  setPausedToolCallId: (id: string | null) => void
 
   // User confirmation pause state
   isPausedForConfirmation: boolean
@@ -143,6 +145,9 @@ export const useStore = create<Store>()(
       pausedToolName: null,
       setPausedToolName: (pausedToolName) =>
         set(() => ({ pausedToolName })),
+      pausedToolCallId: null,
+      setPausedToolCallId: (pausedToolCallId) =>
+        set(() => ({ pausedToolCallId })),
 
       isPausedForConfirmation: false,
       setIsPausedForConfirmation: (isPausedForConfirmation) =>

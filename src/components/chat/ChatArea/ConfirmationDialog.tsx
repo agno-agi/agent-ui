@@ -5,6 +5,7 @@ import useContinueRun from '@/hooks/useContinueRun'
 
 const ConfirmationDialog = () => {
   const [mounted, setMounted] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
   const isPausedForConfirmation = useStore(
     (state) => state.isPausedForConfirmation
   )
@@ -14,50 +15,29 @@ const ConfirmationDialog = () => {
   const pendingConfirmationToolArgs = useStore(
     (state) => state.pendingConfirmationToolArgs
   )
-  const setIsPausedForConfirmation = useStore(
-    (state) => state.setIsPausedForConfirmation
-  )
-  const setPendingConfirmationToolName = useStore(
-    (state) => state.setPendingConfirmationToolName
-  )
-  const setPendingConfirmationToolArgs = useStore(
-    (state) => state.setPendingConfirmationToolArgs
-  )
-  const setPendingConfirmationToolCallId = useStore(
-    (state) => state.setPendingConfirmationToolCallId
-  )
-  const setPausedRunId = useStore((state) => state.setPausedRunId)
-  const setPausedSessionId = useStore((state) => state.setPausedSessionId)
-  const setPausedToolName = useStore((state) => state.setPausedToolName)
-  const setIsPausedForInput = useStore((state) => state.setIsPausedForInput)
-  const setPendingUserInputFields = useStore(
-    (state) => state.setPendingUserInputFields
-  )
 
   useEffect(() => {
     setMounted(true)
   }, [])
 
-  const { confirmRun } = useContinueRun()
+  const { confirmRun, cancelRun } = useContinueRun()
 
-  const handleCancel = () => {
-    setIsPausedForConfirmation(false)
-    setPendingConfirmationToolName(null)
-    setPendingConfirmationToolArgs({})
-    setPendingConfirmationToolCallId(null)
-    setPausedRunId(null)
-    setPausedSessionId(null)
-    setPausedToolName(null)
-    setIsPausedForInput(false)
-    setPendingUserInputFields([])
+  const handleCancel = async () => {
+    setIsSubmitting(true)
+    await cancelRun()
+    setIsSubmitting(false)
   }
 
   const handleApprove = async () => {
+    setIsSubmitting(true)
     await confirmRun(true)
+    setIsSubmitting(false)
   }
 
   const handleReject = async () => {
+    setIsSubmitting(true)
     await confirmRun(false)
+    setIsSubmitting(false)
   }
 
   if (!mounted) return null
@@ -100,17 +80,27 @@ const ConfirmationDialog = () => {
         <div className="flex justify-end gap-3">
           <button
             type="button"
-            className="px-4 py-2 border border-border rounded-md text-sm text-muted-foreground hover:text-primary"
-            onClick={handleReject}
+            disabled={isSubmitting}
+            className="px-4 py-2 border border-border rounded-md text-sm text-muted-foreground hover:text-primary disabled:opacity-50"
+            onClick={handleCancel}
           >
-            Reject
+            Cancel
           </button>
           <button
             type="button"
-            className="px-4 py-2 bg-primary text-primary-foreground rounded-md text-sm"
+            disabled={isSubmitting}
+            className="px-4 py-2 border border-border rounded-md text-sm text-muted-foreground hover:text-destructive disabled:opacity-50"
+            onClick={handleReject}
+          >
+            {isSubmitting ? 'Submitting...' : 'Reject'}
+          </button>
+          <button
+            type="button"
+            disabled={isSubmitting}
+            className="px-4 py-2 bg-primary text-primary-foreground rounded-md text-sm disabled:opacity-50"
             onClick={handleApprove}
           >
-            Approve
+            {isSubmitting ? 'Submitting...' : 'Approve'}
           </button>
         </div>
       </div>
