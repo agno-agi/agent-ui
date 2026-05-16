@@ -4,7 +4,12 @@ import { APIRoutes } from '@/api/routes'
 
 import useChatActions from '@/hooks/useChatActions'
 import { useStore } from '../store'
-import { RunEvent, RunResponseContent, type RunResponse } from '@/types/os'
+import {
+  RunEvent,
+  RunResponseContent,
+  type RunResponse,
+  type ActiveRequirement
+} from '@/types/os'
 import { constructEndpointUrl } from '@/lib/constructEndpointUrl'
 import useAIResponseStream from './useAIResponseStream'
 import { ToolCall } from '@/types/os'
@@ -25,7 +30,42 @@ const useAIChatStreamHandler = () => {
   )
   const setIsStreaming = useStore((state) => state.setIsStreaming)
   const setSessionsData = useStore((state) => state.setSessionsData)
+  const setIsPausedForInput = useStore((state) => state.setIsPausedForInput)
+  const setPendingUserInputFields = useStore(
+    (state) => state.setPendingUserInputFields
+  )
+  const setPausedRunId = useStore((state) => state.setPausedRunId)
+  const setPausedSessionId = useStore((state) => state.setPausedSessionId)
+  const setPausedToolName = useStore((state) => state.setPausedToolName)
+  const setIsPausedForConfirmation = useStore(
+    (state) => state.setIsPausedForConfirmation
+  )
+  const setPendingConfirmationToolName = useStore(
+    (state) => state.setPendingConfirmationToolName
+  )
+  const setPendingConfirmationToolArgs = useStore(
+    (state) => state.setPendingConfirmationToolArgs
+  )
+  const setPendingConfirmationToolCallId = useStore(
+    (state) => state.setPendingConfirmationToolCallId
+  )
   const { streamResponse } = useAIResponseStream()
+
+  // Define tools that require confirmation
+  const CONFIRMATION_REQUIRED_TOOLS: Record<string, boolean> = {}
+  // Define tools that require user input, mapped to their required fields
+  const USER_INPUT_REQUIRED_TOOLS: Record<
+    string,
+    { name: string; field_type: string; description: string }[]
+  > = {
+    enumerate_subdomains_and_ips: [
+      {
+        name: 'domain',
+        field_type: 'string',
+        description: 'Domain to enumerate subdomains for'
+      }
+    ]
+  }
 
   const updateMessagesWithErrorState = useCallback(() => {
     setMessages((prevMessages) => {
@@ -169,11 +209,25 @@ const useAIChatStreamHandler = () => {
           headers['Authorization'] = `Bearer ${authToken}`
         }
 
-        await streamResponse({
+await streamResponse({
           apiUrl: RunUrl,
           headers,
           requestBody: formData,
           onChunk: (chunk: RunResponse) => {
+            // Log ALL events to see what's being sent
+            if (chunk.event !== RunEvent.RunContent && chunk.event !== RunEvent.RunStarted) {
+              console.log('[EVENT]', chunk.event, 'full:', JSON.stringify(chunk))
+            }
+            
+            // Check for is_paused in the chunk (some events have this flag)
+            const chunkAny = chunk as unknown as Record<string, unknown>
+            if (chunkAny.is_paused === true) {
+              console.log('[FOUND] is_paused=true in chunk!')
+            }
+            
+            if (chunk.event === RunEvent.RunPaused) {
+              console.log('[DEBUG] RunPaused event received:', JSON.stringify(chunk))
+            }
             if (
               chunk.event === RunEvent.RunStarted ||
               chunk.event === RunEvent.TeamRunStarted ||
@@ -207,6 +261,48 @@ const useAIChatStreamHandler = () => {
               chunk.event === RunEvent.ToolCallCompleted ||
               chunk.event === RunEvent.TeamToolCallCompleted
             ) {
+              const toolName = chunk.tool?.tool_name || chunk.tools?.[0]?.tool_name
+              console.log('[TOOL] Tool call:', toolName, 'args:', chunk.tool?.tool_args)
+              
+              // Check if this tool requires user input (domain missing)
+              if (toolName && USER_INPUT_REQUIRED_TOOLS[toolName]) {
+                const toolArgs = chunk.tool?.tool_args || chunk.tools?.[0]?.tool_args || {}
+                const fields = USER_INPUT_REQUIRED_TOOLS[toolName]
+                const missingFields = fields.filter((f) => !toolArgs[f.name] || toolArgs[f.name] === '')
+                
+                if (missingFields.length > 0) {
+                  console.log('[HITL] Pausing for user input on tool:', toolName, 'missing:', missingFields.map(f => f.name))
+                  setPendingUserInputFields(
+                    missingFields.map((f) => ({
+                      name: f.name,
+                      field_type: f.field_type,
+                      description: f.description,
+                      value: toolArgs[f.name] || null
+                    }))
+                  )
+                  setPausedToolName(toolName)
+                  setPausedRunId(chunk.run_id ?? null)
+                  setPausedSessionId(chunk.session_id ?? null)
+                  setIsPausedForInput(true)
+                  setIsStreaming(false)
+                }
+              }
+              
+              // Check if this tool requires user confirmation
+              if (toolName && CONFIRMATION_REQUIRED_TOOLS[toolName]) {
+                const toolArgs = chunk.tool?.tool_args || chunk.tools?.[0]?.tool_args || {}
+                const toolCallId = chunk.tool?.tool_call_id || chunk.tools?.[0]?.tool_call_id || ''
+                
+                console.log('[HITL] Pausing for confirmation on tool:', toolName)
+                setPendingConfirmationToolName(toolName)
+                setPendingConfirmationToolArgs(toolArgs as Record<string, string>)
+                setPendingConfirmationToolCallId(toolCallId)
+                setPausedRunId(chunk.run_id ?? null)
+                setPausedSessionId(chunk.session_id ?? null)
+                setIsPausedForConfirmation(true)
+                setIsStreaming(false)
+              }
+              
               setMessages((prevMessages) => {
                 const newMessages = [...prevMessages]
                 const lastMessage = newMessages[newMessages.length - 1]
@@ -222,6 +318,7 @@ const useAIChatStreamHandler = () => {
               chunk.event === RunEvent.RunContent ||
               chunk.event === RunEvent.TeamRunContent
             ) {
+              console.log('[DEBUG] RunContent event:', chunk.event)
               setMessages((prevMessages) => {
                 const newMessages = [...prevMessages]
                 const lastMessage = newMessages[newMessages.length - 1]
@@ -348,6 +445,93 @@ const useAIChatStreamHandler = () => {
               chunk.event === RunEvent.TeamMemoryUpdateCompleted
             ) {
               // No-op for now; could surface a lightweight UI indicator in the future
+            } else if (
+              chunk.event === RunEvent.RunPaused
+            ) {
+              console.log('[DEBUG] RunPaused FULL chunk:', JSON.stringify(chunk, null, 2))
+              const chunkAny = chunk as unknown as Record<string, unknown>
+
+              // Log all top-level keys to see what fields are present
+              console.log('[DEBUG] RunPaused keys:', Object.keys(chunkAny))
+
+              // Try every possible location for requirements
+              const rawReqs =
+                chunkAny.active_requirements ??
+                (chunkAny.event_data as Record<string, unknown>)?.active_requirements ??
+                chunkAny.tools_requiring_user_input ??
+                (chunkAny.event_data as Record<string, unknown>)?.tools_requiring_user_input ??
+                chunkAny.requirements ??
+                (chunkAny.event_data as Record<string, unknown>)?.requirements ??
+                chunkAny.tools ??
+                []
+
+              const activeRequirements: ActiveRequirement[] = Array.isArray(rawReqs)
+                ? rawReqs as ActiveRequirement[]
+                : []
+
+              console.log('[DEBUG] Raw requirements (count):', activeRequirements.length)
+              activeRequirements.forEach((r, i) => {
+                console.log(`[DEBUG] req[${i}] keys:`, Object.keys(r))
+                console.log(`[DEBUG] req[${i}] needs_user_input:`, r.needs_user_input)
+                console.log(`[DEBUG] req[${i}] needs_confirmation:`, r.needs_confirmation)
+                console.log(`[DEBUG] req[${i}] tool_execution:`, r.tool_execution)
+                console.log(`[DEBUG] req[${i}] user_input_schema:`, r.user_input_schema)
+              })
+
+              const confirmationReq = activeRequirements.find(
+                (r) => r.needs_confirmation || r.tool_execution?.requires_confirmation
+              )
+
+              const userInputReq = activeRequirements.find(
+                (r) => r.needs_user_input || r.tool_execution?.requires_user_input
+              )
+
+              const toolName =
+                userInputReq?.tool_execution?.tool_name ??
+                confirmationReq?.tool_execution?.tool_name ??
+                (chunkAny.tool_name as string) ??
+                (chunkAny.event_data as { tool_name?: string })?.tool_name ??
+                (chunkAny.tool as { tool_name?: string })?.tool_name ??
+                (chunkAny.tools as Array<{ tool_name?: string }>)?.[0]?.tool_name ??
+                'Unknown Tool'
+
+              setPausedRunId(chunk.run_id ?? null)
+              setPausedSessionId(chunk.session_id ?? null)
+              setIsStreaming(false)
+
+              if (confirmationReq) {
+                const toolExec = confirmationReq.tool_execution || (chunkAny.tools as Array<Record<string, unknown>>)?.[0]
+                console.log('[HITL] Paused for CONFIRMATION on tool:', toolName)
+                setPendingConfirmationToolName(
+                  (toolExec?.tool_name as string) ?? toolName
+                )
+                setPendingConfirmationToolArgs(
+                  (toolExec?.tool_args as Record<string, string>) ?? {}
+                )
+                setPendingConfirmationToolCallId(
+                  (toolExec?.tool_call_id as string) ?? null
+                )
+                setPausedToolName(toolName)
+                setIsPausedForConfirmation(true)
+              } else if (userInputReq?.user_input_schema || userInputReq?.tool_execution?.user_input_schema) {
+                const schema = userInputReq.user_input_schema || userInputReq.tool_execution?.user_input_schema
+                console.log('[HITL] Paused for USER INPUT on tool:', toolName)
+                setPendingUserInputFields(schema as any)
+                setPausedToolName(toolName)
+                setIsPausedForInput(true)
+              } else if (activeRequirements.length > 0) {
+                console.log('[HITL] Paused with requirements but no schema/confirmation — using default input field')
+                setPendingUserInputFields([{
+                  name: 'input',
+                  field_type: 'string',
+                  description: 'Additional input required',
+                  value: null
+                }])
+                setPausedToolName(toolName)
+                setIsPausedForInput(true)
+              } else {
+                console.log('[HITL] RunPaused received but NO active_requirements found at all')
+              }
             } else if (
               chunk.event === RunEvent.RunCompleted ||
               chunk.event === RunEvent.TeamRunCompleted
