@@ -28,6 +28,10 @@ type OrderedListProps = DetailedHTMLProps<
   OlHTMLAttributes<HTMLOListElement>,
   HTMLOListElement
 >
+type ListItemProps = DetailedHTMLProps<
+  HTMLAttributes<HTMLLIElement>,
+  HTMLLIElement
+>
 
 type EmphasizedTextProps = DefaultHTMLElement
 type ItalicTextProps = DefaultHTMLElement
@@ -47,7 +51,12 @@ type HorizontalRuleProps = DetailedHTMLProps<
   HTMLHRElement
 >
 
-type PreparedTextProps = DetailedHTMLProps<
+type CodeTextProps = DetailedHTMLProps<
+  HTMLAttributes<HTMLElement>,
+  HTMLElement
+>
+
+type PreformattedTextProps = DetailedHTMLProps<
   HTMLAttributes<HTMLPreElement>,
   HTMLPreElement
 >
@@ -111,6 +120,7 @@ export type {
   MarkdownRendererProps,
   UnorderedListProps,
   OrderedListProps,
+  ListItemProps,
   EmphasizedTextProps,
   ItalicTextProps,
   StrongTextProps,
@@ -118,7 +128,8 @@ export type {
   UnderlinedTextProps,
   DeletedTextProps,
   HorizontalRuleProps,
-  PreparedTextProps,
+  CodeTextProps,
+  PreformattedTextProps,
   BlockquoteProps,
   AnchorLinkProps,
   HeadingProps,

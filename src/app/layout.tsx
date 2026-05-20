@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { DM_Mono, Geist } from 'next/font/google'
+import { DM_Mono, Geist, Vazirmatn } from 'next/font/google'
 import { NuqsAdapter } from 'nuqs/adapters/next/app'
 import { Toaster } from '@/components/ui/sonner'
 import './globals.css'
@@ -15,6 +15,12 @@ const dmMono = DM_Mono({
   weight: '400'
 })
 
+const vazirmatn = Vazirmatn({
+  variable: '--font-vazirmatn',
+  subsets: ['arabic', 'latin'],
+  weight: ['400', '500', '700']
+})
+
 export const metadata: Metadata = {
   title: 'Agent UI',
   description:
@@ -28,7 +34,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${geistSans.variable} ${dmMono.variable} antialiased`}>
+      <body
+        className={`${geistSans.variable} ${dmMono.variable} ${vazirmatn.variable} antialiased`}
+      >
         <NuqsAdapter>{children}</NuqsAdapter>
         <Toaster />
       </body>

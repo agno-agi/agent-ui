@@ -11,6 +11,34 @@
   body {
     @apply bg-background/80 text-secondary;
   }
+
+  [dir='rtl'] {
+    font-family: var(--font-vazirmatn), var(--font-geist-sans), sans-serif;
+  }
+}
+
+@layer utilities {
+  .font-inherit {
+    font-family: inherit !important;
+  }
+
+  .font-vazirmatn {
+    font-family: var(--font-vazirmatn), var(--font-geist-sans), sans-serif !important;
+  }
+
+  .rtl-logical-indent {
+    padding-inline-start: 2.5rem;
+  }
+
+  .bidi-plaintext {
+    unicode-bidi: plaintext;
+  }
+
+  .ltr-content {
+    direction: ltr;
+    text-align: left;
+    unicode-bidi: isolate;
+  }
 }
 
 ::-webkit-scrollbar {

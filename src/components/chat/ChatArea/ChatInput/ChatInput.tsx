@@ -38,6 +38,7 @@ const ChatInput = () => {
       <TextArea
         placeholder={'Ask anything'}
         value={inputMessage}
+        dir="auto"
         onChange={(e) => setInputMessage(e.target.value)}
         onKeyDown={(e) => {
           if (
