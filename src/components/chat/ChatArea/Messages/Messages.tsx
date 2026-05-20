@@ -10,7 +10,7 @@ import {
   ReferenceData,
   Reference
 } from '@/types/os'
-import React, { type FC } from 'react'
+import React, { type FC, useState } from 'react'
 
 import Icon from '@/components/ui/icon'
 import ChatBlankState from './ChatBlankState'
@@ -145,11 +145,48 @@ const Reasonings: FC<ReasoningProps> = ({ reasoning }) => (
   </div>
 )
 
-const ToolComponent = memo(({ tools }: ToolCallProps) => (
-  <div className="cursor-default rounded-full bg-accent px-2 py-1.5 text-xs">
-    <p className="font-dmmono uppercase text-primary/80">{tools.tool_name}</p>
-  </div>
-))
+const ToolComponent = memo(({ tools }: ToolCallProps) => {
+  const [expanded, setExpanded] = useState(false);
+  return (
+    <div className="cursor-default rounded-lg bg-accent px-2 py-1.5 text-xs flex flex-col gap-1 min-w-[120px]">
+      <button
+        className="flex items-center gap-2 w-full text-left focus:outline-none"
+        onClick={() => setExpanded((prev) => !prev)}
+        aria-expanded={expanded}
+        title={expanded ? 'Hide tool call details' : 'Show tool call details'}
+      >
+        <span className="font-dmmono uppercase text-primary/80">{tools.tool_name}</span>
+        <span className="ml-auto">
+          {expanded ? (
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 10L8 6L12 10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+          ) : (
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 6L8 10L12 6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+          )}
+        </span>
+      </button>
+      {expanded && tools.tool_args && Object.keys(tools.tool_args).length > 0 && (
+        <div className="mt-2 bg-background-secondary/60 rounded p-2 text-xs text-primary/70 border border-accent/30">
+          <span className="font-semibold">Params:</span>
+          <ul className="list-disc ml-4 mt-1">
+            {Object.entries(tools.tool_args).map(([key, value]) => (
+              <li key={key} className="mb-1">
+                <span className="font-mono text-primary/90">{key}</span>
+                {': '}
+                {typeof value === 'object' && value !== null ? (
+                  <pre className="bg-background-secondary/80 rounded p-1 mt-1 text-[11px] overflow-x-auto border border-accent/20">
+                    <code>{JSON.stringify(value, null, 2)}</code>
+                  </pre>
+                ) : (
+                  <span className="text-primary/80">{String(value)}</span>
+                )}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+    </div>
+  );
+});
 ToolComponent.displayName = 'ToolComponent'
 const Messages = ({ messages }: MessageListProps) => {
   if (messages.length === 0) {
