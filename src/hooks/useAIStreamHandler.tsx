@@ -137,7 +137,6 @@ const useAIChatStreamHandler = () => {
         created_at: Math.floor(Date.now() / 1000) + 1
       })
 
-      let lastContent = ''
       let newSessionId = sessionId
       try {
         const endpointUrl = constructEndpointUrl(selectedEndpoint)
@@ -230,9 +229,7 @@ const useAIChatStreamHandler = () => {
                   lastMessage.role === 'agent' &&
                   typeof chunk.content === 'string'
                 ) {
-                  const uniqueContent = chunk.content.replace(lastContent, '')
-                  lastMessage.content += uniqueContent
-                  lastContent = chunk.content
+                  lastMessage.content += chunk.content
 
                   // Handle tool calls streaming
                   lastMessage.tool_calls = processChunkToolCalls(
@@ -273,7 +270,6 @@ const useAIChatStreamHandler = () => {
                   const jsonBlock = getJsonMarkdown(chunk?.content)
 
                   lastMessage.content += jsonBlock
-                  lastContent = jsonBlock
                 } else if (
                   chunk.response_audio?.transcript &&
                   typeof chunk.response_audio?.transcript === 'string'
