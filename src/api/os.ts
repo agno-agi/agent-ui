@@ -1,8 +1,6 @@
 import { toast } from 'sonner'
-
 import { APIRoutes } from './routes'
-
-import { AgentDetails, Sessions, TeamDetails } from '@/types/os'
+import { AgentDetails, Sessions, TeamDetails, ToolExecution } from '@/types/os'
 
 // Helper function to create headers with optional auth token
 const createHeaders = (authToken?: string): HeadersInit => {
@@ -165,4 +163,48 @@ export const deleteTeamSessionAPI = async (
     throw new Error(`Failed to delete team session: ${response.statusText}`)
   }
   return response
+}
+
+export const continueAgentRunAPI = async (
+  base: string,
+  agentId: string,
+  runId: string,
+  tools: ToolExecution[],
+  sessionId: string,
+  authToken?: string
+): Promise<Response> => {
+  const formData = new FormData()
+  formData.append('tools', JSON.stringify(tools))
+  formData.append('session_id', sessionId)
+  formData.append('stream', 'true')
+
+  return fetch(APIRoutes.AgentContinueRun(base, agentId, runId), {
+    method: 'POST',
+    headers: {
+      ...(authToken ? { Authorization: `Bearer ${authToken}` } : {})
+    },
+    body: formData
+  })
+}
+
+export const continueTeamRunAPI = async (
+  base: string,
+  teamId: string,
+  runId: string,
+  tools: ToolExecution[],
+  sessionId: string,
+  authToken?: string
+): Promise<Response> => {
+  const formData = new FormData()
+  formData.append('tools', JSON.stringify(tools))
+  formData.append('session_id', sessionId)
+  formData.append('stream', 'true')
+
+  return fetch(APIRoutes.TeamContinueRun(base, teamId, runId), {
+    method: 'POST',
+    headers: {
+      ...(authToken ? { Authorization: `Bearer ${authToken}` } : {})
+    },
+    body: formData
+  })
 }

@@ -163,6 +163,7 @@ export interface RunResponse {
   session_id?: string
   tool?: ToolCall
   tools?: Array<ToolCall>
+  requirements?: ActiveRequirement[]
   created_at: number
   extra_data?: AgentExtraData
   images?: ImageData[]
@@ -276,6 +277,33 @@ export interface Pagination {
   limit: number
   total_pages: number
   total_count: number
+}
+
+export interface UserInputField {
+  name: string
+  field_type: string
+  description: string | null
+  value: string | null
+}
+
+export interface ToolExecution {
+  tool_call_id: string
+  tool_name: string
+  tool_args: Record<string, unknown>
+  result?: string
+  confirmed?: boolean
+  confirmation_note?: string
+  answered?: boolean
+  requires_confirmation?: boolean
+  requires_user_input?: boolean
+  user_input_schema?: UserInputField[]
+}
+
+export interface ActiveRequirement {
+  needs_user_input: boolean
+  needs_confirmation: boolean
+  user_input_schema?: UserInputField[]
+  tool_execution?: ToolExecution
 }
 
 export interface Sessions extends SessionEntry {
