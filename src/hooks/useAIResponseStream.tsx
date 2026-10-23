@@ -123,22 +123,22 @@ function parseBuffer(
     // If we found a complete JSON object, try to parse it.
     if (jsonEndIndex !== -1) {
       const jsonString = buffer.slice(jsonStartIndex, jsonEndIndex + 1)
+      let parsed
 
       try {
-        const parsed = JSON.parse(jsonString)
-
-        // Check if it's in the legacy format - use as is
-        if (isLegacyFormat(parsed)) {
-          processChunk(parsed, onChunk)
-        } else {
-          // New format - convert to legacy format for compatibility
-          const legacyChunk = convertNewFormatToLegacy(parsed)
-          processChunk(legacyChunk, onChunk)
-        }
+        parsed = JSON.parse(jsonString)
       } catch {
         // Move past the starting brace to avoid re-parsing the same invalid JSON.
         jsonStartIndex = buffer.indexOf('{', jsonStartIndex + 1)
         continue
+      }
+
+      // Keep consumer errors outside JSON recovery so streamResponse reports them.
+      if (isLegacyFormat(parsed)) {
+        processChunk(parsed, onChunk)
+      } else {
+        const legacyChunk = convertNewFormatToLegacy(parsed)
+        processChunk(legacyChunk, onChunk)
       }
 
       // Move currentIndex past the parsed JSON and trim any leading whitespace.
