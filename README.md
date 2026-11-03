@@ -87,14 +87,19 @@ If your AgentOS instance requires authentication, you can configure it in two wa
 
 #### Option 1: Environment Variable (Recommended)
 
-Set the `OS_SECURITY_KEY` environment variable:
+Set `NEXT_PUBLIC_OS_SECURITY_KEY` in the Agent UI environment to the same token
+configured as `OS_SECURITY_KEY` on your AgentOS server:
 
 ```bash
-# In your .env.local file or shell environment
+# Agent UI: .env.local in the agent-ui directory, or its shell environment
 NEXT_PUBLIC_OS_SECURITY_KEY=your_auth_token_here
 ```
 
-> **Note**: This uses the same environment variable as AgentOS, so if you're running both on the same machine, you only need to set it once. The token will be automatically loaded when the application starts.
+> **Note**: The two applications use different variable names. Setting only
+> `OS_SECURITY_KEY` does not configure Agent UI, even when both run on the same
+> machine. Agent UI reads `NEXT_PUBLIC_OS_SECURITY_KEY` and uses its value as the
+> Bearer token for requests to AgentOS. You can also enter the token through the
+> UI as described below.
 
 #### Option 2: UI Configuration
 
